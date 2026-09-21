@@ -1,11 +1,7 @@
 const express = require("express");
-const multer = require("multer");
-const XLSX = require("xlsx");
 const { poolUtama } = require("../db/pool");
 
 const router = express.Router();
-const upload = multer({ storage: multer.memoryStorage() });
-
 const TABLE = "so_all_wh_snapshot_db";
 
 router.use((req, res, next) => {
@@ -61,31 +57,22 @@ router.get("/data", async (req, res) => {
   }
 });
 
-// POST /api/snapshot/import  (multipart: file_excel, warehouse)
-// Parses the workbook server-side (SheetJS) instead of in the browser, then
-// applies the same rules as the Laravel importExcel(): validate one sample
-// item against Master Size for that warehouse, wipe old rows, batch insert.
-router.post("/import", upload.single("file_excel"), async (req, res) => {
+// POST /api/snapshot/import  { warehouse, sample_item, excel_data }
+// Excel-nya udah dibongkar di browser (excel.min.js / ExcelJS), sama persis
+// kayak versi Laravel: kita cuma nerima JSON array baris-nya di sini.
+router.post("/import", async (req, res) => {
   const warehouse = (req.body.warehouse || "").trim().toUpperCase();
+  const sampleItem = (req.body.sample_item || "").trim().toUpperCase();
+  const excelData = req.body.excel_data;
 
   if (!warehouse) {
     return res.status(400).json({ success: false, message: "Target gudang wajib diisi bro!" });
   }
-  if (!req.file) {
-    return res.status(400).json({ success: false, message: "Data Excel dari browser kosong / korup!" });
+  if (!Array.isArray(excelData) || excelData.length === 0) {
+    return res.status(400).json({ success: false, message: "Data JSON dari browser kosong / korup!" });
   }
 
   try {
-    const workbook = XLSX.read(req.file.buffer, { type: "buffer" });
-    const sheet = workbook.Sheets[workbook.SheetNames[0]];
-    const sheetRows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: "" });
-
-    if (sheetRows.length <= 1) {
-      return res.status(400).json({ success: false, message: "Struktur isi berkas Excel kosong bro!" });
-    }
-
-    const sampleItem = sheetRows[1] && sheetRows[1][0] ? String(sheetRows[1][0]).trim().toUpperCase() : "";
-
     // Proteksi silang: item sampel harus terdaftar di Master Size untuk gudang ini.
     if (sampleItem) {
       const [existsRows] = await poolUtama.query(
@@ -117,8 +104,9 @@ router.post("/import", upload.single("file_excel"), async (req, res) => {
         batch = [];
       };
 
-      for (let key = 1; key < sheetRows.length; key++) {
-        const row = sheetRows[key];
+      for (let key = 0; key < excelData.length; key++) {
+        if (key === 0) continue; // baris pertama header
+        const row = excelData[key] || [];
         const item = String(row[0] ?? "").trim();
         if (!item) continue;
 

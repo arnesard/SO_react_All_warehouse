@@ -3,6 +3,12 @@ import StatCard from "../../../components/StatCard";
 import SectionCard from "../../../components/SectionCard";
 import DataTable from "../../../components/DataTable";
 import StatusBadge from "../../../components/StatusBadge";
+import {
+  SCAN_ACTIVITY,
+  PROGRESS_GEDUNG_A,
+  PROGRESS_GEDUNG_B,
+  PATTERN_SUMMARY,
+} from "../data";
 
 function ProgressCell(row) {
   return (

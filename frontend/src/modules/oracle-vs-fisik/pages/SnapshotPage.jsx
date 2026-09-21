@@ -78,16 +78,41 @@ function SnapshotPage() {
     setUploading(true);
     setUploadMsg(null);
     try {
-      const fd = new FormData();
-      fd.append("warehouse", uploadWh);
-      fd.append("file_excel", file);
+      // Bongkar file Excel di browser pakai ExcelJS (dari public/excel.min.js),
+      // sama persis kayak versi Laravel — backend cuma nerima JSON hasil parse.
+      const buffer = await file.arrayBuffer();
+      const workbook = new window.ExcelJS.Workbook();
+      await workbook.xlsx.load(buffer);
+      const worksheet = workbook.worksheets[0];
 
-      const resRaw = await fetch(
-        `${import.meta.env.VITE_API_URL || "http://localhost:8010"}/api/snapshot/import`,
-        { method: "POST", body: fd },
-      );
-      const res = await resRaw.json();
-      if (!resRaw.ok || !res.success) {
+      const sheetRows = [];
+      worksheet.eachRow({ includeEmpty: false }, (row) => {
+        const rowData = [];
+        row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+          let val = cell.value;
+          if (val && typeof val === "object" && val.result !== undefined) {
+            val = val.result;
+          }
+          rowData[colNumber - 1] = val;
+        });
+        sheetRows.push(rowData);
+      });
+
+      if (sheetRows.length <= 1) {
+        setUploadMsg({ type: "error", text: "Struktur isi berkas Excel kosong bro!" });
+        setUploading(false);
+        return;
+      }
+
+      const sampleItem = sheetRows[1] && sheetRows[1][0] ? String(sheetRows[1][0]).trim() : "";
+
+      const res = await api.post("/api/snapshot/import", {
+        warehouse: uploadWh,
+        excel_data: sheetRows,
+        sample_item: sampleItem,
+      });
+
+      if (!res.success) {
         throw new Error(res.message || "Gagal memproses berkas server.");
       }
 

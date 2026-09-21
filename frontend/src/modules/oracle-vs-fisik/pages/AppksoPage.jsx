@@ -8,7 +8,11 @@ import { APPKSO_PATTERN, APPKSO_OPERATOR, APPKSO_DETAIL } from "../data";
 function AppksoPage() {
   const patternCols = [
     { key: "no", label: "No.", render: (_, i) => i + 1 },
-    { key: "pattern", label: "Pattern Size", render: (r) => <span className="cell-strong">{r.pattern}</span> },
+    {
+      key: "pattern",
+      label: "Pattern Size",
+      render: (r) => <span className="cell-strong">{r.pattern}</span>,
+    },
     { key: "total_sku", label: "Total SKU", align: "right" },
     { key: "total_qty", label: "Total QTY", align: "right" },
   ];
@@ -24,16 +28,29 @@ function AppksoPage() {
     { key: "no", label: "No.", render: (_, i) => i + 1 },
     { key: "warehouse", label: "Warehouse" },
     { key: "tanggal", label: "Tanggal" },
-    { key: "opr", label: "Opr", render: (r) => <span className="cell-code">{r.opr}</span> },
+    {
+      key: "opr",
+      label: "Opr",
+      render: (r) => <span className="cell-code">{r.opr}</span>,
+    },
     { key: "operator", label: "Operator" },
     { key: "no_kso", label: "No KSO" },
-    { key: "item", label: "Item", render: (r) => <span className="cell-code">{r.item}</span> },
+    {
+      key: "item",
+      label: "Item",
+      render: (r) => <span className="cell-code">{r.item}</span>,
+    },
     { key: "desc", label: "Deskripsi" },
     { key: "qty", label: "Qty", align: "right" },
     {
       key: "verifikasi",
       label: "Verifikasi",
-      render: (r) => (r.verifikasi === "Sudah" ? <StatusBadge tone="ok">SUDAH</StatusBadge> : <StatusBadge tone="warn">BELUM</StatusBadge>),
+      render: (r) =>
+        r.verifikasi === "Sudah" ? (
+          <StatusBadge tone="ok">SUDAH</StatusBadge>
+        ) : (
+          <StatusBadge tone="warn">BELUM</StatusBadge>
+        ),
     },
     { key: "tgl_verifikasi", label: "Tgl Verifikasi" },
   ];
@@ -41,9 +58,24 @@ function AppksoPage() {
   return (
     <div>
       <div className="stat-grid">
-        <StatCard icon={Layers} label="Total Pattern Ter-scan" value={APPKSO_PATTERN.length} tone="accent" />
-        <StatCard icon={Users} label="Operator Aktif" value={APPKSO_OPERATOR.length} tone="cyan" />
-        <StatCard icon={ScanEye} label="Menunggu Verifikasi" value={APPKSO_DETAIL.filter((r) => r.verifikasi === "Belum").length} tone="warn" />
+        <StatCard
+          icon={Layers}
+          label="Total Pattern Ter-scan"
+          value={APPKSO_PATTERN.length}
+          tone="accent"
+        />
+        <StatCard
+          icon={Users}
+          label="Operator Aktif"
+          value={APPKSO_OPERATOR.length}
+          tone="cyan"
+        />
+        <StatCard
+          icon={ScanEye}
+          label="Menunggu Verifikasi"
+          value={APPKSO_DETAIL.filter((r) => r.verifikasi === "Belum").length}
+          tone="warn"
+        />
       </div>
 
       <div className="grid-2" style={{ marginBottom: 16 }}>

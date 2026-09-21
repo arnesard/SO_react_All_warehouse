@@ -1,7 +1,5 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import MainLayout from "./layouts/MainLayout";
-import DashboardPage from "./modules/dashboard/DashboardPage";
-import OracleVsBarcodePage from "./modules/oracle-vs-barcode/OracleVsBarcodePage";
 import OracleVsFisikLayout from "./modules/oracle-vs-fisik/OracleVsFisikLayout";
 import FisikDashboardPage from "./modules/oracle-vs-fisik/pages/FisikDashboardPage";
 import MasterSizePage from "./modules/oracle-vs-fisik/pages/MasterSizePage";
@@ -17,16 +15,15 @@ function App() {
   return (
     <Routes>
       <Route element={<MainLayout />}>
-        <Route path="/" element={<DashboardPage />} />
-        <Route path="/oracle-vs-barcode" element={<OracleVsBarcodePage />} />
-
-        <Route path="/oracle-vs-fisik" element={<OracleVsFisikLayout />}>
-          <Route index element={<Navigate to="dashboard" replace />} />
-          <Route path="dashboard" element={<FisikDashboardPage />} />
+        <Route element={<OracleVsFisikLayout />}>
+          <Route index element={<FisikDashboardPage />} />
           <Route path="master-size" element={<MasterSizePage />} />
           <Route path="barcode-monstock" element={<BarcodeMonstockPage />} />
           <Route path="tag-stock" element={<TagStockPage />} />
-          <Route path="tag-stock-nonbarcode" element={<TagStockNonBarcodePage />} />
+          <Route
+            path="tag-stock-nonbarcode"
+            element={<TagStockNonBarcodePage />}
+          />
           <Route path="appkso" element={<AppksoPage />} />
           <Route path="snapshot" element={<SnapshotPage />} />
           <Route path="progress-so" element={<ProgressSoPage />} />

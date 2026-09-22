@@ -13,7 +13,7 @@ import {
 
 const NAV_ITEMS = [
   { to: "/master-size", label: "Master Size", icon: Ruler },
-  { to: "/pic", label: "PIC", icon: Users },
+  { to: "/pic", label: "Master PIC", icon: Users },
   { to: "/barcode-monstock", label: "Barcode MonStock", icon: ScanBarcode },
   { to: "/tag-stock", label: "Tag Stock", icon: ClipboardList },
   {
@@ -32,14 +32,17 @@ function MainLayout() {
     <>
       <header className="app-header">
         <div className="app-brand">
-          <img
-            src="/images/logo-gt.png"
-            alt="Logo GT"
-            className="app-brand-logo"
-          />
+          <div className="app-brand-logo-wrap">
+            <img
+              src="/images/logo-gt.png"
+              alt="Logo GT"
+              className="app-brand-logo"
+            />
+          </div>
 
           <div className="app-brand-text">
             <span className="app-brand-title">PT GAJAH TUNGGAL TBK</span>
+            <span className="app-brand-sep">||</span>
           </div>
         </div>
 

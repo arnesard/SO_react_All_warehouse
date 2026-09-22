@@ -6,28 +6,28 @@
 :root {
   color-scheme: dark;
 
-  /* --- base surfaces (biru gelap, bukan hitam polos) --- */
-  --bg-app: #0a1220;
-  --bg-app-2: #0d1830;
-  --surface: #101b30;
-  --surface-2: #14213a;
-  --surface-3: #182746;
-  --surface-hover: #1c2d50;
-  --border: #223252;
-  --border-soft: #1a2743;
+  /* --- base surfaces (charcoal gelap, bukan biru) --- */
+  --bg-app: #141414;
+  --bg-app-2: #191919;
+  --surface: #1e1e1e;
+  --surface-2: #242424;
+  --surface-3: #2a2a2a;
+  --surface-hover: #303030;
+  --border: #333333;
+  --border-soft: #2a2a2a;
 
   /* --- teks --- */
-  --text-primary: #eef2fb;
-  --text-secondary: #a9b7d6;
-  --text-muted: #71809f;
+  --text-primary: #f5f5f5;
+  --text-secondary: #a3a3a3;
+  --text-muted: #737373;
 
-  /* --- accent: biru baja + cyan buat scan/barcode --- */
-  --accent: #4c8dff;
-  --accent-strong: #2f6fe0;
-  --accent-soft: rgba(76, 141, 255, 0.14);
-  --accent-border: rgba(76, 141, 255, 0.35);
-  --cyan: #22d3ee;
-  --cyan-soft: rgba(34, 211, 238, 0.14);
+  /* --- accent: neon lime green --- */
+  --accent: #ccff33;
+  --accent-strong: #a3d426;
+  --accent-soft: rgba(204, 255, 51, 0.14);
+  --accent-border: rgba(204, 255, 51, 0.35);
+  --cyan: #8be04c;
+  --cyan-soft: rgba(139, 224, 76, 0.14);
 
   /* --- status --- */
   --ok: #34c77b;
@@ -66,12 +66,12 @@ body {
   background:
     radial-gradient(
       1100px 520px at 12% -8%,
-      rgba(76, 141, 255, 0.1),
+      rgba(204, 255, 51, 0.08),
       transparent 60%
     ),
     radial-gradient(
       900px 480px at 100% 0%,
-      rgba(34, 211, 238, 0.06),
+      rgba(139, 224, 76, 0.05),
       transparent 55%
     ),
     var(--bg-app);
@@ -133,11 +133,10 @@ code,
   padding: 0 22px;
   height: 62px;
   flex-shrink: 0;
-  background: rgba(13, 22, 42, 0.86);
+  background: rgba(20, 20, 20, 0.86);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--border-soft);
 }
-
 .app-brand {
   display: flex;
   align-items: center;
@@ -157,15 +156,24 @@ code,
 
 .app-brand-text {
   display: flex;
-  flex-direction: column;
-  line-height: 1.15;
+  align-items: center;
+  gap: 10px;
+}
+
+.app-brand-sep {
+  color: rgb(191, 255, 0);
+  font-weight: 300;
+  font-size: 16px;
 }
 
 .app-brand-title {
   font-size: 13.5px;
   font-weight: 700;
   letter-spacing: 0.2px;
-  color: var(--text-primary);
+  background: linear-gradient(90deg, var(--accent));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .app-brand-sub {
@@ -211,7 +219,7 @@ code,
 }
 
 .app-nav-link.is-active {
-  color: #eaf1ff;
+  color: var(--accent);
   background: var(--accent-soft);
   border-color: var(--accent-border);
 }
@@ -292,7 +300,6 @@ code,
 .app-main {
   flex: 1;
   padding: 22px 26px 40px;
-  max-width: 1480px;
   width: 100%;
   margin: 0 auto;
 }
@@ -524,12 +531,15 @@ code,
 
 .dtable-wrap {
   overflow-x: auto;
+  overflow-y: auto;
+  max-height: calc(100vh - 300px);
   border-radius: var(--radius-sm);
   border: 1px solid var(--border-soft);
 }
 
 table.dtable {
   width: 100%;
+  table-layout: fixed;
   border-collapse: collapse;
   font-size: 12.5px;
 }
@@ -549,10 +559,8 @@ table.dtable thead th {
 }
 
 table.dtable tbody td {
-  padding: 9px 12px;
-  border-bottom: 1px solid var(--border-soft);
-  color: var(--text-secondary);
-  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 table.dtable tbody tr:hover td {
@@ -683,12 +691,12 @@ table.dtable tbody tr:last-child td {
   background:
     radial-gradient(
       700px 300px at 20% 0%,
-      rgba(76, 141, 255, 0.14),
+      rgba(204, 255, 51, 0.12),
       transparent 60%
     ),
     radial-gradient(
       600px 280px at 100% 100%,
-      rgba(34, 211, 238, 0.08),
+      rgba(139, 224, 76, 0.07),
       transparent 55%
     ),
     linear-gradient(180deg, var(--surface-2), var(--surface));
@@ -918,4 +926,105 @@ table.dtable tbody tr:last-child td {
   to {
     transform: rotate(360deg);
   }
+}
+
+.btn-icon-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: 0.15s ease;
+}
+
+.btn-icon-action:hover {
+  background: var(--surface-3);
+  color: var(--text-primary);
+}
+
+.btn-icon-action.edit:hover {
+  border-color: var(--accent-border);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.btn-icon-action.delete:hover {
+  border-color: var(--danger-soft);
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.swal-theme-popup {
+  border-radius: var(--radius) !important;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-soft);
+}
+
+.swal-theme-popup .swal2-title {
+  color: var(--text-primary) !important;
+  font-size: 18px !important;
+}
+
+.swal-theme-popup .swal2-html-container {
+  color: var(--text-secondary) !important;
+}
+
+.swal-theme-popup .swal2-actions {
+  gap: 8px;
+}
+
+.btn-ctrl.danger {
+  background: linear-gradient(180deg, var(--danger), #c93f46);
+  border-color: var(--danger);
+  color: #fff;
+}
+
+.btn-ctrl.danger:hover {
+  filter: brightness(1.08);
+}
+
+/* recolor icon bawaan SweetAlert2 biar nyatu sama tema */
+.swal-theme-popup .swal2-icon.swal2-warning {
+  border-color: var(--warn) !important;
+  color: var(--warn) !important;
+}
+.swal-theme-popup .swal2-icon.swal2-error {
+  border-color: var(--danger) !important;
+}
+.swal-theme-popup .swal2-icon.swal2-error [class^="swal2-x-mark-line"] {
+  background-color: var(--danger) !important;
+}
+.swal-theme-popup .swal2-icon.swal2-success .swal2-success-ring {
+  border-color: var(--ok) !important;
+}
+.swal-theme-popup .swal2-icon.swal2-success [class^="swal2-success-line"] {
+  background-color: var(--ok) !important;
+}
+.swal-theme-popup .swal2-loader {
+  border-color: var(--accent) transparent var(--accent) transparent !important;
+}
+
+.app-brand-logo-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  background: rgb(192, 255, 3);
+  border: 1px solid var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+  flex-shrink: 0;
+}
+
+.app-brand-logo {
+  width: 26px;
+  height: 26px;
+  max-width: 26px;
+  max-height: 26px;
 }

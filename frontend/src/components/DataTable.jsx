@@ -1,15 +1,26 @@
-/**
- * columns: [{ key, label, align, render }]
- * rows: array of objects
- */
-function DataTable({ columns, rows, emptyText = "Belum ada data untuk ditampilkan." }) {
+function DataTable({
+  columns,
+  rows,
+  emptyText = "Belum ada data untuk ditampilkan.",
+}) {
   return (
     <div className="dtable-wrap">
       <table className="dtable">
+        <colgroup>
+          {columns.map((col) => (
+            <col
+              key={col.key}
+              style={col.width ? { width: col.width } : undefined}
+            />
+          ))}
+        </colgroup>
         <thead>
           <tr>
             {columns.map((col) => (
-              <th key={col.key} style={col.align ? { textAlign: col.align } : undefined}>
+              <th
+                key={col.key}
+                style={col.align ? { textAlign: col.align } : undefined}
+              >
                 {col.label}
               </th>
             ))}
@@ -26,7 +37,10 @@ function DataTable({ columns, rows, emptyText = "Belum ada data untuk ditampilka
             rows.map((row, i) => (
               <tr key={row.id ?? i}>
                 {columns.map((col) => (
-                  <td key={col.key} style={col.align ? { textAlign: col.align } : undefined}>
+                  <td
+                    key={col.key}
+                    style={col.align ? { textAlign: col.align } : undefined}
+                  >
                     {col.render ? col.render(row, i) : row[col.key]}
                   </td>
                 ))}

@@ -3,10 +3,12 @@ function SectionCard({ icon: Icon, title, actions, children, bodyStyle }) {
     <div className="surface-card">
       {(title || actions) && (
         <div className="surface-card-header">
-          <div className="surface-card-title">
-            {Icon && <Icon size={15} />}
-            {title}
-          </div>
+          {(Icon || title) && (
+            <div className="surface-card-title">
+              {Icon && <Icon size={15} />}
+              {title}
+            </div>
+          )}
           {actions && <div className="page-actions">{actions}</div>}
         </div>
       )}

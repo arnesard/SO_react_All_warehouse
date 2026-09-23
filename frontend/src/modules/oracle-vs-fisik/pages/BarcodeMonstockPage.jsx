@@ -1,12 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import {
-  Search,
-  RefreshCw,
-  ScanBarcode,
-  UploadCloud,
-  RotateCcw,
-  ShieldAlert,
-} from "lucide-react";
+import { RefreshCw, UploadCloud, RotateCcw, ShieldAlert } from "lucide-react";
 import SectionCard from "../../../components/SectionCard";
 import DataTable from "../../../components/DataTable";
 import Modal from "../../../components/Modal";
@@ -31,12 +24,13 @@ function BarcodeMonstockPage() {
   const [error, setError] = useState("");
 
   const [selectedWh, setSelectedWh] = useState("");
-  const [query, setQuery] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
 
   const [uploadWh, setUploadWh] = useState("");
   const [file, setFile] = useState(null);
   const [uploading, setUploading] = useState(false);
-  const [uploadMsg, setUploadMsg] = useState(null); // { type: 'success'|'error', text }
+  const [uploadMsg, setUploadMsg] = useState(null);
+  const [uploadErrorModal, setUploadErrorModal] = useState("");
   const fileInputRef = useRef(null);
 
   const [resetOpen, setResetOpen] = useState(false);
@@ -65,19 +59,24 @@ function BarcodeMonstockPage() {
 
   const rows = useMemo(() => {
     if (!selectedWh) return [];
-    const q = query.trim().toLowerCase();
-    return allRows.filter((r) => {
-      if ((r.warehouse || "").toUpperCase() !== selectedWh.toUpperCase())
-        return false;
-      if (!q) return true;
-      return (
-        (r.rackcode || "").toLowerCase().includes(q) ||
-        (r.item || "").toLowerCase().includes(q) ||
-        (r.description || "").toLowerCase().includes(q) ||
-        (r.loccode || "").toLowerCase().includes(q)
+    let data = allRows.filter(
+      (r) => (r.warehouse || "").toUpperCase() === selectedWh.toUpperCase(),
+    );
+
+    // Filter berdasarkan teks pencarian
+    if (searchTerm.trim()) {
+      const q = searchTerm.toLowerCase();
+      data = data.filter((r) =>
+        Object.values(r).some((val) =>
+          String(val || "")
+            .toLowerCase()
+            .includes(q),
+        ),
       );
-    });
-  }, [allRows, selectedWh, query]);
+    }
+
+    return data;
+  }, [allRows, selectedWh, searchTerm]);
 
   async function handleUpload(e) {
     e.preventDefault();
@@ -117,7 +116,8 @@ function BarcodeMonstockPage() {
       if (fileInputRef.current) fileInputRef.current.value = "";
       await loadData();
     } catch (err) {
-      setUploadMsg({ type: "error", text: err.message });
+      setUploadErrorModal(err.message);
+      setUploadMsg(null);
     } finally {
       setUploading(false);
     }
@@ -151,16 +151,18 @@ function BarcodeMonstockPage() {
   }
 
   const columns = [
-    { key: "no", label: "No.", render: (_, i) => i + 1 },
-    { key: "warehouse", label: "Warehouse" },
+    { key: "no", label: "No.", width: "52px", render: (_, i) => i + 1 },
+    { key: "warehouse", label: "Warehouse", width: "100px" },
     {
       key: "rackcode",
       label: "Rack Code",
+      width: "100px",
       render: (r) => <span className="cell-code">{r.rackcode}</span>,
     },
     {
       key: "item",
       label: "Item Code",
+      width: "120px",
       render: (r) => <span className="cell-code">{r.item}</span>,
     },
     {
@@ -174,34 +176,53 @@ function BarcodeMonstockPage() {
       key: "jml",
       label: "Jml (Pcs)",
       align: "right",
+      width: "100px",
       render: (r) => Number(r.jml || 0).toLocaleString("id-ID"),
     },
     {
       key: "oem",
       label: "OEM (Pcs)",
       align: "right",
+      width: "100px",
       render: (r) => Number(r.oem || 0).toLocaleString("id-ID"),
     },
-    { key: "loccode", label: "Location Code" },
+    { key: "loccode", label: "Location Code", width: "130px" },
   ];
 
   return (
-    <div>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        height: "calc(100vh - 100px)",
+        overflow: "hidden",
+      }}
+    >
       {error && (
         <div className="form-error" style={{ marginBottom: 12 }}>
           {error}
         </div>
       )}
 
+      {/* Bagian Kiri (Form Upload) & Kanan (Tabel) berdampingan */}
       <div
         style={{
           display: "flex",
           gap: 16,
           alignItems: "stretch",
-          flexWrap: "wrap",
+          flex: 1,
+          minHeight: 0,
         }}
       >
-        <div style={{ flex: "0 0 320px", minWidth: 280, display: "flex" }}>
+        {/* Sisi Kiri: Upload Card */}
+        <div
+          style={{
+            flex: "0 0 320px",
+            minWidth: 280,
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
           <SectionCard
             icon={UploadCloud}
             title="Upload Barcode Monitoring Stock"
@@ -219,7 +240,13 @@ function BarcodeMonstockPage() {
             </p>
             <form
               onSubmit={handleUpload}
-              style={{ display: "flex", flexDirection: "column", gap: 10 }}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 28, // <-- Ditingkatkan dari 10 jadi 18 biar agak renggang dan turun ke bawah
+                paddingTop: 8,
+                paddingBottom: 8,
+              }}
             >
               <div className="field-group">
                 <label>Target Warehouse</label>
@@ -256,6 +283,13 @@ function BarcodeMonstockPage() {
                 className="btn-ctrl primary"
                 type="submit"
                 disabled={uploading}
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  width: "100%", // Supaya tombolnya memenuhi lebar card di sebelah kiri
+                  gap: 8,
+                }}
               >
                 <UploadCloud size={14} />{" "}
                 {uploading ? "Memproses..." : "Proses Import Data"}
@@ -277,14 +311,21 @@ function BarcodeMonstockPage() {
 
             <div
               style={{
-                marginTop: 16,
+                marginTop: "auto",
                 paddingTop: 12,
                 borderTop: "1px solid var(--border)",
               }}
             >
               <button
                 className="btn-ctrl"
-                style={{ width: "100%", color: "var(--danger)" }}
+                style={{
+                  width: "100%",
+                  color: "var(--danger)",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  gap: 8,
+                }}
                 onClick={() => setResetOpen(true)}
                 type="button"
               >
@@ -294,52 +335,132 @@ function BarcodeMonstockPage() {
           </SectionCard>
         </div>
 
-        <div style={{ flex: "1 1 480px", minWidth: 320 }}>
+        {/* Sisi Kanan: Tabel Data */}
+        <div
+          style={{
+            flex: 1,
+            minWidth: 0,
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
           <SectionCard
-            icon={ScanBarcode}
-            title="Barcode Monitoring Stock"
-            actions={
-              <>
-                <div className="search-box">
-                  <Search size={14} />
-                  <input
-                    className="field-input"
-                    placeholder="Cari item, rack, atau location..."
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                  />
-                </div>
-                <button className="btn-ctrl" onClick={loadData}>
+            bodyStyle={{
+              display: "flex",
+              flexDirection: "column",
+              flex: 1,
+              minHeight: 0,
+              overflow: "hidden",
+            }}
+          >
+            {/* Baris Filter & Pencarian (Pilih Gudang di kiri, Search & Refresh mentok di kanan) */}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: 12,
+                gap: 12,
+                flexWrap: "wrap",
+              }}
+            >
+              {/* Kiri: Pilih Gudang */}
+              <select
+                className="field-select"
+                value={selectedWh}
+                onChange={(e) => setSelectedWh(e.target.value)}
+                style={{ width: "auto" }}
+              >
+                <option value="">PILIH GUDANG</option>
+                {filterWh.map((w) => (
+                  <option key={w} value={w}>
+                    {w} — Terakhir Upload: {formatLastUpload(lastUpload[w])}
+                  </option>
+                ))}
+              </select>
+
+              {/* Kanan: Kotak Pencarian & Tombol Refresh (Dijamin Mentok Kanan) */}
+              <div
+                style={{
+                  display: "flex",
+                  gap: 8,
+                  alignItems: "center",
+                  marginLeft: "auto",
+                }}
+              >
+                <input
+                  type="text"
+                  className="field-input"
+                  placeholder="Cari data apapun..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  style={{ width: "200px", height: "34px", fontSize: "12px" }}
+                />
+                <button
+                  className="btn-ctrl"
+                  onClick={loadData}
+                  style={{ height: "34px" }}
+                >
                   <RefreshCw size={14} /> Refresh
                 </button>
-                <select
-                  className="field-select"
-                  value={selectedWh}
-                  onChange={(e) => setSelectedWh(e.target.value)}
-                >
-                  <option value="">⚠️ PILIH GUDANG</option>
-                  {filterWh.map((w) => (
-                    <option key={w} value={w}>
-                      {w} — Terakhir Upload: {formatLastUpload(lastUpload[w])}
-                    </option>
-                  ))}
-                </select>
-              </>
-            }
-          >
+              </div>
+            </div>
+
+            {/* Isi Tabel */}
             {loading ? (
-              <div style={{ padding: 24, opacity: 0.7 }}>Memuat data...</div>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flex: 1,
+                  padding: 40,
+                  gap: 12,
+                  color: "var(--text-secondary)",
+                }}
+              >
+                {/* Spinner Animasi Berputar */}
+                <div
+                  style={{
+                    width: 32,
+                    height: 32,
+                    border: "3px solid var(--border)",
+                    borderTop: "3px solid var(--primary, #c5f358)",
+                    borderRadius: "50%",
+                    animation: "spin 0.8s linear infinite",
+                  }}
+                />
+                <span style={{ fontSize: 13, fontWeight: 500 }}>
+                  Sedang memuat data gudang...
+                </span>
+                <style>{`
+                  @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                  }
+                `}</style>
+              </div>
             ) : !selectedWh ? (
               <div className="table-empty">
                 Silakan pilih warehouse terlebih dahulu untuk melihat data.
               </div>
             ) : (
-              <DataTable columns={columns} rows={rows} />
+              <DataTable
+                columns={columns}
+                rows={rows}
+                wrapStyle={{
+                  flex: 1,
+                  minHeight: 0,
+                  maxHeight: "calc(100vh - 220px)",
+                }}
+              />
             )}
           </SectionCard>
         </div>
       </div>
 
+      {/* Modal Reset */}
       {resetOpen && (
         <Modal
           title="Reset Semua Data Barcode Monstock"
@@ -386,6 +507,35 @@ function BarcodeMonstockPage() {
             </div>
           </form>
           {resetError && <div className="form-error">{resetError}</div>}
+        </Modal>
+      )}
+
+      {/* Modal Peringatan Salah Gudang (SweetAlert Style) */}
+      {uploadErrorModal && (
+        <Modal
+          title="⚠️ PERINGATAN KESALAHAN UPLOAD"
+          onClose={() => setUploadErrorModal("")}
+          footer={
+            <button
+              className="btn-ctrl primary"
+              type="button"
+              onClick={() => setUploadErrorModal("")}
+            >
+              Saya Mengerti & Tutup
+            </button>
+          }
+        >
+          <div style={{ padding: "8px 0" }}>
+            <p
+              style={{
+                fontSize: 13.5,
+                color: "var(--text-main)",
+                lineHeight: 1.5,
+              }}
+            >
+              {uploadErrorModal}
+            </p>
+          </div>
         </Modal>
       )}
     </div>

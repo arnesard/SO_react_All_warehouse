@@ -2,9 +2,10 @@ function DataTable({
   columns,
   rows,
   emptyText = "Belum ada data untuk ditampilkan.",
+  wrapStyle,
 }) {
   return (
-    <div className="dtable-wrap">
+    <div className="dtable-wrap" style={wrapStyle}>
       <table className="dtable">
         <colgroup>
           {columns.map((col) => (

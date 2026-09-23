@@ -134,7 +134,7 @@ function MasterSizePage() {
 
   async function handleDelete(row) {
     const result = await swal.fire({
-      title: "Yakin mau hapus bro?",
+      title: "Yakin mau hapus ?",
       text: "Data master size ini bakal hilang permanen dari database!",
       icon: "warning",
       showCancelButton: true,

@@ -367,13 +367,15 @@ code,
 }
 
 .btn-ctrl.primary {
-  background: linear-gradient(180deg, var(--accent), var(--accent-strong));
-  border-color: var(--accent-strong);
-  color: #fff;
+  background: linear-gradient(180deg, #9fcf28, #7fae1c);
+  border-color: #7fae1c;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(204, 255, 51, 0.12);
 }
 
 .btn-ctrl.primary:hover {
   filter: brightness(1.08);
+  box-shadow: 0 4px 14px rgba(204, 255, 51, 0.18);
 }
 
 /* ---------------------------------------------------------------------- */
@@ -532,7 +534,7 @@ code,
 .dtable-wrap {
   overflow-x: auto;
   overflow-y: auto;
-  max-height: calc(100vh - 300px);
+  max-height: calc(100vh - 235px);
   border-radius: var(--radius-sm);
   border: 1px solid var(--border-soft);
 }

@@ -3,16 +3,12 @@ import {
   Search,
   RefreshCw,
   ScanBarcode,
-  MapPin,
   UploadCloud,
-  Trash2,
-  Clock,
   RotateCcw,
   ShieldAlert,
 } from "lucide-react";
 import SectionCard from "../../../components/SectionCard";
 import DataTable from "../../../components/DataTable";
-import StatCard from "../../../components/StatCard";
 import Modal from "../../../components/Modal";
 import { api } from "../../../lib/api";
 
@@ -71,7 +67,8 @@ function BarcodeMonstockPage() {
     if (!selectedWh) return [];
     const q = query.trim().toLowerCase();
     return allRows.filter((r) => {
-      if ((r.warehouse || "").toUpperCase() !== selectedWh.toUpperCase()) return false;
+      if ((r.warehouse || "").toUpperCase() !== selectedWh.toUpperCase())
+        return false;
       if (!q) return true;
       return (
         (r.rackcode || "").toLowerCase().includes(q) ||
@@ -82,27 +79,20 @@ function BarcodeMonstockPage() {
     });
   }, [allRows, selectedWh, query]);
 
-  const totalPcs = rows.reduce((a, r) => a + Number(r.jml || 0), 0);
-  const totalOem = rows.reduce((a, r) => a + Number(r.oem || 0), 0);
-
-  async function handleDelete(row) {
-    if (!confirm(`Hapus baris "${row.item}" (rack ${row.rackcode})?`)) return;
-    try {
-      await api.del(`/api/barcode-monstock/delete/${row.id}`);
-      setAllRows((prev) => prev.filter((r) => r.id !== row.id));
-    } catch (err) {
-      alert(err.message);
-    }
-  }
-
   async function handleUpload(e) {
     e.preventDefault();
     if (!uploadWh) {
-      setUploadMsg({ type: "error", text: "Pilih target warehouse dulu, sebelum memproses file CSV!" });
+      setUploadMsg({
+        type: "error",
+        text: "Pilih target warehouse dulu, sebelum memproses file CSV!",
+      });
       return;
     }
     if (!file) {
-      setUploadMsg({ type: "error", text: "Pilih berkas CSV terlebih dahulu." });
+      setUploadMsg({
+        type: "error",
+        text: "Pilih berkas CSV terlebih dahulu.",
+      });
       return;
     }
 
@@ -138,7 +128,9 @@ function BarcodeMonstockPage() {
     setResetBusy(true);
     setResetError("");
     try {
-      const res = await api.post("/api/barcode-monstock/truncate-all", { password: resetPassword });
+      const res = await api.post("/api/barcode-monstock/truncate-all", {
+        password: resetPassword,
+      });
       if (res.status === "wrong_password") {
         setResetError(res.message);
         return;
@@ -161,44 +153,74 @@ function BarcodeMonstockPage() {
   const columns = [
     { key: "no", label: "No.", render: (_, i) => i + 1 },
     { key: "warehouse", label: "Warehouse" },
-    { key: "rackcode", label: "Rack Code", render: (r) => <span className="cell-code">{r.rackcode}</span> },
-    { key: "item", label: "Item Code", render: (r) => <span className="cell-code">{r.item}</span> },
-    { key: "description", label: "Description", render: (r) => <span className="cell-strong">{r.description || "-"}</span> },
-    { key: "jml", label: "Jml (Pcs)", align: "right", render: (r) => Number(r.jml || 0).toLocaleString("id-ID") },
-    { key: "oem", label: "OEM (Pcs)", align: "right", render: (r) => Number(r.oem || 0).toLocaleString("id-ID") },
-    { key: "loccode", label: "Location Code" },
     {
-      key: "action",
-      label: "",
-      render: (row) => (
-        <button
-          className="btn-ctrl"
-          style={{ padding: "5px 8px", color: "var(--danger)" }}
-          onClick={() => handleDelete(row)}
-        >
-          <Trash2 size={13} />
-        </button>
+      key: "rackcode",
+      label: "Rack Code",
+      render: (r) => <span className="cell-code">{r.rackcode}</span>,
+    },
+    {
+      key: "item",
+      label: "Item Code",
+      render: (r) => <span className="cell-code">{r.item}</span>,
+    },
+    {
+      key: "description",
+      label: "Description",
+      render: (r) => (
+        <span className="cell-strong">{r.description || "-"}</span>
       ),
     },
+    {
+      key: "jml",
+      label: "Jml (Pcs)",
+      align: "right",
+      render: (r) => Number(r.jml || 0).toLocaleString("id-ID"),
+    },
+    {
+      key: "oem",
+      label: "OEM (Pcs)",
+      align: "right",
+      render: (r) => Number(r.oem || 0).toLocaleString("id-ID"),
+    },
+    { key: "loccode", label: "Location Code" },
   ];
 
   return (
     <div>
-      <div className="stat-grid">
-        <StatCard icon={ScanBarcode} label="Rack Termonitor" value={rows.length} tone="accent" />
-        <StatCard icon={MapPin} label="Total Pcs" value={totalPcs.toLocaleString("id-ID")} tone="cyan" />
-        <StatCard icon={MapPin} label="Total OEM Pcs" value={totalOem.toLocaleString("id-ID")} tone="warn" />
-      </div>
+      {error && (
+        <div className="form-error" style={{ marginBottom: 12 }}>
+          {error}
+        </div>
+      )}
 
-      {error && <div className="form-error" style={{ marginBottom: 12 }}>{error}</div>}
-
-      <div style={{ display: "flex", gap: 16, alignItems: "flex-start", flexWrap: "wrap" }}>
-        <div style={{ flex: "0 0 320px", minWidth: 280 }}>
-          <SectionCard icon={UploadCloud} title="Upload Barcode Monitoring Stock">
-            <p style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: -4 }}>
-              Unggah berkas <strong>.csv</strong> hasil export dari Aplikasi Barcode Desktop.
+      <div
+        style={{
+          display: "flex",
+          gap: 16,
+          alignItems: "stretch",
+          flexWrap: "wrap",
+        }}
+      >
+        <div style={{ flex: "0 0 320px", minWidth: 280, display: "flex" }}>
+          <SectionCard
+            icon={UploadCloud}
+            title="Upload Barcode Monitoring Stock"
+            bodyStyle={{ display: "flex", flexDirection: "column", flex: 1 }}
+          >
+            <p
+              style={{
+                fontSize: 12,
+                color: "var(--text-secondary)",
+                marginTop: -4,
+              }}
+            >
+              Unggah berkas <strong>.csv</strong> hasil export dari Aplikasi
+              Barcode Desktop.
             </p>
-            <form onSubmit={handleUpload} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            <form
+              onSubmit={handleUpload}
+              style={{ display: "flex", flexDirection: "column", gap: 10 }}
+            >
               <div className="field-group">
                 <label>Target Warehouse</label>
                 <select
@@ -207,9 +229,13 @@ function BarcodeMonstockPage() {
                   onChange={(e) => setUploadWh(e.target.value)}
                   required
                 >
-                  <option value="" disabled>-- PILIH WAREHOUSE TARGET --</option>
+                  <option value="" disabled>
+                    -- PILIH WAREHOUSE TARGET --
+                  </option>
                   {UPLOAD_WAREHOUSES.map((w) => (
-                    <option key={w} value={w}>{w}</option>
+                    <option key={w} value={w}>
+                      {w}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -226,21 +252,36 @@ function BarcodeMonstockPage() {
                 />
               </div>
 
-              <button className="btn-ctrl primary" type="submit" disabled={uploading}>
-                <UploadCloud size={14} /> {uploading ? "Memproses..." : "Proses Import Data"}
+              <button
+                className="btn-ctrl primary"
+                type="submit"
+                disabled={uploading}
+              >
+                <UploadCloud size={14} />{" "}
+                {uploading ? "Memproses..." : "Proses Import Data"}
               </button>
 
               {uploadMsg && (
                 <div
                   className={uploadMsg.type === "error" ? "form-error" : ""}
-                  style={uploadMsg.type === "success" ? { color: "var(--ok)", fontSize: 12.5 } : undefined}
+                  style={
+                    uploadMsg.type === "success"
+                      ? { color: "var(--ok)", fontSize: 12.5 }
+                      : undefined
+                  }
                 >
                   {uploadMsg.text}
                 </div>
               )}
             </form>
 
-            <div style={{ marginTop: 16, paddingTop: 12, borderTop: "1px solid var(--border)" }}>
+            <div
+              style={{
+                marginTop: 16,
+                paddingTop: 12,
+                borderTop: "1px solid var(--border)",
+              }}
+            >
               <button
                 className="btn-ctrl"
                 style={{ width: "100%", color: "var(--danger)" }}
@@ -259,18 +300,6 @@ function BarcodeMonstockPage() {
             title="Barcode Monitoring Stock"
             actions={
               <>
-                <select
-                  className="field-select"
-                  value={selectedWh}
-                  onChange={(e) => setSelectedWh(e.target.value)}
-                >
-                  <option value="">⚠️ PILIH GUDANG</option>
-                  {filterWh.map((w) => (
-                    <option key={w} value={w}>
-                      {w} — Terakhir Upload: {formatLastUpload(lastUpload[w])}
-                    </option>
-                  ))}
-                </select>
                 <div className="search-box">
                   <Search size={14} />
                   <input
@@ -283,29 +312,27 @@ function BarcodeMonstockPage() {
                 <button className="btn-ctrl" onClick={loadData}>
                   <RefreshCw size={14} /> Refresh
                 </button>
+                <select
+                  className="field-select"
+                  value={selectedWh}
+                  onChange={(e) => setSelectedWh(e.target.value)}
+                >
+                  <option value="">⚠️ PILIH GUDANG</option>
+                  {filterWh.map((w) => (
+                    <option key={w} value={w}>
+                      {w} — Terakhir Upload: {formatLastUpload(lastUpload[w])}
+                    </option>
+                  ))}
+                </select>
               </>
             }
           >
-            {selectedWh && (
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 6,
-                  fontSize: 12,
-                  color: "var(--text-secondary)",
-                  marginBottom: 10,
-                }}
-              >
-                <Clock size={13} />
-                Terakhir Upload: <strong>{formatLastUpload(lastUpload[selectedWh])}</strong>
-              </div>
-            )}
-
             {loading ? (
               <div style={{ padding: 24, opacity: 0.7 }}>Memuat data...</div>
             ) : !selectedWh ? (
-              <div className="table-empty">Silakan pilih warehouse terlebih dahulu untuk melihat data.</div>
+              <div className="table-empty">
+                Silakan pilih warehouse terlebih dahulu untuk melihat data.
+              </div>
             ) : (
               <DataTable columns={columns} rows={rows} />
             )}
@@ -323,17 +350,28 @@ function BarcodeMonstockPage() {
           }}
           footer={
             <>
-              <button className="btn-ctrl" type="button" onClick={() => setResetOpen(false)}>
+              <button
+                className="btn-ctrl"
+                type="button"
+                onClick={() => setResetOpen(false)}
+              >
                 Batal
               </button>
-              <button className="btn-ctrl primary" type="submit" form="reset-monstock-form" disabled={resetBusy}>
-                <RotateCcw size={14} /> {resetBusy ? "Memproses..." : "Truncate Semua Data"}
+              <button
+                className="btn-ctrl primary"
+                type="submit"
+                form="reset-monstock-form"
+                disabled={resetBusy}
+              >
+                <RotateCcw size={14} />{" "}
+                {resetBusy ? "Memproses..." : "Truncate Semua Data"}
               </button>
             </>
           }
         >
           <p style={{ fontSize: 13, color: "var(--text-secondary)" }}>
-            Aksi ini akan mengosongkan seluruh data monstock (semua warehouse). Masukkan password developer untuk konfirmasi.
+            Aksi ini akan mengosongkan seluruh data monstock (semua warehouse).
+            Masukkan password developer untuk konfirmasi.
           </p>
           <form id="reset-monstock-form" onSubmit={handleResetSubmit}>
             <div className="field-group">

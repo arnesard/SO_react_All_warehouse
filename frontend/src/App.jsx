@@ -1,6 +1,5 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import MainLayout from "./layouts/MainLayout";
-import OracleVsFisikLayout from "./modules/oracle-vs-fisik/OracleVsFisikLayout";
 import FisikDashboardPage from "./modules/oracle-vs-fisik/pages/FisikDashboardPage";
 import MasterSizePage from "./modules/oracle-vs-fisik/pages/MasterSizePage";
 import BarcodeMonstockPage from "./modules/oracle-vs-fisik/pages/BarcodeMonstockPage";
@@ -15,20 +14,18 @@ function App() {
   return (
     <Routes>
       <Route element={<MainLayout />}>
-        <Route element={<OracleVsFisikLayout />}>
-          <Route index element={<FisikDashboardPage />} />
-          <Route path="master-size" element={<MasterSizePage />} />
-          <Route path="barcode-monstock" element={<BarcodeMonstockPage />} />
-          <Route path="tag-stock" element={<TagStockPage />} />
-          <Route
-            path="tag-stock-nonbarcode"
-            element={<TagStockNonBarcodePage />}
-          />
-          <Route path="appkso" element={<AppksoPage />} />
-          <Route path="snapshot" element={<SnapshotPage />} />
-          <Route path="progress-so" element={<ProgressSoPage />} />
-          <Route path="pic" element={<PicPage />} />
-        </Route>
+        <Route index element={<FisikDashboardPage />} />
+        <Route path="master-size" element={<MasterSizePage />} />
+        <Route path="barcode-monstock" element={<BarcodeMonstockPage />} />
+        <Route path="tag-stock" element={<TagStockPage />} />
+        <Route
+          path="tag-stock-nonbarcode"
+          element={<TagStockNonBarcodePage />}
+        />
+        <Route path="appkso" element={<AppksoPage />} />
+        <Route path="snapshot" element={<SnapshotPage />} />
+        <Route path="progress-so" element={<ProgressSoPage />} />
+        <Route path="pic" element={<PicPage />} />
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>

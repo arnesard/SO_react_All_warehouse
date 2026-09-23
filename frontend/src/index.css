@@ -192,6 +192,27 @@ code,
 
 .app-nav-item {
   position: relative;
+  display: inline-flex;
+  text-decoration: none;
+}
+
+.app-nav-item::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -9px;
+  transform: translateX(-50%);
+  width: 26px;
+  height: 13px;
+  border-radius: 0 0 13px 13px;
+  background: var(--accent);
+  opacity: 0;
+  transition: opacity 0.18s ease;
+  pointer-events: none;
+}
+
+.app-nav-item.is-active::after {
+  opacity: 1;
 }
 
 .app-nav-link {
@@ -299,7 +320,7 @@ code,
 
 .app-main {
   flex: 1;
-  padding: 0px 15px 0px;
+  padding: 15px 15px 0px;
   width: 100%;
   margin: 0 auto;
 }
@@ -387,6 +408,10 @@ code,
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow-soft);
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  width: 100%;
 }
 
 .surface-card-header {
@@ -557,12 +582,21 @@ table.dtable thead th {
   font-weight: 700;
   letter-spacing: 0.3px;
   border-bottom: 1px solid var(--border);
+  border-right: 1px solid var(--border-soft);
   white-space: nowrap;
 }
 
 table.dtable tbody td {
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--border-soft);
+  border-right: 1px solid var(--border-soft);
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+table.dtable thead th:last-child,
+table.dtable tbody td:last-child {
+  border-right: none;
 }
 
 table.dtable tbody tr:hover td {
@@ -661,6 +695,32 @@ table.dtable tbody tr:last-child td {
   outline: none;
   border-color: var(--accent-border);
   background: var(--surface-2);
+}
+
+input[type="file"].field-input {
+  padding: 6px 12px 6px 6px;
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+input[type="file"].field-input::file-selector-button {
+  padding: 7px 14px;
+  margin-right: 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  color: var(--text-primary);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+input[type="file"].field-input:hover::file-selector-button {
+  background: var(--surface-3);
+  border-color: var(--accent-border);
 }
 
 .search-box {

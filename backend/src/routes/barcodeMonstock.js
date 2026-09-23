@@ -73,19 +73,28 @@ router.get("/data", async (req, res) => {
 // ------------------------------------------------------------------
 router.post("/import", upload.single("file_csv"), async (req, res) => {
   if (!req.file) {
-    return res.status(400).json({ status: "error", message: "Berkas CSV tidak terdeteksi oleh sistem!" });
+    return res.status(400).json({
+      status: "error",
+      message: "Berkas CSV tidak terdeteksi oleh sistem!",
+    });
   }
 
-  const targetWarehouse = (req.body.target_warehouse || "").trim().toUpperCase();
+  const targetWarehouse = (req.body.target_warehouse || "")
+    .trim()
+    .toUpperCase();
   if (!targetWarehouse) {
-    return res.status(400).json({ status: "error", message: "Target Warehouse wajib lu pilih !" });
+    return res
+      .status(400)
+      .json({ status: "error", message: "Target Warehouse wajib lu pilih !" });
   }
 
   try {
     const text = req.file.buffer.toString("utf8");
     const lines = text.split(/\r\n|\r|\n/).filter((l) => l.length > 0);
     if (lines.length === 0) {
-      return res.status(400).json({ status: "error", message: "File CSV kosong !" });
+      return res
+        .status(400)
+        .json({ status: "error", message: "File CSV kosong !" });
     }
 
     const parseCsvLine = (line) =>
@@ -113,7 +122,8 @@ router.post("/import", upload.single("file_csv"), async (req, res) => {
     for (const line of dataLines) {
       const row = parseCsvLine(line);
       if (!row[idxItem] || row[idxItem].trim() === "") continue;
-      const checkLoc = idxLoccode !== -1 && row[idxLoccode] ? row[idxLoccode].trim() : "";
+      const checkLoc =
+        idxLoccode !== -1 && row[idxLoccode] ? row[idxLoccode].trim() : "";
       if (checkLoc && checkLoc !== "-" && checkLoc !== "~") {
         csvWarehouseDetected = checkLoc.toUpperCase().slice(0, 3);
         break;
@@ -124,13 +134,14 @@ router.post("/import", upload.single("file_csv"), async (req, res) => {
       if (csvWarehouseDetected !== targetWarehouse) {
         return res.status(400).json({
           status: "error",
-          message: `⚠️ PENTING BRO! Lu milih Gudang [${targetWarehouse}], tapi file CSV yang lu upload terdeteksi milik Gudang [${csvWarehouseDetected}]. Proses diblokir sistem biar data lu kagak kehapus salah!`,
+          message: `⚠️ PENTING ! anda memilih Gudang [${targetWarehouse}], tapi file CSV yang di upload terdeteksi milik Gudang [${csvWarehouseDetected}]. Proses diblokir sistem biar data lu kagak kehapus salah!`,
         });
       }
     } else {
       return res.status(400).json({
         status: "error",
-        message: "Gagal Validasi! Sistem tidak menemukan data Kode Lokasi (loccode) yang valid di dalam file CSV lu bro.",
+        message:
+          "Gagal Validasi! Sistem tidak menemukan data Kode Lokasi (loccode) yang valid di dalam file CSV lu bro.",
       });
     }
 
@@ -142,12 +153,18 @@ router.post("/import", upload.single("file_csv"), async (req, res) => {
     );
     const historicalDocMap = {};
     historyRows.forEach((r) => {
-      historicalDocMap[`${(r.loccode || "").toUpperCase().trim()}@${(r.item || "").toUpperCase().trim()}`] = r.no_doc;
+      historicalDocMap[
+        `${(r.loccode || "").toUpperCase().trim()}@${(r.item || "").toUpperCase().trim()}`
+      ] = r.no_doc;
     });
 
     // --- Wipe old rows for this warehouse ---
-    await poolUtama.query(`DELETE FROM ${TABLE_MAIN} WHERE warehouse = ?`, [targetWarehouse]);
-    await poolUtama.query(`DELETE FROM ${TABLE_AUTO} WHERE warehouse = ?`, [targetWarehouse]);
+    await poolUtama.query(`DELETE FROM ${TABLE_MAIN} WHERE warehouse = ?`, [
+      targetWarehouse,
+    ]);
+    await poolUtama.query(`DELETE FROM ${TABLE_AUTO} WHERE warehouse = ?`, [
+      targetWarehouse,
+    ]);
 
     const batchMain = [];
     const compressedAutoMap = {};
@@ -158,7 +175,18 @@ router.post("/import", upload.single("file_csv"), async (req, res) => {
       await poolUtama.query(
         `INSERT INTO ${TABLE_MAIN} (warehouse, rackcode, item, jml, oem, loccode, created_at, updated_at)
          VALUES ?`,
-        [batchMain.map((r) => [r.warehouse, r.rackcode, r.item, r.jml, r.oem, r.loccode, new Date(), new Date()])],
+        [
+          batchMain.map((r) => [
+            r.warehouse,
+            r.rackcode,
+            r.item,
+            r.jml,
+            r.oem,
+            r.loccode,
+            new Date(),
+            new Date(),
+          ]),
+        ],
       );
       batchMain.length = 0;
     };
@@ -167,17 +195,24 @@ router.post("/import", upload.single("file_csv"), async (req, res) => {
       const row = parseCsvLine(line);
       if (!row[idxItem] || row[idxItem].trim() === "") continue;
 
-      const loccodeRaw = idxLoccode !== -1 && row[idxLoccode] ? row[idxLoccode].trim() : "";
-      const isLoccodeKosongAtauCacing = !loccodeRaw || loccodeRaw === "-" || loccodeRaw === "~";
+      const loccodeRaw =
+        idxLoccode !== -1 && row[idxLoccode] ? row[idxLoccode].trim() : "";
+      const isLoccodeKosongAtauCacing =
+        !loccodeRaw || loccodeRaw === "-" || loccodeRaw === "~";
 
       if (!isLoccodeKosongAtauCacing) {
         lastValidLoccode = loccodeRaw.toUpperCase();
       } else {
         lastValidLoccode =
-          lastValidLoccode && lastValidLoccode !== "-" ? lastValidLoccode : `${targetWarehouse}-AUTO`;
+          lastValidLoccode && lastValidLoccode !== "-"
+            ? lastValidLoccode
+            : `${targetWarehouse}-AUTO`;
       }
 
-      const rackcode = idxRack !== -1 && row[idxRack] ? row[idxRack].toUpperCase().trim() : "-";
+      const rackcode =
+        idxRack !== -1 && row[idxRack]
+          ? row[idxRack].toUpperCase().trim()
+          : "-";
       const item = (row[idxItem] || "").toUpperCase().trim();
       const jml = idxJml !== -1 ? parseInt(row[idxJml], 10) || 0 : 0;
       const oem = idxOem !== -1 ? parseInt(row[idxOem], 10) || 0 : 0;
@@ -193,7 +228,9 @@ router.post("/import", upload.single("file_csv"), async (req, res) => {
 
       // B. Bypass grade OEM: TH-prefixed or SP-suffixed items are always treated as OEM.
       const isForcedOem = item.startsWith("TH") || item.endsWith("SP");
-      const loccodeForAuto = isLoccodeKosongAtauCacing ? loccodeRaw || "-" : lastValidLoccode;
+      const loccodeForAuto = isLoccodeKosongAtauCacing
+        ? loccodeRaw || "-"
+        : lastValidLoccode;
 
       const rawSplitRecords = [];
       if (isForcedOem) {
@@ -252,7 +289,8 @@ router.post("/import", upload.single("file_csv"), async (req, res) => {
         } else {
           const prefixDoc = "G";
           const char5 = loccodeActive.length >= 5 ? loccodeActive[4] : "0";
-          const suffixLoc = loccodeActive.length >= 7 ? loccodeActive.slice(6) : "UNKNOWN";
+          const suffixLoc =
+            loccodeActive.length >= 7 ? loccodeActive.slice(6) : "UNKNOWN";
           const prefixNoDoc = `${prefixDoc}${char5}${suffixLoc}`;
 
           if (maxSequencePerPrefix[prefixNoDoc] === undefined) {
@@ -279,43 +317,74 @@ router.post("/import", upload.single("file_csv"), async (req, res) => {
         await poolUtama.query(
           `INSERT INTO ${TABLE_AUTO} (warehouse, item, Qty, Rak, loccode, no_doc, created_at, updated_at)
            VALUES ?`,
-          [chunk.map((r) => [r.warehouse, r.item, r.Qty, r.Rak, r.loccode, r.no_doc, new Date(), new Date()])],
+          [
+            chunk.map((r) => [
+              r.warehouse,
+              r.item,
+              r.Qty,
+              r.Rak,
+              r.loccode,
+              r.no_doc,
+              new Date(),
+              new Date(),
+            ]),
+          ],
         );
       }
     }
 
-    res.json({ status: "success", message: `Gudang ${targetWarehouse} sukses dibilas bersih & data auto siap saji!` });
+    res.json({
+      status: "success",
+      message: `Gudang ${targetWarehouse} sukses dibilas bersih & data auto siap saji!`,
+    });
   } catch (err) {
     console.error("[barcode-monstock] import error:", err);
-    res.status(500).json({ status: "error", message: "Error Backend SQL: " + err.message });
+    res
+      .status(500)
+      .json({ status: "error", message: "Error Backend SQL: " + err.message });
   }
 });
 
 // DELETE /api/barcode-monstock/delete/:id
 router.delete("/delete/:id", async (req, res) => {
   try {
-    await poolUtama.query(`DELETE FROM ${TABLE_MAIN} WHERE id = ?`, [req.params.id]);
+    await poolUtama.query(`DELETE FROM ${TABLE_MAIN} WHERE id = ?`, [
+      req.params.id,
+    ]);
     res.json({ status: "success", message: "Baris barcode berhasil dibuang!" });
   } catch (err) {
-    res.status(500).json({ status: "error", message: "Gagal hapus: " + err.message });
+    res
+      .status(500)
+      .json({ status: "error", message: "Gagal hapus: " + err.message });
   }
 });
 
 // POST /api/barcode-monstock/truncate-all  { password }
 router.post("/truncate-all", async (req, res) => {
-  const DEV_PASSWORD = process.env.BARCODE_MONSTOCK_TRUNCATE_PASSWORD || "DEVBPW";
+  const DEV_PASSWORD =
+    process.env.BARCODE_MONSTOCK_TRUNCATE_PASSWORD || "DEVBPW";
   const inputPassword = (req.body.password || "").trim();
 
   if (inputPassword !== DEV_PASSWORD) {
-    return res.status(200).json({ status: "wrong_password", message: "Password yang anda masukan salah!" });
+    return res.status(200).json({
+      status: "wrong_password",
+      message: "Password yang anda masukan salah!",
+    });
   }
 
   try {
     await poolUtama.query(`TRUNCATE TABLE ${TABLE_AUTO}`);
     await poolUtama.query(`TRUNCATE TABLE ${TABLE_MAIN}`);
-    res.status(200).json({ status: "success", message: "Password benar! Data truncate berhasil dilakukan, DB berhasil dihapus." });
+    res.status(200).json({
+      status: "success",
+      message:
+        "Password benar! Data truncate berhasil dilakukan, DB berhasil dihapus.",
+    });
   } catch (err) {
-    res.status(200).json({ status: "error", message: "Error saat truncate: " + err.message });
+    res.status(200).json({
+      status: "error",
+      message: "Error saat truncate: " + err.message,
+    });
   }
 });
 

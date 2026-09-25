@@ -1,8 +1,8 @@
 import { useMemo, useState } from "react";
 import { Activity, Search } from "lucide-react";
-import SectionCard from "../../../components/SectionCard";
-import DataTable from "../../../components/DataTable";
-import StatusBadge from "../../../components/StatusBadge";
+import SectionCard from "../../components/SectionCard";
+import DataTable from "../../components/DataTable";
+import StatusBadge from "../../components/StatusBadge";
 
 function ProgressSoPage() {
   const [gedung, setGedung] = useState("");

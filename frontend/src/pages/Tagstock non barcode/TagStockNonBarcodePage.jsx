@@ -1,7 +1,7 @@
 import { FileSpreadsheet, Upload } from "lucide-react";
-import SectionCard from "../../../components/SectionCard";
-import DataTable from "../../../components/DataTable";
-import StatusBadge from "../../../components/StatusBadge";
+import SectionCard from "../../components/SectionCard";
+import DataTable from "../../components/DataTable";
+import StatusBadge from "../../components/StatusBadge";
 
 function TagStockNonBarcodePage() {
   const columns = [

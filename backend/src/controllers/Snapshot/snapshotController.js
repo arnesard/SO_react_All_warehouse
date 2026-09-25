@@ -1,10 +1,9 @@
-const express = require("express");
-const { poolUtama } = require("../db/pool");
+const { poolUtama } = require("../../db/pool");
 
-const router = express.Router();
 const TABLE = "so_all_wh_snapshot_db";
 
-router.use((req, res, next) => {
+// Middleware verifikasi pool database
+const checkDbConnection = (req, res, next) => {
   if (!poolUtama) {
     return res.status(500).json({
       success: false,
@@ -12,10 +11,10 @@ router.use((req, res, next) => {
     });
   }
   next();
-});
+};
 
 // GET /api/snapshot/get-warehouses
-router.get("/get-warehouses", async (req, res) => {
+const getWarehouses = async (req, res) => {
   try {
     const [rows] = await poolUtama.query(
       `SELECT DISTINCT warehouse FROM ${TABLE}
@@ -25,10 +24,10 @@ router.get("/get-warehouses", async (req, res) => {
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
-});
+};
 
 // GET /api/snapshot/data?warehouse=&search=
-router.get("/data", async (req, res) => {
+const getData = async (req, res) => {
   try {
     const { warehouse, search } = req.query;
 
@@ -55,25 +54,29 @@ router.get("/data", async (req, res) => {
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
-});
+};
 
-// POST /api/snapshot/import  { warehouse, sample_item, excel_data }
-// Excel-nya udah dibongkar di browser (excel.min.js / ExcelJS), sama persis
-// kayak versi Laravel: kita cuma nerima JSON array baris-nya di sini.
-router.post("/import", async (req, res) => {
+// POST /api/snapshot/import
+const importSnapshot = async (req, res) => {
   const warehouse = (req.body.warehouse || "").trim().toUpperCase();
   const sampleItem = (req.body.sample_item || "").trim().toUpperCase();
   const excelData = req.body.excel_data;
 
   if (!warehouse) {
-    return res.status(400).json({ success: false, message: "Target gudang wajib diisi bro!" });
+    return res
+      .status(400)
+      .json({ success: false, message: "Target gudang wajib diisi bro!" });
   }
   if (!Array.isArray(excelData) || excelData.length === 0) {
-    return res.status(400).json({ success: false, message: "Data JSON dari browser kosong / korup!" });
+    return res
+      .status(400)
+      .json({
+        success: false,
+        message: "Data JSON dari browser kosong / korup!",
+      });
   }
 
   try {
-    // Proteksi silang: item sampel harus terdaftar di Master Size untuk gudang ini.
     if (sampleItem) {
       const [existsRows] = await poolUtama.query(
         `SELECT 1 FROM so_all_wh_master_size_db WHERE warehouse = ? AND item = ? LIMIT 1`,
@@ -98,14 +101,22 @@ router.post("/import", async (req, res) => {
         if (batch.length === 0) return;
         await conn.query(
           `INSERT INTO ${TABLE} (warehouse, item, qty, created_at, updated_at) VALUES ?`,
-          [batch.map((r) => [r.warehouse, r.item, r.qty, new Date(), new Date()])],
+          [
+            batch.map((r) => [
+              r.warehouse,
+              r.item,
+              r.qty,
+              new Date(),
+              new Date(),
+            ]),
+          ],
         );
         insertCount += batch.length;
         batch = [];
       };
 
       for (let key = 0; key < excelData.length; key++) {
-        if (key === 0) continue; // baris pertama header
+        if (key === 0) continue; // skip header baris pertama
         const row = excelData[key] || [];
         const item = String(row[0] ?? "").trim();
         if (!item) continue;
@@ -132,8 +143,15 @@ router.post("/import", async (req, res) => {
     });
   } catch (err) {
     console.error("[snapshot] import error:", err);
-    res.status(500).json({ success: false, message: "Gagal Insert DB: " + err.message });
+    res
+      .status(500)
+      .json({ success: false, message: "Gagal Insert DB: " + err.message });
   }
-});
+};
 
-module.exports = router;
+module.exports = {
+  checkDbConnection,
+  getWarehouses,
+  getData,
+  importSnapshot,
+};

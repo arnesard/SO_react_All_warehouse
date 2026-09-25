@@ -1,9 +1,8 @@
 import { ScanEye, Upload, Users, Layers } from "lucide-react";
-import SectionCard from "../../../components/SectionCard";
-import DataTable from "../../../components/DataTable";
-import StatCard from "../../../components/StatCard";
-import StatusBadge from "../../../components/StatusBadge";
-import { APPKSO_PATTERN, APPKSO_OPERATOR, APPKSO_DETAIL } from "../data";
+import SectionCard from "../../components/SectionCard";
+import DataTable from "../../components/DataTable";
+import StatCard from "../../components/StatCard";
+import StatusBadge from "../../components/StatusBadge";
 
 function AppksoPage() {
   const patternCols = [

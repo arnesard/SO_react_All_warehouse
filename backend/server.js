@@ -2,9 +2,11 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 
-const masterSizeRoutes = require("./src/routes/masterSize");
-const barcodeMonstockRoutes = require("./src/routes/barcodeMonstock");
-const snapshotRoutes = require("./src/routes/snapshot");
+const masterSizeRoutes = require("./src/routes/Master Size/masterSize");
+const barcodeMonstockRoutes = require("./src/routes/Barcode Monstock/barcodeMonstock");
+const snapshotRoutes = require("./src/routes/Snapshot/snapshot");
+const picRoutes = require("./src/routes/Master PIC/pic");
+const tagStockRoutes = require("./src/routes/Tagstock/tagStock");
 
 const app = express();
 
@@ -20,6 +22,8 @@ app.get("/", (req, res) => {
 app.use("/api/master-size", masterSizeRoutes);
 app.use("/api/barcode-monstock", barcodeMonstockRoutes);
 app.use("/api/snapshot", snapshotRoutes);
+app.use("/api/pic", picRoutes);
+app.use("/api/tagstock", tagStockRoutes);
 
 const PORT = process.env.PORT || 8010;
 

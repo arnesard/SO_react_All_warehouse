@@ -1,14 +1,10 @@
-const express = require("express");
-const multer = require("multer");
-const { poolUtama } = require("../db/pool");
-
-const router = express.Router();
-const upload = multer({ storage: multer.memoryStorage() });
+const { poolUtama } = require("../../db/pool");
 
 const TABLE_MAIN = "so_all_wh_barcode_monstock_db";
 const TABLE_AUTO = "so_all_wh_barcode_monstock_auto_db";
 
-router.use((req, res, next) => {
+// Middleware validasi pool database
+const checkDbConnection = (req, res, next) => {
   if (!poolUtama) {
     return res.status(500).json({
       status: "error",
@@ -16,14 +12,10 @@ router.use((req, res, next) => {
     });
   }
   next();
-});
+};
 
-// ------------------------------------------------------------------
 // GET /api/barcode-monstock/data
-// Same "potong buntut master size" join as the Laravel controller:
-// join b.item against SUBSTRING_INDEX(m.item, '-', 1), scoped per warehouse.
-// ------------------------------------------------------------------
-router.get("/data", async (req, res) => {
+const getData = async (req, res) => {
   try {
     const [mainData] = await poolUtama.query(
       `SELECT b.id, b.warehouse, b.rackcode, b.item, b.jml, b.oem, b.loccode, m.description
@@ -62,16 +54,10 @@ router.get("/data", async (req, res) => {
     console.error("[barcode-monstock] getData error:", err);
     res.status(500).json({ status: "error", message: err.message });
   }
-});
+};
 
-// ------------------------------------------------------------------
-// POST /api/barcode-monstock/import  (multipart: file_csv, target_warehouse)
-// Full port of the Laravel import(): validates the CSV's own loccode prefix
-// against target_warehouse, wipes old rows for that warehouse, re-parses,
-// splits each row into -0 (OEM) / -1 (non-OEM) item variants, aggregates
-// them into the "auto" table, and carries over historical no_doc numbers.
-// ------------------------------------------------------------------
-router.post("/import", upload.single("file_csv"), async (req, res) => {
+// POST /api/barcode-monstock/import
+const importCsv = async (req, res) => {
   if (!req.file) {
     return res.status(400).json({
       status: "error",
@@ -116,8 +102,6 @@ router.post("/import", upload.single("file_csv"), async (req, res) => {
 
     const dataLines = lines.slice(1);
 
-    // --- Detect the warehouse embedded in the CSV's own loccode, and guard
-    // the upload against being applied to the wrong warehouse. ---
     let csvWarehouseDetected = null;
     for (const line of dataLines) {
       const row = parseCsvLine(line);
@@ -145,7 +129,6 @@ router.post("/import", upload.single("file_csv"), async (req, res) => {
       });
     }
 
-    // --- Historical no_doc map for this warehouse (loccode@item -> no_doc) ---
     const [historyRows] = await poolUtama.query(
       `SELECT DISTINCT loccode, item, no_doc FROM ${TABLE_AUTO}
        WHERE warehouse = ? AND no_doc IS NOT NULL AND no_doc != '-'`,
@@ -158,7 +141,6 @@ router.post("/import", upload.single("file_csv"), async (req, res) => {
       ] = r.no_doc;
     });
 
-    // --- Wipe old rows for this warehouse ---
     await poolUtama.query(`DELETE FROM ${TABLE_MAIN} WHERE warehouse = ?`, [
       targetWarehouse,
     ]);
@@ -226,7 +208,6 @@ router.post("/import", upload.single("file_csv"), async (req, res) => {
         loccode: lastValidLoccode,
       });
 
-      // B. Bypass grade OEM: TH-prefixed or SP-suffixed items are always treated as OEM.
       const isForcedOem = item.startsWith("TH") || item.endsWith("SP");
       const loccodeForAuto = isLoccodeKosongAtauCacing
         ? loccodeRaw || "-"
@@ -265,7 +246,6 @@ router.post("/import", upload.single("file_csv"), async (req, res) => {
     }
     await flushMain();
 
-    // D. Generate/carry-over no_doc, grouped & sequenced per location prefix.
     if (Object.keys(compressedAutoMap).length > 0) {
       const batchAutoFinal = Object.values(compressedAutoMap).sort((a, b) =>
         a.loccode < b.loccode ? -1 : a.loccode > b.loccode ? 1 : 0,
@@ -343,10 +323,10 @@ router.post("/import", upload.single("file_csv"), async (req, res) => {
       .status(500)
       .json({ status: "error", message: "Error Backend SQL: " + err.message });
   }
-});
+};
 
 // DELETE /api/barcode-monstock/delete/:id
-router.delete("/delete/:id", async (req, res) => {
+const deleteById = async (req, res) => {
   try {
     await poolUtama.query(`DELETE FROM ${TABLE_MAIN} WHERE id = ?`, [
       req.params.id,
@@ -357,10 +337,10 @@ router.delete("/delete/:id", async (req, res) => {
       .status(500)
       .json({ status: "error", message: "Gagal hapus: " + err.message });
   }
-});
+};
 
-// POST /api/barcode-monstock/truncate-all  { password }
-router.post("/truncate-all", async (req, res) => {
+// POST /api/barcode-monstock/truncate-all
+const truncateAll = async (req, res) => {
   const DEV_PASSWORD =
     process.env.BARCODE_MONSTOCK_TRUNCATE_PASSWORD || "DEVBPW";
   const inputPassword = (req.body.password || "").trim();
@@ -386,6 +366,12 @@ router.post("/truncate-all", async (req, res) => {
       message: "Error saat truncate: " + err.message,
     });
   }
-});
+};
 
-module.exports = router;
+module.exports = {
+  checkDbConnection,
+  getData,
+  importCsv,
+  deleteById,
+  truncateAll,
+};

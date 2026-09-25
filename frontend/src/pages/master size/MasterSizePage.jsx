@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { swal } from "../../../lib/swal";
+import { swal } from "../../lib/swal";
 import {
   Search,
   Plus,
@@ -9,10 +9,10 @@ import {
   Loader2,
   Warehouse,
 } from "lucide-react";
-import SectionCard from "../../../components/SectionCard";
-import DataTable from "../../../components/DataTable";
-import Modal from "../../../components/Modal";
-import { api } from "../../../lib/api";
+import SectionCard from "../../components/SectionCard";
+import DataTable from "../../components/DataTable";
+import Modal from "../../components/Modal";
+import { api } from "../../lib/api";
 
 const WAREHOUSE_OPTIONS = ["APW", "BPW", "DPW", "RPW", "JMW", "DCK"];
 const PRODUCT_OPTIONS = ["TIRE", "TUBE", "VALVE", "RIMBAND"];

@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { RefreshCw, UploadCloud, RotateCcw, ShieldAlert } from "lucide-react";
-import SectionCard from "../../../components/SectionCard";
-import DataTable from "../../../components/DataTable";
-import Modal from "../../../components/Modal";
-import { api } from "../../../lib/api";
+import SectionCard from "../../components/SectionCard";
+import DataTable from "../../components/DataTable";
+import Modal from "../../components/Modal";
+import { api } from "../../lib/api";
 
 const UPLOAD_WAREHOUSES = ["APW", "BPW", "DPW", "RPW"];
 
@@ -308,7 +308,6 @@ function BarcodeMonstockPage() {
                 </div>
               )}
             </form>
-
             <div
               style={{
                 marginTop: "auto",
@@ -513,7 +512,7 @@ function BarcodeMonstockPage() {
       {/* Modal Peringatan Salah Gudang (SweetAlert Style) */}
       {uploadErrorModal && (
         <Modal
-          title="⚠️ PERINGATAN KESALAHAN UPLOAD"
+          title=" PERINGATAN KESALAHAN UPLOAD"
           onClose={() => setUploadErrorModal("")}
           footer={
             <button

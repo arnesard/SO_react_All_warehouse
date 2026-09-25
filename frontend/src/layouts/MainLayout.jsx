@@ -9,10 +9,11 @@ import {
   Camera,
   Activity,
   Users,
+  Disc,
 } from "lucide-react";
 
 const NAV_ITEMS = [
-  { to: "/master-size", label: "Master Size", icon: Ruler },
+  { to: "/master-size", label: "Master Size", icon: Disc },
   { to: "/pic", label: "Master PIC", icon: Users },
   { to: "/barcode-monstock", label: "Barcode MonStock", icon: ScanBarcode },
   { to: "/tag-stock", label: "Tag Stock", icon: ClipboardList },

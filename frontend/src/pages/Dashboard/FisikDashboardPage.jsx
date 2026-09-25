@@ -1,14 +1,9 @@
-import { Warehouse, ScanLine, Users, Gauge } from "lucide-react";
-import StatCard from "../../../components/StatCard";
-import SectionCard from "../../../components/SectionCard";
-import DataTable from "../../../components/DataTable";
-import StatusBadge from "../../../components/StatusBadge";
-import {
-  SCAN_ACTIVITY,
-  PROGRESS_GEDUNG_A,
-  PROGRESS_GEDUNG_B,
-  PATTERN_SUMMARY,
-} from "../data";
+import { useEffect, useState } from "react";
+import { Warehouse, ScanLine, Users, Gauge, Loader2 } from "lucide-react";
+import StatCard from "../../components/StatCard";
+import SectionCard from "../../components/SectionCard";
+import DataTable from "../../components/DataTable";
+import StatusBadge from "../../components/StatusBadge";
 
 function ProgressCell(row) {
   return (
@@ -88,8 +83,57 @@ const patternColumns = [
 ];
 
 function FisikDashboardPage() {
-  const totalScan = SCAN_ACTIVITY.reduce((a, r) => a + r.qty_scan, 0);
-  const activePic = new Set(SCAN_ACTIVITY.map((r) => r.opr_id)).size;
+  // 1. Inisialisasi state sebagai array kosong
+  const [scanActivity, setScanActivity] = useState([]);
+  const [progressGedungA, setProgressGedungA] = useState([]);
+  const [progressGedungB, setProgressGedungB] = useState([]);
+  const [patternSummary, setPatternSummary] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // 2. Tarik data dari endpoint API backend
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        setLoading(true);
+        // Ganti URL ini dengan alamat endpoint API backend kamu
+        const res = await fetch("http://localhost:8010/api/dashboard-fisik");
+        const result = await res.json();
+
+        // Sesuaikan dengan struktur response JSON dari backend
+        setScanActivity(result.scanActivity || []);
+        setProgressGedungA(result.progressGedungA || []);
+        setProgressGedungB(result.progressGedungB || []);
+        setPatternSummary(result.patternSummary || []);
+      } catch (err) {
+        console.error("Gagal mengambil data dari database:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div
+        style={{
+          padding: 40,
+          textAlign: "center",
+          color: "var(--text-secondary)",
+        }}
+      >
+        <Loader2 className="animate-spin" style={{ margin: "0 auto 12px" }} />
+        <p>Memuat data dari database...</p>
+      </div>
+    );
+  }
+
+  const totalScan = scanActivity.reduce(
+    (a, r) => a + (Number(r.qty_scan) || 0),
+    0,
+  );
+  const activePic = new Set(scanActivity.map((r) => r.opr_id)).size;
 
   return (
     <div>
@@ -123,21 +167,21 @@ function FisikDashboardPage() {
 
       <div className="grid-2" style={{ marginBottom: 16 }}>
         <SectionCard icon={Warehouse} title="Progres Item — Gedung A">
-          <DataTable columns={progressColumns} rows={PROGRESS_GEDUNG_A} />
+          <DataTable columns={progressColumns} rows={progressGedungA} />
         </SectionCard>
         <SectionCard icon={Warehouse} title="Progres Item — Gedung B">
-          <DataTable columns={progressColumns} rows={PROGRESS_GEDUNG_B} />
+          <DataTable columns={progressColumns} rows={progressGedungB} />
         </SectionCard>
       </div>
 
       <div style={{ marginBottom: 16 }}>
         <SectionCard icon={ScanLine} title="Aktivitas Scan Terbaru">
-          <DataTable columns={scanColumns} rows={SCAN_ACTIVITY} />
+          <DataTable columns={scanColumns} rows={scanActivity} />
         </SectionCard>
       </div>
 
       <SectionCard icon={Gauge} title="Ringkasan Pattern — Oracle vs Fisik">
-        <DataTable columns={patternColumns} rows={PATTERN_SUMMARY} />
+        <DataTable columns={patternColumns} rows={patternSummary} />
       </SectionCard>
     </div>
   );

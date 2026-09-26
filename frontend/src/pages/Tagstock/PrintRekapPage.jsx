@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 
 const API_BASE = "http://localhost:8010/api/tagstock";
@@ -13,13 +13,13 @@ export default function PrintRekapPage() {
   const [data, setData] = useState([]);
   const [operatorInfo, setOperatorInfo] = useState(null);
   const [loading, setLoading] = useState(true);
+  const hasPrintedRef = useRef(false);
 
   useEffect(() => {
     async function loadData() {
       if (!warehouse || !operatorId) return;
       try {
         setLoading(true);
-        // 1. Tarik info operator
         const opRes = await fetch(
           `${API_BASE}/operators?warehouse=${encodeURIComponent(warehouse)}`,
         );
@@ -31,7 +31,6 @@ export default function PrintRekapPage() {
           setOperatorInfo(currentOp || null);
         }
 
-        // 2. Tarik rows data
         const rowRes = await fetch(`${API_BASE}/process-rows`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -56,10 +55,11 @@ export default function PrintRekapPage() {
   }, [warehouse, operatorId, docStart, docEnd]);
 
   useEffect(() => {
-    if (!loading && data.length > 0) {
+    if (!loading && data.length > 0 && !hasPrintedRef.current) {
+      hasPrintedRef.current = true;
       setTimeout(() => {
         window.print();
-      }, 500);
+      }, 300);
     }
   }, [loading, data]);
 
@@ -81,19 +81,83 @@ export default function PrintRekapPage() {
   const totalQty = data.reduce((a, b) => a + (Number(b.Qty) || 0), 0);
 
   return (
-    <div className="print-rekap-container">
+    <div className="print-page-wrapper">
       <style>{`
-        @page { size: A4 portrait; margin: 8mm; }
-        body { background: #fff !important; color: #000 !important; font-family: "Times New Roman", serif; font-size: 12px; margin: 0; }
-        .header { text-align: center; margin-bottom: 16px; }
-        table { width: 100%; border-collapse: collapse; font-size: 10.5px; }
-        th, td { border: 1px solid #000; padding: 5px; }
-        th { background: #eee; text-align: center; font-weight: bold; }
-        tr { page-break-inside: avoid; }
+        @page { 
+          size: A4 portrait; 
+          margin: 8mm 8mm 8mm 8mm; 
+        }
+
+        *, *::before, *::after {
+          box-sizing: border-box !important;
+        }
+
+        html, body { 
+          width: 210mm !important;
+          background: #fff !important; 
+          color: #000 !important; 
+          font-family: "Times New Roman", serif; 
+          font-size: 11px; 
+          margin: 0 !important; 
+          padding: 0 !important;
+        }
+
+        /* Container dikunci pas di dalam area print A4 */
+        .print-page-wrapper {
+          width: 194mm !important;
+          max-width: 194mm !important;
+          margin: 0 auto !important;
+          padding: 0 !important;
+        }
+
+        .header { 
+          text-align: center; 
+          margin-bottom: 12px; 
+          width: 100%;
+        }
+
+       /* Ubah ke border-collapse: collapse agar border atas tiap baris baru otomatis tertutup rapat */
+        .print-table { 
+          width: 100% !important; 
+          table-layout: fixed !important; 
+          border-collapse: collapse !important;
+          font-size: 10.5px; 
+          margin-top: 4px;
+        }
+
+        /* Mencegah pengulangan header di halaman 2 */
+        .print-table thead {
+          display: table-row-group !important;
+        }
+
+        /* Pasang 1px solid #000 merata di 4 sisi sel */
+        .print-table th, 
+        .print-table td { 
+          border: 1px solid #000 !important; 
+          padding: 4px 6px !important; 
+          vertical-align: middle !important; 
+          word-wrap: break-word !important; 
+          overflow-wrap: break-word !important;
+        }
+
+        .print-table th { 
+          background: #f0f0f0 !important; 
+          text-align: center !important; 
+          font-weight: bold !important; 
+          -webkit-print-color-adjust: exact !important; 
+          print-color-adjust: exact !important;
+        }
+
+        .print-table tr { 
+          page-break-inside: avoid !important; 
+          break-inside: avoid !important;
+        }
       `}</style>
 
       <div className="header">
-        <h2 style={{ margin: "0 0 6px 0", fontSize: "18px" }}>
+        <h2
+          style={{ margin: "0 0 4px 0", fontSize: "17px", fontWeight: "bold" }}
+        >
           Monitoring Stock ({warehouse})
         </h2>
         <div
@@ -116,35 +180,42 @@ export default function PrintRekapPage() {
         </div>
       </div>
 
-      <table>
+      <table className="print-table">
         <thead>
           <tr>
-            <th style={{ width: "5%" }}>No.</th>
-            <th style={{ width: "12%" }}>Lot</th>
-            <th style={{ width: "12%" }}>No. Doc</th>
-            <th style={{ width: "12%" }}>Item</th>
+            {/* Total pas 194mm di kertas A4 */}
+            <th style={{ width: "9mm" }}>No.</th>
+            <th style={{ width: "24mm" }}>Lot</th>
+            <th style={{ width: "22mm" }}>No. Doc</th>
+            <th style={{ width: "22mm" }}>Item</th>
             <th>Deskripsi Master Size</th>
-            <th style={{ width: "12%" }}>Jumlah Rak</th>
-            <th style={{ width: "12%" }}>Qty</th>
-            <th style={{ width: "12%" }}>Jumlah Aktual</th>
+            <th style={{ width: "18mm" }}>Jumlah Rak</th>
+            <th style={{ width: "18mm" }}>Qty</th>
+            <th style={{ width: "20mm" }}>Jumlah Aktual</th>
           </tr>
         </thead>
         <tbody>
           {data.map((r, i) => (
             <tr key={i}>
               <td style={{ textAlign: "center" }}>{i + 1}</td>
-              <td>{r.lot_display || "-"}</td>
-              <td>{r.no_doc || "-"}</td>
-              <td>{r.item || "-"}</td>
-              <td>{r.description || "-"}</td>
+              <td style={{ textAlign: "left" }}>{r.lot_display || "-"}</td>
+              <td style={{ textAlign: "left" }}>{r.no_doc || "-"}</td>
+              <td style={{ textAlign: "left" }}>{r.item || "-"}</td>
+              <td style={{ textAlign: "left" }}>{r.description || "-"}</td>
               <td style={{ textAlign: "center" }}>{r.Rak || 0}</td>
               <td style={{ textAlign: "right" }}>
                 {Number(r.Qty || 0).toLocaleString("id-ID")}
               </td>
-              <td></td>
+              <td>&nbsp;</td>
             </tr>
           ))}
-          <tr style={{ fontWeight: "bold", background: "#f2f2f2" }}>
+          <tr
+            style={{
+              fontWeight: "bold",
+              background: "#f2f2f2",
+              WebkitPrintColorAdjust: "exact",
+            }}
+          >
             <td colSpan={5} style={{ textAlign: "center" }}>
               GRAND TOTAL
             </td>
@@ -152,7 +223,7 @@ export default function PrintRekapPage() {
             <td style={{ textAlign: "right" }}>
               {totalQty.toLocaleString("id-ID")}
             </td>
-            <td></td>
+            <td>&nbsp;</td>
           </tr>
         </tbody>
       </table>

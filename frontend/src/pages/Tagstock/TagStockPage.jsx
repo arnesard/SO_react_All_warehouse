@@ -12,6 +12,26 @@ import Swal from "sweetalert2";
 
 const API_BASE = "http://localhost:8010/api/tagstock";
 
+// Helper cetak memanggil URL page terpisah lewat hidden iframe (Tanpa New Tab & Tanpa Navbar)
+function triggerPrintPageViaFrame(url) {
+  const frameId = "print-isolated-iframe";
+  let iframe = document.getElementById(frameId);
+  if (iframe) {
+    iframe.remove();
+  }
+
+  iframe = document.createElement("iframe");
+  iframe.id = frameId;
+  iframe.style.position = "fixed";
+  iframe.style.right = "0";
+  iframe.style.bottom = "0";
+  iframe.style.width = "0";
+  iframe.style.height = "0";
+  iframe.style.border = "none";
+  iframe.src = url;
+  document.body.appendChild(iframe);
+}
+
 export default function TagStockPage() {
   const [warehouses, setWarehouses] = useState([]);
   const [selectedWh, setSelectedWh] = useState("");
@@ -80,7 +100,6 @@ export default function TagStockPage() {
     setIsValidated(false);
   }, [selectedWh]);
 
-  // Operator Info Objek
   const currentOperatorObj = useMemo(() => {
     return operators.find((op) => op.no_penneng === selectedOperator) || null;
   }, [operators, selectedOperator]);
@@ -106,7 +125,6 @@ export default function TagStockPage() {
         const data = json.master_data || [];
         setTableRows(data);
 
-        // Populate docList jika belum diisi filter range
         if (!start && !end) {
           const docs = [...new Set(data.map((d) => d.no_doc))].filter(Boolean);
           setDocList(docs);
@@ -211,18 +229,18 @@ export default function TagStockPage() {
     }
   };
 
-  // 7. PRINT REKAP (Buka halaman terpisah)
+  // 7. PRINT REKAP (Memanggil page PrintRekapPage tanpa tab baru)
   const handlePrintRekap = () => {
     if (!selectedWh || !selectedOperator) return;
     const url = `/print/tagstock/rekap?warehouse=${encodeURIComponent(selectedWh)}&operator_id=${encodeURIComponent(selectedOperator)}&doc_start=${encodeURIComponent(docStart)}&doc_end=${encodeURIComponent(docEnd)}`;
-    window.open(url, "_blank");
+    triggerPrintPageViaFrame(url);
   };
 
-  // 8. PRINT KARTU TAG (Buka halaman terpisah)
+  // 8. PRINT KARTU TAG (Memanggil page PrintTagStockPage tanpa tab baru)
   const handlePrintKartuTag = () => {
     if (!selectedWh || !selectedOperator) return;
     const url = `/print/tagstock/kso?warehouse=${encodeURIComponent(selectedWh)}&operator_id=${encodeURIComponent(selectedOperator)}&doc_start=${encodeURIComponent(docStart)}&doc_end=${encodeURIComponent(docEnd)}`;
-    window.open(url, "_blank");
+    triggerPrintPageViaFrame(url);
   };
 
   const totalRack = tableRows.reduce((a, b) => a + (Number(b.Rak) || 0), 0);
@@ -251,7 +269,7 @@ export default function TagStockPage() {
           overflow: "hidden",
         }}
       >
-        {/* HEADER CONTROLS (FILTER GUDANG, OPERATOR, DOKUMEN, TOMBOL AKSI) */}
+        {/* HEADER CONTROLS */}
         <div
           className="surface-card-header"
           style={{ padding: "10px 16px", flexShrink: 0, gap: 10 }}
@@ -331,7 +349,7 @@ export default function TagStockPage() {
             )}
           </div>
 
-          {/* SISI KANAN: DOC AWAL, DOC AKHIR, TAG STOCK CETAK & RESET */}
+          {/* SISI KANAN: DOC AWAL, DOC AKHIR, TAG STOCK & RESET */}
           {selectedOperator && (
             <div
               style={{
@@ -396,7 +414,7 @@ export default function TagStockPage() {
           )}
         </div>
 
-        {/* TABEL AREA UTAMA */}
+        {/* TABEL AREA UTAMA (KOLOM AKSI DIHAPUS 1:1 LARAVEL) */}
         <div
           className="dtable-wrap"
           style={{
@@ -411,31 +429,30 @@ export default function TagStockPage() {
             <thead>
               <tr>
                 <th style={{ width: "45px", textAlign: "center" }}>No.</th>
-                <th style={{ width: "110px" }}>Lot</th>
-                <th style={{ width: "110px" }}>No. Doc</th>
-                <th style={{ width: "110px" }}>Item</th>
+                <th style={{ width: "120px" }}>Lot</th>
+                <th style={{ width: "120px" }}>No. Doc</th>
+                <th style={{ width: "130px" }}>Item</th>
                 <th>Deskripsi Master Size</th>
-                <th style={{ width: "95px", textAlign: "center" }}>
+                <th style={{ width: "100px", textAlign: "center" }}>
                   Jumlah Rak
                 </th>
-                <th style={{ width: "110px", textAlign: "right" }}>Qty</th>
+                <th style={{ width: "120px", textAlign: "right" }}>Qty</th>
                 {isValidated && (
                   <>
-                    <th style={{ width: "110px", textAlign: "right" }}>
+                    <th style={{ width: "120px", textAlign: "right" }}>
                       Qty APPKSO
                     </th>
-                    <th style={{ width: "95px", textAlign: "center" }}>
+                    <th style={{ width: "100px", textAlign: "center" }}>
                       Status
                     </th>
                   </>
                 )}
-                <th style={{ width: "65px", textAlign: "center" }}>Aksi</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={isValidated ? 10 : 8} className="table-empty">
+                  <td colSpan={isValidated ? 9 : 7} className="table-empty">
                     <Loader2
                       size={16}
                       className="spin"
@@ -450,7 +467,7 @@ export default function TagStockPage() {
                 </tr>
               ) : tableRows.length === 0 ? (
                 <tr>
-                  <td colSpan={isValidated ? 10 : 8} className="table-empty">
+                  <td colSpan={isValidated ? 9 : 7} className="table-empty">
                     {selectedOperator
                       ? "Tidak ada data pada rentang dokumen ini."
                       : "Silakan pilih target gudang dan operator di atas untuk memilah baris area bro."}
@@ -463,7 +480,12 @@ export default function TagStockPage() {
                   const isMatch = qtyTag === qtyKso;
 
                   return (
-                    <tr key={index}>
+                    <tr
+                      key={index}
+                      style={{ cursor: "pointer" }}
+                      title="Klik baris untuk melihat riwayat scan APPKSO"
+                      onClick={() => handleOpenScanHistory(row)}
+                    >
                       <td style={{ textAlign: "center" }} className="mono">
                         {index + 1}
                       </td>
@@ -498,16 +520,6 @@ export default function TagStockPage() {
                           </td>
                         </>
                       )}
-                      <td style={{ textAlign: "center" }}>
-                        <button
-                          type="button"
-                          className="btn-icon-action"
-                          title="Lihat Histori Scan"
-                          onClick={() => handleOpenScanHistory(row)}
-                        >
-                          <History size={13} />
-                        </button>
-                      </td>
                     </tr>
                   );
                 })
@@ -548,7 +560,7 @@ export default function TagStockPage() {
                   >
                     {totalQty.toLocaleString("id-ID")} PCS
                   </td>
-                  <td colSpan={isValidated ? 3 : 1}></td>
+                  {isValidated && <td colSpan={2}></td>}
                 </tr>
               </tfoot>
             )}

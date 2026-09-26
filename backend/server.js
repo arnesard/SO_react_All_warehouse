@@ -7,7 +7,7 @@ const barcodeMonstockRoutes = require("./src/routes/Barcode Monstock/barcodeMons
 const snapshotRoutes = require("./src/routes/Snapshot/snapshot");
 const picRoutes = require("./src/routes/Master PIC/pic");
 const tagStockRoutes = require("./src/routes/Tagstock/tagStock");
-
+const tagStockNonBarcodeRoutes = require("./src/routes/Tagstock non barcode/tagStockNonBarcode");
 const app = express();
 
 app.use(cors());
@@ -24,6 +24,7 @@ app.use("/api/barcode-monstock", barcodeMonstockRoutes);
 app.use("/api/snapshot", snapshotRoutes);
 app.use("/api/pic", picRoutes);
 app.use("/api/tagstock", tagStockRoutes);
+app.use("/api/tagstock-nonbarcode", tagStockNonBarcodeRoutes);
 
 const PORT = process.env.PORT || 8010;
 

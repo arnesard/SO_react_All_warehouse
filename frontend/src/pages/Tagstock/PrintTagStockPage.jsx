@@ -100,7 +100,6 @@ export default function PrintTagStockPage() {
           box-sizing: border-box !important;
         }
 
-        /* HAPUS height: 297mm dan HAPUS overflow: hidden dari html & body */
         html, body { 
           width: 210mm !important;
           background: #fff !important; 
@@ -108,7 +107,7 @@ export default function PrintTagStockPage() {
           font-family: Arial, sans-serif; 
           margin: 0 !important; 
           padding: 0 !important; 
-          overflow: visible !important; /* Wajib visible agar halaman 2, 3, dst tidak kepotong */
+          overflow: visible !important;
         }
 
         /* Lembar A4 presisi per 4 kartu */
@@ -122,10 +121,10 @@ export default function PrintTagStockPage() {
           row-gap: 5mm !important;    
           justify-content: center !important; 
           align-content: center !important;   
-          break-after: page !important;      /* Standar pemisah halaman cetak modern */
-          page-break-after: always !important; /* Kompatibilitas browser lama */
+          break-after: page !important;
+          page-break-after: always !important;
           box-sizing: border-box;
-          overflow: hidden; /* Cukup di dalam lembar ini saja */
+          overflow: hidden;
         }
 
         .form-card { 
@@ -154,10 +153,10 @@ export default function PrintTagStockPage() {
         }
 
         .tag-title-cell {
-          padding: 6px 0;
+          padding: 4px 0;
           text-align: center;
           font-weight: bold;
-          font-size: 19px;
+          font-size: 17px;
           background: #f2f2f2;
           letter-spacing: 1px;
           -webkit-print-color-adjust: exact !important;
@@ -192,78 +191,86 @@ export default function PrintTagStockPage() {
               return (
                 <div key={idx} className="form-card">
                   <table className="tag-table-main">
+                    {/* Pembagian Kolom Presisi agar rumus x tepat di tengah */}
                     <colgroup>
-                      <col style={{ width: "9%" }} />
-                      <col style={{ width: "23%" }} />
-                      <col style={{ width: "22%" }} />
-                      <col style={{ width: "22%" }} />
-                      <col style={{ width: "5%" }} />
-                      <col style={{ width: "19%" }} />
+                      <col style={{ width: "7%" }} /> {/* A / B / C */}
+                      <col style={{ width: "23%" }} /> {/* Cell line */}
+                      <col style={{ width: "6%" }} /> {/* x */}
+                      <col style={{ width: "22%" }} /> {/* Susun line */}
+                      <col style={{ width: "6%" }} /> {/* x */}
+                      <col style={{ width: "17%" }} /> {/* Isi line */}
+                      <col style={{ width: "5%" }} /> {/* = */}
+                      <col style={{ width: "14%" }} /> {/* Total line */}
                     </colgroup>
                     <tbody>
                       {/* 1. Header */}
                       <tr>
-                        <td colSpan="6" className="tag-title-cell">
+                        <td colSpan="8" className="tag-title-cell">
                           TAG STOCK
                         </td>
                       </tr>
 
-                      {/* 2. No Doc Label */}
+                      {/* 2. No Doc Label (DIPENDEKIN) */}
                       <tr>
                         <td
-                          colSpan="6"
+                          colSpan="8"
                           style={{
                             borderTop: "1px solid #000",
                             borderBottom: "none",
                             textAlign: "left",
                             textIndent: "5px",
-                            padding: "1px 0",
-                            fontSize: "10px",
+                            padding: "1px 0 0 0",
+                            fontSize: "9px",
+                            lineHeight: "1",
                           }}
                         >
                           No. Doc :
                         </td>
                       </tr>
 
-                      {/* 3. No Doc Value & Barcode (react-barcode) */}
+                      {/* 3. No Doc Value & Barcode (DIPENDEKIN) */}
                       <tr>
                         <td
-                          colSpan="3"
+                          colSpan="4"
                           style={{
                             borderTop: "none",
                             borderRight: "none",
                             borderBottom: "1px solid #000",
-                            padding: "0 0 2px 8px",
+                            padding: "0 0 2px 6px",
                             textAlign: "left",
                           }}
                         >
                           <div
                             style={{
                               fontWeight: "bold",
-                              fontSize: "19px",
-                              lineHeight: "1",
+                              fontSize: "17px",
+                              lineHeight: "1.1",
                             }}
                           >
                             {t.no_doc || "-"}
                           </div>
                         </td>
                         <td
-                          colSpan="3"
+                          colSpan="4"
                           style={{
                             borderTop: "none",
                             borderLeft: "none",
                             borderBottom: "1px solid #000",
-                            textAlign: "left",
-                            paddingLeft: "4px",
+                            textAlign: "right",
+                            paddingRight: "6px",
+                            paddingBottom: "2px",
                           }}
                         >
-                          <div className="barcode-wrap">
+                          <div
+                            className="barcode-wrap"
+                            style={{ display: "inline-block" }}
+                          >
                             {t.no_doc ? (
                               <Barcode
                                 value={String(t.no_doc)}
                                 format="CODE128"
                                 width={1.2}
-                                height={26}
+                                height={20}
                                 displayValue={false}
                                 margin={0}
                               />
@@ -272,30 +279,32 @@ export default function PrintTagStockPage() {
                         </td>
                       </tr>
 
-                      {/* 4. Lokasi Gedung & Lot */}
+                      {/* 4. Lokasi Gedung & Lot (DIPENDEKIN) */}
                       <tr>
                         <td
-                          colSpan="3"
+                          colSpan="4"
                           style={{
                             border: "1px solid #000",
                             borderBottom: "none",
-                            padding: "4px 0",
+                            padding: "1px 0",
                             textAlign: "center",
                             fontWeight: "bold",
-                            fontSize: "17px",
+                            fontSize: "15px",
+                            height: "22px",
                           }}
                         >
                           {locPrefix}
                         </td>
                         <td
-                          colSpan="3"
+                          colSpan="4"
                           style={{
                             border: "1px solid #000",
                             borderBottom: "none",
-                            padding: "4px 0",
+                            padding: "1px 0",
                             textAlign: "center",
                             fontWeight: "bold",
-                            fontSize: "17px",
+                            fontSize: "15px",
+                            height: "22px",
                           }}
                         >
                           {locSuffix}
@@ -305,7 +314,7 @@ export default function PrintTagStockPage() {
                       {/* 5. Pemisah Halus */}
                       <tr>
                         <td
-                          colSpan="6"
+                          colSpan="8"
                           style={{
                             borderLeft: "1px solid #000",
                             borderRight: "1px solid #000",
@@ -316,31 +325,33 @@ export default function PrintTagStockPage() {
                         ></td>
                       </tr>
 
-                      {/* 6. Item Code Label */}
+                      {/* 6. Item Code Label (DIPENDEKIN) */}
                       <tr>
                         <td
-                          colSpan="6"
+                          colSpan="8"
                           style={{
                             borderTop: "1px solid #000",
                             borderBottom: "none",
                             padding: "1px 6px 0 0",
                             textAlign: "right",
-                            fontSize: "9.5px",
+                            fontSize: "9px",
+                            lineHeight: "1",
                           }}
                         >
                           Item Code :
                         </td>
                       </tr>
 
-                      {/* 7. Barcode Item & Text Item (DIBAGI 3:3 BIAR GESER KE KIRI & TIDAK KEPOTONG) */}
+                      {/* 7. Barcode Item & Text Item (DIPENDEKIN) */}
                       <tr>
                         <td
-                          colSpan="3"
+                          colSpan="4"
                           style={{
                             border: "none",
                             borderLeft: "1px solid #000",
                             textAlign: "left",
                             paddingLeft: "6px",
+                            paddingBottom: "1px",
                           }}
                         >
                           <div className="barcode-wrap">
@@ -349,7 +360,7 @@ export default function PrintTagStockPage() {
                                 value={itemText}
                                 format="CODE128"
                                 width={1.05}
-                                height={25}
+                                height={20}
                                 displayValue={false}
                                 margin={0}
                               />
@@ -357,14 +368,14 @@ export default function PrintTagStockPage() {
                           </div>
                         </td>
                         <td
-                          colSpan="3"
+                          colSpan="4"
                           style={{
                             border: "none",
                             borderRight: "1px solid #000",
-                            fontSize: itemText.length > 9 ? "14px" : "16px",
+                            fontSize: itemText.length > 9 ? "13.5px" : "15.5px",
                             fontWeight: "bold",
                             textAlign: "right",
-                            paddingRight: "5px",
+                            paddingRight: "6px",
                             lineHeight: "1",
                             whiteSpace: "nowrap",
                             letterSpacing: "-0.3px",
@@ -374,69 +385,72 @@ export default function PrintTagStockPage() {
                         </td>
                       </tr>
 
-                      {/* 8. Deskripsi Item */}
+                      {/* 8. Deskripsi Item (DIPENDEKIN) */}
                       <tr>
                         <td
-                          colSpan="6"
+                          colSpan="8"
                           style={{
                             borderLeft: "1px solid #000",
                             borderRight: "1px solid #000",
                             borderTop: "none",
                             borderBottom: "none",
-                            padding: "0 5px 4px 0",
+                            padding: "0 6px 2px 0",
                             textAlign: "right",
-                            fontSize: itemText.length > 9 ? "11.5px" : "13px",
+                            fontSize: itemText.length > 9 ? "11px" : "12px",
                             fontWeight: "600",
+                            lineHeight: "1.1",
                           }}
                         >
                           {t.description || itemText || "-"}
                         </td>
                       </tr>
 
-                      {/* 9. Baris Label Jumlah Rak & Pcs */}
+                      {/* 9. Baris Label Jumlah Rak & Pcs (DIPENDEKIN) */}
                       <tr>
                         <td
-                          colSpan="2"
+                          colSpan="3"
                           style={{
                             borderTop: "1px solid #000",
                             borderBottom: "none",
                             borderLeft: "1px solid #000",
                             borderRight: "1px solid #000",
-                            padding: "3px 0 0 5px",
+                            padding: "2px 0 0 5px",
                             textAlign: "left",
-                            fontSize: "9.5px",
+                            fontSize: "9px",
+                            lineHeight: "1",
                           }}
                         >
                           Jumlah Rak:
                         </td>
                         <td
-                          colSpan="4"
+                          colSpan="5"
                           style={{
                             borderTop: "1px solid #000",
                             borderBottom: "none",
                             borderLeft: "1px solid #000",
                             borderRight: "1px solid #000",
-                            padding: "3px 0 0 5px",
+                            padding: "2px 0 0 5px",
                             textAlign: "left",
-                            fontSize: "9.5px",
+                            fontSize: "9px",
+                            lineHeight: "1",
                           }}
                         >
                           Jumlah Pcs:
                         </td>
                       </tr>
 
-                      {/* 10. Nilai Angka Rak, Pcs & Barcode Qty */}
+                      {/* 10. Nilai Angka Rak, Pcs & Barcode Qty (DIPENDEKIN) */}
                       <tr>
                         <td
-                          colSpan="2"
+                          colSpan="3"
                           style={{
                             borderTop: "none",
                             borderBottom: "1px solid #000",
                             borderLeft: "1px solid #000",
                             borderRight: "1px solid #000",
-                            padding: "0 0 3px 0",
+                            padding: "0 0 2px 0",
                             textAlign: "center",
-                            fontSize: "24px",
+                            fontSize: "20px",
                             fontWeight: "bold",
                             lineHeight: "1",
                           }}
@@ -444,15 +458,15 @@ export default function PrintTagStockPage() {
                           {t.Rak || 0}
                         </td>
                         <td
-                          colSpan="2"
+                          colSpan="3"
                           style={{
                             borderTop: "none",
                             borderBottom: "1px solid #000",
                             borderLeft: "1px solid #000",
                             borderRight: "none",
-                            padding: "0 6px 3px 0",
+                            padding: "0 6px 2px 0",
                             textAlign: "right",
-                            fontSize: "24px",
+                            fontSize: "20px",
                             fontWeight: "bold",
                             lineHeight: "1",
                           }}
@@ -466,25 +480,19 @@ export default function PrintTagStockPage() {
                             borderBottom: "1px solid #000",
                             borderLeft: "none",
                             borderRight: "1px solid #000",
-                            padding:
-                              "0 10px 3px 2px" /* Tambah padding kanan 10px biar geser ke kiri */,
-                            textAlign:
-                              "left" /* Ubah ke left biar barcode nempel ke arah teks angka */,
+                            padding: "0 6px 2px 0",
+                            textAlign: "right",
                           }}
                         >
                           <div
                             className="barcode-wrap"
-                            style={{
-                              display: "inline-block",
-                              marginLeft:
-                                "2px" /* Kontrol jarak geser dari angka */,
-                            }}
+                            style={{ display: "inline-block" }}
                           >
                             <Barcode
                               value={String(totalPcs)}
                               format="CODE128"
-                              width={1.15} /* Sedikit ramping biar kaga sesak */
-                              height={26}
+                              width={1.1}
+                              height={20}
                               displayValue={false}
                               margin={0}
                             />
@@ -495,7 +503,7 @@ export default function PrintTagStockPage() {
                       {/* 11. Label Rincian */}
                       <tr>
                         <td
-                          colSpan="6"
+                          colSpan="8"
                           style={{
                             border: "1px solid #000",
                             padding: "2px 0 2px 5px",
@@ -512,56 +520,91 @@ export default function PrintTagStockPage() {
                         <td className="no-border-side"></td>
                         <td
                           className="no-border-side"
-                          style={{ padding: "1px 0" }}
+                          style={{ padding: "2px 0" }}
                         >
                           Cell
                         </td>
+                        <td className="no-border-side"></td>
                         <td
                           className="no-border-side"
-                          style={{ padding: "1px 0" }}
+                          style={{ padding: "2px 0" }}
                         >
                           Susun
                         </td>
+                        <td className="no-border-side"></td>
                         <td
                           className="no-border-side"
-                          style={{ padding: "1px 0" }}
+                          style={{ padding: "2px 0" }}
                         >
                           Isi
                         </td>
+                        <td className="no-border-side"></td>
                         <td
                           className="no-border-side"
-                          colSpan="2"
-                          style={{ padding: "1px 0" }}
+                          style={{ padding: "2px 0", textAlign: "center" }}
                         >
                           Total
                         </td>
                       </tr>
 
                       {/* 13. Rumus A */}
-                      <tr style={{ fontSize: "10px", textAlign: "center" }}>
+                      <tr style={{ fontSize: "10.5px" }}>
                         <td
                           className="no-border-side"
-                          style={{ padding: "2px 0" }}
+                          style={{ textAlign: "center", padding: "5px 0" }}
                         >
                           A :
                         </td>
                         <td
                           className="no-border-side"
-                          style={{ padding: "2px 0" }}
+                          style={{ textAlign: "center" }}
                         >
-                          _________
+                          <span
+                            style={{
+                              display: "inline-block",
+                              width: "90%",
+                              borderBottom: "1px solid #000",
+                              height: "12px",
+                            }}
+                          ></span>
                         </td>
                         <td
                           className="no-border-side"
-                          style={{ padding: "2px 0" }}
+                          style={{ textAlign: "center", fontWeight: "bold" }}
                         >
-                          x _________
+                          x
                         </td>
                         <td
                           className="no-border-side"
-                          style={{ padding: "2px 0" }}
+                          style={{ textAlign: "center" }}
                         >
-                          x _________
+                          <span
+                            style={{
+                              display: "inline-block",
+                              width: "90%",
+                              borderBottom: "1px solid #000",
+                              height: "12px",
+                            }}
+                          ></span>
+                        </td>
+                        <td
+                          className="no-border-side"
+                          style={{ textAlign: "center", fontWeight: "bold" }}
+                        >
+                          x
+                        </td>
+                        <td
+                          className="no-border-side"
+                          style={{ textAlign: "center" }}
+                        >
+                          <span
+                            style={{
+                              display: "inline-block",
+                              width: "90%",
+                              borderBottom: "1px solid #000",
+                              height: "12px",
+                            }}
+                          ></span>
                         </td>
                         <td
                           className="no-border-side"
@@ -571,37 +614,77 @@ export default function PrintTagStockPage() {
                         </td>
                         <td
                           className="no-border-side"
-                          style={{ textAlign: "left", paddingRight: "4px" }}
+                          style={{ textAlign: "center", paddingRight: "6px" }}
                         >
-                          _________
+                          <span
+                            style={{
+                              display: "inline-block",
+                              width: "85%",
+                              borderBottom: "1px solid #000",
+                              height: "12px",
+                            }}
+                          ></span>
                         </td>
                       </tr>
 
                       {/* 14. Rumus B */}
-                      <tr style={{ fontSize: "10px", textAlign: "center" }}>
+                      <tr style={{ fontSize: "10.5px" }}>
                         <td
                           className="no-border-side"
-                          style={{ padding: "2px 0" }}
+                          style={{ textAlign: "center", padding: "5px 0" }}
                         >
                           B :
                         </td>
                         <td
                           className="no-border-side"
-                          style={{ padding: "2px 0" }}
+                          style={{ textAlign: "center" }}
                         >
-                          _________
+                          <span
+                            style={{
+                              display: "inline-block",
+                              width: "90%",
+                              borderBottom: "1px solid #000",
+                              height: "12px",
+                            }}
+                          ></span>
                         </td>
                         <td
                           className="no-border-side"
-                          style={{ padding: "2px 0" }}
+                          style={{ textAlign: "center", fontWeight: "bold" }}
                         >
-                          x _________
+                          x
                         </td>
                         <td
                           className="no-border-side"
-                          style={{ padding: "2px 0" }}
+                          style={{ textAlign: "center" }}
                         >
-                          x _________
+                          <span
+                            style={{
+                              display: "inline-block",
+                              width: "90%",
+                              borderBottom: "1px solid #000",
+                              height: "12px",
+                            }}
+                          ></span>
+                        </td>
+                        <td
+                          className="no-border-side"
+                          style={{ textAlign: "center", fontWeight: "bold" }}
+                        >
+                          x
+                        </td>
+                        <td
+                          className="no-border-side"
+                          style={{ textAlign: "center" }}
+                        >
+                          <span
+                            style={{
+                              display: "inline-block",
+                              width: "90%",
+                              borderBottom: "1px solid #000",
+                              height: "12px",
+                            }}
+                          ></span>
                         </td>
                         <td
                           className="no-border-side"
@@ -611,37 +694,77 @@ export default function PrintTagStockPage() {
                         </td>
                         <td
                           className="no-border-side"
-                          style={{ textAlign: "left", paddingRight: "4px" }}
+                          style={{ textAlign: "center", paddingRight: "6px" }}
                         >
-                          _________
+                          <span
+                            style={{
+                              display: "inline-block",
+                              width: "85%",
+                              borderBottom: "1px solid #000",
+                              height: "12px",
+                            }}
+                          ></span>
                         </td>
                       </tr>
 
                       {/* 15. Rumus C */}
-                      <tr style={{ fontSize: "10px", textAlign: "center" }}>
+                      <tr style={{ fontSize: "10.5px" }}>
                         <td
                           className="no-border-side"
-                          style={{ padding: "2px 0" }}
+                          style={{ textAlign: "center", padding: "5px 0" }}
                         >
                           C :
                         </td>
                         <td
                           className="no-border-side"
-                          style={{ padding: "2px 0" }}
+                          style={{ textAlign: "center" }}
                         >
-                          _________
+                          <span
+                            style={{
+                              display: "inline-block",
+                              width: "90%",
+                              borderBottom: "1px solid #000",
+                              height: "12px",
+                            }}
+                          ></span>
                         </td>
                         <td
                           className="no-border-side"
-                          style={{ padding: "2px 0" }}
+                          style={{ textAlign: "center", fontWeight: "bold" }}
                         >
-                          x _________
+                          x
                         </td>
                         <td
                           className="no-border-side"
-                          style={{ padding: "2px 0" }}
+                          style={{ textAlign: "center" }}
                         >
-                          x _________
+                          <span
+                            style={{
+                              display: "inline-block",
+                              width: "90%",
+                              borderBottom: "1px solid #000",
+                              height: "12px",
+                            }}
+                          ></span>
+                        </td>
+                        <td
+                          className="no-border-side"
+                          style={{ textAlign: "center", fontWeight: "bold" }}
+                        >
+                          x
+                        </td>
+                        <td
+                          className="no-border-side"
+                          style={{ textAlign: "center" }}
+                        >
+                          <span
+                            style={{
+                              display: "inline-block",
+                              width: "90%",
+                              borderBottom: "1px solid #000",
+                              height: "12px",
+                            }}
+                          ></span>
                         </td>
                         <td
                           className="no-border-side"
@@ -651,85 +774,99 @@ export default function PrintTagStockPage() {
                         </td>
                         <td
                           className="no-border-side"
-                          style={{ textAlign: "left", paddingRight: "4px" }}
+                          style={{ textAlign: "center", paddingRight: "6px" }}
                         >
-                          _________
+                          <span
+                            style={{
+                              display: "inline-block",
+                              width: "85%",
+                              borderBottom: "1px solid #000",
+                              height: "12px",
+                            }}
+                          ></span>
                         </td>
                       </tr>
 
                       {/* 16. PIC Header & Grand Total */}
                       <tr>
                         <td
-                          colSpan="3"
+                          colSpan="4"
                           style={{
                             border: "1px solid #000",
                             borderBottom: "1px solid #000",
-                            padding: "2px 0",
+                            padding: "3px 0",
                             textAlign: "center",
                             fontWeight: "bold",
-                            fontSize: "10.5px",
+                            fontSize: "11px",
                           }}
                         >
                           PIC
                         </td>
                         <td
+                          colSpan="2"
                           className="no-border-side"
                           style={{
                             textAlign: "right",
-                            fontSize: "10px",
-                            paddingRight: "4px",
+                            fontSize: "10.5px",
+                            paddingRight: "2px",
                           }}
                         >
                           Grand Total
                         </td>
                         <td
                           className="no-border-side"
-                          style={{ textAlign: "center", fontSize: "10px" }}
+                          style={{ textAlign: "center", fontSize: "10.5px" }}
                         >
                           =
                         </td>
                         <td
                           className="no-border-side"
                           style={{
-                            textAlign: "left",
-                            fontSize: "10px",
-                            paddingRight: "4px",
+                            textAlign: "center",
+                            paddingRight: "6px",
                           }}
                         >
-                          _________
+                          <span
+                            style={{
+                              display: "inline-block",
+                              width: "85%",
+                              borderBottom: "1px solid #000",
+                              height: "12px",
+                            }}
+                          ></span>
                         </td>
                       </tr>
 
-                      {/* 17. Kotak Tanda Tangan */}
+                      {/* 17. Kotak Tanda Tangan (DITINGGIKAN) */}
                       <tr>
                         <td
-                          colSpan="3"
+                          colSpan="4"
                           style={{
                             border: "1px solid #000",
                             borderTop: "none",
                             borderBottom: "1px solid #000",
-                            height: "58px",
+                            height: "56px",
                           }}
                         ></td>
-                        <td colSpan="3" className="no-border-side"></td>
+                        <td colSpan="4" className="no-border-side"></td>
                       </tr>
 
                       {/* 18. Nama PIC */}
                       <tr>
                         <td
-                          colSpan="3"
+                          colSpan="4"
                           style={{
                             border: "1px solid #000",
                             borderTop: "none",
-                            padding: "3px 0",
+                            padding: "4px 0",
                             textAlign: "center",
                             fontWeight: "bold",
-                            fontSize: "10.5px",
+                            fontSize: "11px",
                           }}
                         >
                           {picName}
                         </td>
-                        <td colSpan="3" className="no-border-side"></td>
+                        <td colSpan="4" className="no-border-side"></td>
                       </tr>
                     </tbody>
                   </table>

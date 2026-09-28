@@ -10,6 +10,8 @@ import TagStockNonBarcodePage from "./pages/Tagstock non barcode/TagStockNonBarc
 import PrintTagStockNonBarcodePage from "./pages/Tagstock non barcode/PrintTagStockNonBarcodePage";
 import PrintRekapNonBarcodePage from "./pages/Tagstock non barcode/PrintRekapNonBarcodePage";
 import AppksoPage from "./pages/Appkso/AppksoPage";
+import PrintRekapKso from "./pages/Appkso/PrintRekapKso";
+import PrintKso from "./pages/Appkso/PrintKso";
 import SnapshotPage from "./pages/Snapshot/SnapshotPage";
 import ProgressSoPage from "./pages/Progress/ProgressSoPage";
 import PicPage from "./pages/Master PIC/PicPage";
@@ -31,7 +33,6 @@ function App() {
         <Route path="snapshot" element={<SnapshotPage />} />
         <Route path="progress-so" element={<ProgressSoPage />} />
         <Route path="pic" element={<PicPage />} />
-
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
 
@@ -46,6 +47,10 @@ function App() {
         path="print/tagstock-nonbarcode/rekap"
         element={<PrintRekapNonBarcodePage />}
       />
+
+      {/* Rute Khusus Cetak APPKSO */}
+      <Route path="print/appkso/rekap" element={<PrintRekapKso />} />
+      <Route path="print/appkso/kso" element={<PrintKso />} />
     </Routes>
   );
 }

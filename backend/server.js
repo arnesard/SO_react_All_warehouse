@@ -8,6 +8,7 @@ const snapshotRoutes = require("./src/routes/Snapshot/snapshot");
 const picRoutes = require("./src/routes/Master PIC/pic");
 const tagStockRoutes = require("./src/routes/Tagstock/tagStock");
 const tagStockNonBarcodeRoutes = require("./src/routes/Tagstock non barcode/tagStockNonBarcode");
+const appksoRoutes = require("./src/routes/Appkso/appkso");
 const app = express();
 
 app.use(cors());
@@ -25,6 +26,7 @@ app.use("/api/snapshot", snapshotRoutes);
 app.use("/api/pic", picRoutes);
 app.use("/api/tagstock", tagStockRoutes);
 app.use("/api/tagstock-nonbarcode", tagStockNonBarcodeRoutes);
+app.use("/api/appkso", appksoRoutes);
 
 const PORT = process.env.PORT || 8010;
 

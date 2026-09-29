@@ -370,7 +370,7 @@ function BarcodeMonstockPage() {
                 onChange={(e) => setSelectedWh(e.target.value)}
                 style={{ width: "auto" }}
               >
-                <option value="">PILIH GUDANG</option>
+                <option value="">Pilih Gudang</option>
                 {filterWh.map((w) => (
                   <option key={w} value={w}>
                     {w} — Terakhir Upload: {formatLastUpload(lastUpload[w])}
@@ -425,7 +425,7 @@ function BarcodeMonstockPage() {
                     width: 32,
                     height: 32,
                     border: "3px solid var(--border)",
-                    borderTop: "3px solid var(--primary, #c5f358)",
+                    borderTop: "3px solid var(--accent)",
                     borderRadius: "50%",
                     animation: "spin 0.8s linear infinite",
                   }}
@@ -512,7 +512,7 @@ function BarcodeMonstockPage() {
       {/* Modal Peringatan Salah Gudang (SweetAlert Style) */}
       {uploadErrorModal && (
         <Modal
-          title=" PERINGATAN KESALAHAN UPLOAD"
+          title="Peringatan Kesalahan Upload"
           onClose={() => setUploadErrorModal("")}
           footer={
             <button

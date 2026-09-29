@@ -248,7 +248,7 @@ function SnapshotPage() {
                 required
               >
                 <option value="" disabled>
-                  -- PILIH GUDANG TARGET --
+                  -- Pilih gudang target --
                 </option>
                 {["APW", "BPW", "DPW", "RPW"].map((w) => (
                   <option key={w} value={w}>
@@ -308,8 +308,8 @@ function SnapshotPage() {
             onClick={() => setResetOpen(true)}
             style={{
               background: "transparent",
-              border: "1px solid rgba(239, 68, 68, 0.3)",
-              color: "var(--danger, #ef4444)",
+              border: "1px solid rgba(255, 69, 58, 0.3)",
+              color: "var(--danger)",
               width: "100%",
               padding: "10px",
               borderRadius: "6px",
@@ -358,7 +358,7 @@ function SnapshotPage() {
               value={selectedWh}
               onChange={(e) => handleWhChange(e.target.value)}
             >
-              <option value="">-- PILIH GUDANG --</option>
+              <option value="">-- Pilih Gudang --</option>
               {warehouses.map((w) => (
                 <option key={w} value={w}>
                   {w.toUpperCase()}
@@ -416,7 +416,7 @@ function SnapshotPage() {
       {/* Modal Konfirmasi Reset Data (Dev Only) */}
       {resetOpen && (
         <Modal
-          title="⚠️ KONFIRMASI RESET SEMUA DATA"
+          title="Konfirmasi Reset Semua Data"
           onClose={() => setResetOpen(false)}
           footer={
             <>

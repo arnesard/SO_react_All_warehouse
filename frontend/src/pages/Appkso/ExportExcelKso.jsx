@@ -117,17 +117,16 @@ export default function ExportExcelKso({
             ),
           );
 
-          // Susun worksheet manual
           const ws = {};
 
-          // Set ukuran kolom
+          // Set lebar kolom pas
           ws["!cols"] = [
-            { wch: 6 }, // A (No)
-            { wch: 18 }, // B (No Doc)
-            { wch: 18 }, // C (Item)
-            { wch: 40 }, // D (Deskripsi)
-            { wch: 14 }, // E (Qty)
-            { wch: 22 }, // F (Ket)
+            { wch: 6 }, // A (NO)
+            { wch: 18 }, // B (NO. DOCUMENT)
+            { wch: 18 }, // C (ITEM CODE)
+            { wch: 42 }, // D (DESCRIPTION)
+            { wch: 14 }, // E (QTY)
+            { wch: 22 }, // F (KET)
           ];
 
           // 1. Judul (Row 1)
@@ -141,7 +140,7 @@ export default function ExportExcelKso({
           };
 
           // 2. Baris Header Dokumen (Row 2, 3, 4)
-          // Row 2
+          // Row 2: TGL SO + Nama PIC & Auditor (Merged D2:D3 & E2:F3)
           ws["A2"] = {
             v: "TGL STOCK OPNAME",
             t: "s",
@@ -152,11 +151,12 @@ export default function ExportExcelKso({
             t: "s",
             s: { font: { name: "Arial", sz: 10, bold: true } },
           };
+
           ws["D2"] = {
             v: oprName.toUpperCase(),
             t: "s",
             s: {
-              font: { name: "Arial", sz: 10, bold: true },
+              font: { name: "Arial", sz: 11, bold: true },
               alignment: {
                 vertical: "center",
                 horizontal: "center",
@@ -169,7 +169,7 @@ export default function ExportExcelKso({
             v: auditorNamaExcel,
             t: "s",
             s: {
-              font: { name: "Arial", sz: 10, bold: true },
+              font: { name: "Arial", sz: 11, bold: true },
               alignment: {
                 vertical: "center",
                 horizontal: "center",
@@ -178,8 +178,9 @@ export default function ExportExcelKso({
               border: borderThin,
             },
           };
+          ws["F2"] = { v: "", t: "s", s: { border: borderThin } };
 
-          // Row 3
+          // Row 3: TGL Posisi + Sambungan Border Kotak Tanda Tangan
           ws["A3"] = {
             v: "TGL POSISI STOCK",
             t: "s",
@@ -190,11 +191,11 @@ export default function ExportExcelKso({
             t: "s",
             s: { font: { name: "Arial", sz: 10, bold: true } },
           };
-          ws["D3"] = { s: { border: borderThin } };
-          ws["E3"] = { s: { border: borderThin } };
-          ws["F3"] = { s: { border: borderThin } };
+          ws["D3"] = { v: "", t: "s", s: { border: borderThin } };
+          ws["E3"] = { v: "", t: "s", s: { border: borderThin } };
+          ws["F3"] = { v: "", t: "s", s: { border: borderThin } };
 
-          // Row 4
+          // Row 4: Jumlah Kartu + Label Team Gudang & Team SO
           ws["A4"] = {
             v: "JUMLAH KARTU STOCK",
             t: "s",
@@ -205,6 +206,7 @@ export default function ExportExcelKso({
             t: "s",
             s: { font: { name: "Arial", sz: 10, bold: true } },
           };
+
           ws["D4"] = {
             v: "Team Gud. Ban",
             t: "s",
@@ -223,7 +225,7 @@ export default function ExportExcelKso({
               border: borderThin,
             },
           };
-          ws["F4"] = { s: { border: borderThin } };
+          ws["F4"] = { v: "", t: "s", s: { border: borderThin } };
 
           // 3. Header Tabel (Row 6)
           const headers = [
@@ -343,12 +345,18 @@ export default function ExportExcelKso({
             },
           };
           ws[`B${totalRow}`] = {
+            v: "",
+            t: "s",
             s: { fill: { fgColor: { rgb: "F2F2F2" } }, border: borderMedium },
           };
           ws[`C${totalRow}`] = {
+            v: "",
+            t: "s",
             s: { fill: { fgColor: { rgb: "F2F2F2" } }, border: borderMedium },
           };
           ws[`D${totalRow}`] = {
+            v: "",
+            t: "s",
             s: { fill: { fgColor: { rgb: "F2F2F2" } }, border: borderMedium },
           };
 
@@ -373,17 +381,27 @@ export default function ExportExcelKso({
             },
           };
 
-          // Definisi Merge Cells
+          // Definisi Penggabungan Sel (Merges)
           ws["!merges"] = [
             { s: { r: 0, c: 0 }, e: { r: 0, c: 3 } }, // A1:D1
             { s: { r: 1, c: 3 }, e: { r: 2, c: 3 } }, // D2:D3 (Kotak PIC)
             { s: { r: 1, c: 4 }, e: { r: 2, c: 5 } }, // E2:F3 (Kotak Auditor)
-            { s: { r: 3, c: 4 }, e: { r: 3, c: 5 } }, // E4:F4
+            { s: { r: 3, c: 4 }, e: { r: 3, c: 5 } }, // E4:F4 (Label Team SO)
             { s: { r: totalRow - 1, c: 0 }, e: { r: totalRow - 1, c: 3 } }, // A:D Total Row
           ];
 
           // Rentang lembar kerja
           ws["!ref"] = `A1:F${totalRow}`;
+
+          // FREEZE PANE ROW 6 (Header tetap diam saat discroll)
+          ws["!views"] = [
+            {
+              state: "frozen",
+              ySplit: 6,
+              topLeftCell: "A7",
+              activeCell: "A7",
+            },
+          ];
 
           // Tambah sheet ke workbook
           let sName = sanitizeSheetName(oprName);

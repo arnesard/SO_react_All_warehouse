@@ -289,7 +289,7 @@ export default function TagStockPage() {
               value={selectedWh}
               onChange={(e) => setSelectedWh(e.target.value)}
             >
-              <option value="">⚠️ PILIH GUDANG</option>
+              <option value="">Pilih gudang</option>
               {warehouses.map((wh) => (
                 <option key={wh.warehouse} value={wh.warehouse}>
                   {wh.warehouse}{" "}
@@ -305,7 +305,7 @@ export default function TagStockPage() {
               value={selectedOperator}
               onChange={(e) => handleOperatorChange(e.target.value)}
             >
-              <option value="">-- KUNCI OPERATOR --</option>
+              <option value="">Pilih operator</option>
               {operators.map((op) => (
                 <option key={op.no_penneng} value={op.no_penneng}>
                   {op.nama} ({op.no_penneng})
@@ -317,33 +317,25 @@ export default function TagStockPage() {
               <>
                 <button
                   type="button"
-                  className="btn-ctrl"
+                  className="btn-ctrl green"
                   style={{
-                    backgroundColor: "rgba(52, 199, 123, 0.15)",
-                    borderColor: "var(--ok)",
-                    color: "var(--ok)",
                     padding: "7px 12px",
                   }}
                   onClick={handlePrintRekap}
                 >
-                  <Printer size={14} /> REKAP
+                  <Printer size={14} /> Rekap
                 </button>
 
                 <button
                   type="button"
-                  className={`btn-ctrl ${isValidated ? "primary" : ""}`}
+                  className={`btn-ctrl ${isValidated ? "solid-green" : "yellow"}`}
                   style={{
                     padding: "7px 12px",
-                    backgroundColor: isValidated
-                      ? undefined
-                      : "rgba(245, 166, 35, 0.15)",
-                    borderColor: isValidated ? undefined : "var(--warn)",
-                    color: isValidated ? undefined : "var(--warn)",
                   }}
                   onClick={handleToggleValidation}
                 >
                   <CheckCircle size={14} />{" "}
-                  {isValidated ? "TUTUP VALIDASI" : "VALIDASI"}
+                  {isValidated ? "Tutup Validasi" : "Validasi"}
                 </button>
               </>
             )}
@@ -368,7 +360,7 @@ export default function TagStockPage() {
                   handleDocFilterApply(e.target.value, docEnd);
                 }}
               >
-                <option value="">-- DOC AWAL --</option>
+                <option value="">Doc awal</option>
                 {docList.map((d) => (
                   <option key={d} value={d}>
                     {d}
@@ -385,7 +377,7 @@ export default function TagStockPage() {
                   handleDocFilterApply(docStart, e.target.value);
                 }}
               >
-                <option value="">-- DOC AKHIR --</option>
+                <option value="">Doc akhir</option>
                 {docList.map((d) => (
                   <option key={d} value={d}>
                     {d}
@@ -399,16 +391,16 @@ export default function TagStockPage() {
                 style={{ padding: "7px 14px" }}
                 onClick={handlePrintKartuTag}
               >
-                <Tag size={14} /> TAG STOCK
+                <Tag size={14} /> Tag Stock
               </button>
 
               <button
                 type="button"
-                className="btn-ctrl danger"
+                className="btn-ctrl red"
                 style={{ padding: "7px 12px" }}
                 onClick={handleResetFilters}
               >
-                <RotateCcw size={14} /> RESET
+                <RotateCcw size={14} /> Reset
               </button>
             </div>
           )}
@@ -498,7 +490,7 @@ export default function TagStockPage() {
                       <td style={{ textAlign: "center" }} className="mono">
                         {row.Rak || 0}
                       </td>
-                      <td style={{ textAlign: "right", fontWeight: 700 }}>
+                      <td style={{ textAlign: "right", fontWeight: 600 }}>
                         {qtyTag.toLocaleString("id-ID")}
                       </td>
                       {isValidated && (
@@ -511,11 +503,11 @@ export default function TagStockPage() {
                           </td>
                           <td style={{ textAlign: "center" }}>
                             {qtyKso === 0 ? (
-                              <span className="badge-pill warn">BELUM</span>
+                              <span className="badge-pill warn">Belum</span>
                             ) : isMatch ? (
-                              <span className="badge-pill ok">SESUAI</span>
+                              <span className="badge-pill ok">Sesuai</span>
                             ) : (
-                              <span className="badge-pill danger">SELISIH</span>
+                              <span className="badge-pill danger">Selisih</span>
                             )}
                           </td>
                         </>
@@ -532,7 +524,7 @@ export default function TagStockPage() {
                   position: "sticky",
                   bottom: 0,
                   backgroundColor: "var(--surface-3)",
-                  fontWeight: 700,
+                  fontWeight: 600,
                   zIndex: 2,
                   boxShadow: "inset 0 1px 0 var(--border)",
                 }}
@@ -546,16 +538,16 @@ export default function TagStockPage() {
                       color: "var(--text-secondary)",
                     }}
                   >
-                    TOTAL RINGKASAN PENUGASAN :
+                    Total Ringkasan Penugasan
                   </td>
                   <td
-                    style={{ textAlign: "center", color: "var(--warn)" }}
+                    style={{ textAlign: "center", color: "var(--text-secondary)" }}
                     className="mono"
                   >
                     {totalRack} RAK
                   </td>
                   <td
-                    style={{ textAlign: "right", color: "var(--accent)" }}
+                    style={{ textAlign: "right", color: "var(--text-primary)" }}
                     className="mono"
                   >
                     {totalQty.toLocaleString("id-ID")} PCS
@@ -642,7 +634,7 @@ export default function TagStockPage() {
                             {h.item || h.item_code}
                           </td>
                           <td
-                            style={{ textAlign: "right", fontWeight: 700 }}
+                            style={{ textAlign: "right", fontWeight: 600 }}
                             className="cell-code"
                           >
                             {Number(h.qty || h.qty_scan || 0).toLocaleString(

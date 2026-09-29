@@ -100,6 +100,7 @@ export default function PrintKso() {
     );
   }
 
+  // Baris lingkaran angka 1 2 3 4 5 6 7 8 9 0
   const renderDigitRow = (digitValue) => {
     const digits = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
     return (
@@ -107,7 +108,7 @@ export default function PrintKso() {
         style={{
           display: "flex",
           justifyContent: "space-between",
-          width: "280px",
+          width: "300px",
         }}
       >
         {digits.map((d) => {
@@ -125,15 +126,15 @@ export default function PrintKso() {
                 justifyContent: "center",
                 fontFamily: "Arial, sans-serif",
                 fontWeight: "bold",
-                fontSize: "9px",
+                fontSize: "10px",
               }}
             >
               {isSelected ? (
                 <div
                   style={{
                     position: "absolute",
-                    width: "15px",
-                    height: "15px",
+                    width: "16px",
+                    height: "16px",
                     borderRadius: "50%",
                     border: "1.5px solid #000",
                     display: "flex",
@@ -173,241 +174,388 @@ export default function PrintKso() {
         : "..........";
 
     return (
-      <table
-        style={{
-          width: "100%",
-          borderCollapse: "collapse",
-          fontSize: "13px",
-          fontFamily: "'Times New Roman', Times, serif",
-          border: "none",
-        }}
-      >
-        <tbody>
-          <tr>
-            <td
-              colSpan="6"
-              style={{
-                textAlign: "center",
-                fontWeight: "bold",
-                fontSize: "18px",
-                position: "relative",
-                paddingBottom: "4px",
-              }}
-            >
-              KARTU STOCK OPNAME
-              <p style={{ fontSize: "12px", margin: 0, fontWeight: "normal" }}>
-                TANGGAL : {tglManual || "-"}
-              </p>
-              <p style={{ fontSize: "20px", paddingTop: "6px", margin: 0 }}>
-                {gradeStr}
-              </p>
-              {isTopHalf && (
-                <div
+      <div className="card-half">
+        <table
+          className="kso-table"
+          style={{
+            width: "100%",
+            borderCollapse: "collapse",
+            fontSize: "12px",
+            fontFamily: "'Times New Roman', Times, serif",
+            border: "none",
+          }}
+        >
+          <tbody>
+            {/* Header Judul & Barcode Dokumen Kanan Atas */}
+            <tr>
+              <td
+                colSpan="6"
+                style={{
+                  textAlign: "center",
+                  fontWeight: "bold",
+                  fontSize: "18px",
+                  position: "relative",
+                  padding: "0 0 1px 0",
+                }}
+              >
+                KARTU STOCK OPNAME
+                <p
                   style={{
-                    position: "absolute",
-                    top: 0,
-                    right: 0,
-                    textAlign: "center",
+                    fontSize: "11px",
+                    margin: "1px 0 0 0",
+                    fontWeight: "normal",
                   }}
                 >
-                  <div style={{ fontSize: "10px" }}>KODE DOKUMEN & NO. DOC</div>
+                  TANGGAL : {tglManual}
+                </p>
+                <p
+                  style={{
+                    fontSize: "20px",
+                    paddingTop: "3px",
+                    margin: 0,
+                    lineHeight: 1,
+                  }}
+                >
+                  {gradeStr}
+                </p>
+                {isTopHalf && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      right: 0,
+                      textAlign: "center",
+                    }}
+                  >
+                    <div style={{ fontSize: "10px", fontWeight: "normal" }}>
+                      KODE DOKUMEN & NO. DOC
+                    </div>
+                    <div style={{ marginTop: "1px" }}>
+                      <Barcode
+                        value={String(t.nokso || "")}
+                        format="CODE39"
+                        width={1.25}
+                        height={26}
+                        displayValue={false}
+                        margin={0}
+                      />
+                    </div>
+                    <div
+                      style={{
+                        fontSize: "10.5px",
+                        fontWeight: "normal",
+                        marginTop: "1px",
+                      }}
+                    >
+                      {t.nokso}
+                    </div>
+                  </div>
+                )}
+              </td>
+            </tr>
+
+            {/* Baris PT Gajah Tunggal & Barang Milik Plant */}
+            <tr>
+              <td colSpan="4" style={{ padding: "1px 0" }}>
+                PT GAJAH TUNGGAL Tbk
+              </td>
+              <td
+                style={{
+                  whiteSpace: "nowrap",
+                  padding: "1px 0",
+                  width: "165px",
+                }}
+              >
+                BARANG MILIK PLANT
+              </td>
+              <td style={{ padding: "1px 0", width: "135px" }}>
+                <span
+                  style={{
+                    display: "inline-block",
+                    width: "125px",
+                    borderBottom: "1.5px solid #000",
+                    paddingBottom: "1px",
+                  }}
+                >
+                  :&nbsp;<b>{plantCode}</b>
+                </span>
+              </td>
+            </tr>
+
+            {/* Baris Deskripsi Tebal & No. Document */}
+            <tr>
+              <td
+                colSpan="4"
+                style={{
+                  fontWeight: "bold",
+                  fontSize: "16px",
+                  verticalAlign: "top",
+                  padding: "1px 0",
+                }}
+              >
+                <b>{t.deskripsi || "-"}</b>
+              </td>
+              <td style={{ verticalAlign: "top", padding: "1px 0" }}>
+                NO. DOCUMENT
+              </td>
+              <td style={{ verticalAlign: "top", padding: "1px 0" }}>
+                <span
+                  style={{
+                    display: "inline-block",
+                    width: "125px",
+                    borderBottom: "1.5px solid #000",
+                    paddingBottom: "1px",
+                  }}
+                >
+                  :&nbsp;<b>{t.nokso}</b>
+                </span>
+              </td>
+            </tr>
+
+            {/* Baris Barcode Item & No. Index */}
+            <tr>
+              <td colSpan="4" style={{ padding: "1px 0" }}>
+                {isTopHalf ? (
                   <Barcode
-                    value={String(t.nokso || "")}
-                    width={1.2}
-                    height={30}
-                    fontSize={11}
-                    displayValue={true}
+                    value={String(t.item || "")}
+                    format="CODE39"
+                    width={1.3}
+                    height={38}
+                    displayValue={false}
                     margin={0}
                   />
+                ) : (
+                  <div style={{ height: "38px" }}></div>
+                )}
+              </td>
+              <td style={{ verticalAlign: "top", padding: "1px 0" }}>
+                NO. INDEX
+              </td>
+              <td style={{ verticalAlign: "top", padding: "1px 0" }}>
+                <span
+                  style={{
+                    display: "inline-block",
+                    width: "125px",
+                    borderBottom: "1.5px solid #000",
+                    paddingBottom: "1px",
+                  }}
+                >
+                  :
+                </span>
+              </td>
+            </tr>
+
+            {/* Baris Kode Item Kecil & Line Number Header */}
+            <tr>
+              <td
+                colSpan="4"
+                style={{
+                  fontWeight: "bold",
+                  fontSize: "10px",
+                  padding: "1px 0 2px 0",
+                }}
+              >
+                {t.item}
+              </td>
+              <td
+                colSpan="2"
+                style={{
+                  textAlign: "center",
+                  fontWeight: "bold",
+                  fontSize: "11px",
+                  padding: "1px 0 2px 0",
+                }}
+              >
+                LINE NUMBER
+              </td>
+            </tr>
+
+            {/* Baris Grade & Puluhan Ribu */}
+            <tr>
+              <td style={{ width: "65px", padding: "1px 0" }}>GRADE</td>
+              <td style={{ width: "55px", padding: "1px 0" }}>
+                :&nbsp;<b>{gradeStr}</b>
+              </td>
+              <td colSpan="2" style={{ padding: "1px 0" }}>
+                PLANT :&nbsp;<b>{plantCode}</b>
+              </td>
+              <td colSpan="2" style={{ padding: "1px 0", textAlign: "center" }}>
+                <div style={{ display: "inline-block" }}>
+                  {renderDigitRow(pRibu)}
                 </div>
-              )}
-            </td>
-          </tr>
+              </td>
+            </tr>
 
-          <tr>
-            <td colSpan="4">PT GAJAH TUNGGAL Tbk</td>
-            <td style={{ whiteSpace: "nowrap" }}>BARANG MILIK PLANT</td>
-            <td>
-              <span
-                style={{
-                  borderBottom: "1px solid #000",
-                  paddingBottom: "1px",
-                  marginLeft: "20px",
-                }}
+            {/* Baris Jenis & Ribuan */}
+            <tr>
+              <td style={{ padding: "1px 0" }}>JENIS</td>
+              <td colSpan="3" style={{ padding: "1px 0" }}>
+                :
+              </td>
+              <td colSpan="2" style={{ padding: "1px 0", textAlign: "center" }}>
+                <div style={{ display: "inline-block" }}>
+                  {renderDigitRow(ribu)}
+                </div>
+              </td>
+            </tr>
+
+            {/* Baris Ukuran & Ratusan */}
+            <tr>
+              <td style={{ padding: "1px 0" }}>UKURAN</td>
+              <td colSpan="3" style={{ padding: "1px 0" }}>
+                :&nbsp;<b>{t.deskripsi || "-"}</b>
+              </td>
+              <td colSpan="2" style={{ padding: "1px 0", textAlign: "center" }}>
+                <div style={{ display: "inline-block" }}>
+                  {renderDigitRow(ratus)}
+                </div>
+              </td>
+            </tr>
+
+            {/* Baris Code & Puluhan */}
+            <tr>
+              <td style={{ padding: "1px 0" }}>CODE</td>
+              <td colSpan="3" style={{ padding: "1px 0" }}>
+                :&nbsp;<b>{t.item}</b>
+              </td>
+              <td colSpan="2" style={{ padding: "1px 0", textAlign: "center" }}>
+                <div style={{ display: "inline-block" }}>
+                  {renderDigitRow(puluh)}
+                </div>
+              </td>
+            </tr>
+
+            {/* Baris Jumlah & Satuan + Barcode Qty */}
+            <tr>
+              <td style={{ padding: "1px 0" }}>JUMLAH</td>
+              <td
+                colSpan="3"
+                style={{ padding: "1px 0", whiteSpace: "nowrap" }}
               >
-                : <b>{plantCode}</b>
-              </span>
-            </td>
-          </tr>
+                :&nbsp;<b>{Number(t.qty || 0).toLocaleString("id-ID")} PCS</b>
+                {isTopHalf && (
+                  <span
+                    style={{
+                      display: "inline-block",
+                      verticalAlign: "middle",
+                      marginLeft: "12px",
+                    }}
+                  >
+                    <Barcode
+                      value={String(t.qty || 0)}
+                      format="CODE39"
+                      width={1.2}
+                      height={18}
+                      displayValue={false}
+                      margin={0}
+                    />
+                  </span>
+                )}
+              </td>
+              <td colSpan="2" style={{ padding: "1px 0", textAlign: "center" }}>
+                <div style={{ display: "inline-block" }}>
+                  {renderDigitRow(sat)}
+                </div>
+              </td>
+            </tr>
 
-          <tr>
-            <td
-              colSpan="4"
-              style={{
-                fontWeight: "bold",
-                fontSize: "16px",
-                verticalAlign: "top",
-              }}
-            >
-              {t.deskripsi || "-"}
-            </td>
-            <td>NO. DOCUMENT</td>
-            <td>
-              <span
+            {/* Garis Pemisah Hitam Tebal & Lembar Penerima */}
+            <tr style={{ borderBottom: "2px solid #000" }}>
+              <td colSpan="4" style={{ paddingBottom: "2px" }}></td>
+              <td
+                colSpan="2"
                 style={{
-                  borderBottom: "1px solid #000",
-                  paddingBottom: "1px",
-                  marginLeft: "20px",
-                }}
-              >
-                : <b>{t.nokso || "-"}</b>
-              </span>
-            </td>
-          </tr>
-
-          <tr>
-            <td colSpan="4" style={{ padding: "4px 0" }}>
-              {isTopHalf ? (
-                <Barcode
-                  value={String(t.item || "")}
-                  width={1.2}
-                  height={32}
-                  displayValue={false}
-                  margin={0}
-                />
-              ) : (
-                <div style={{ height: "32px" }}></div>
-              )}
-            </td>
-            <td>NO. INDEX</td>
-            <td>
-              <span
-                style={{
-                  borderBottom: "1px solid #000",
-                  paddingBottom: "1px",
-                  marginLeft: "20px",
-                }}
-              >
-                :&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-              </span>
-            </td>
-          </tr>
-
-          <tr>
-            <td colSpan="4" style={{ fontWeight: "bold", fontSize: "11px" }}>
-              {t.item || "-"}
-            </td>
-            <td colSpan="2" style={{ textAlign: "center", fontWeight: "bold" }}>
-              LINE NUMBER
-            </td>
-          </tr>
-
-          <tr>
-            <td style={{ width: "70px" }}>GRADE</td>
-            <td>
-              : <b>{gradeStr}</b>
-            </td>
-            <td colSpan="2">
-              PLANT : <b>{plantCode}</b>
-            </td>
-            <td colSpan="2">{renderDigitRow(pRibu)}</td>
-          </tr>
-
-          <tr>
-            <td>JENIS</td>
-            <td colSpan="3">:</td>
-            <td colSpan="2">{renderDigitRow(ribu)}</td>
-          </tr>
-
-          <tr>
-            <td>UKURAN</td>
-            <td colSpan="3">
-              : <b>{t.deskripsi || "-"}</b>
-            </td>
-            <td colSpan="2">{renderDigitRow(ratus)}</td>
-          </tr>
-
-          <tr>
-            <td>CODE</td>
-            <td colSpan="3">
-              : <b>{t.item || "-"}</b>
-            </td>
-            <td colSpan="2">{renderDigitRow(puluh)}</td>
-          </tr>
-
-          <tr>
-            <td>JUMLAH</td>
-            <td colSpan="3" style={{ whiteSpace: "nowrap" }}>
-              : <b>{Number(t.qty || 0).toLocaleString("id-ID")} PCS</b>
-            </td>
-            <td colSpan="2">{renderDigitRow(sat)}</td>
-          </tr>
-
-          <tr style={{ borderBottom: "2px solid #000" }}>
-            <td colSpan="4" style={{ paddingBottom: "4px" }}></td>
-            <td
-              colSpan="2"
-              style={{ textAlign: "center", paddingBottom: "4px" }}
-            >
-              {isTopHalf ? "LEMBAR UNTUK GUDANG" : "LEMBAR UNTUK ARSIP"}
-            </td>
-          </tr>
-
-          <tr>
-            <td colSpan="2" style={{ textAlign: "center", paddingTop: "12px" }}>
-              DIHITUNG OLEH
-            </td>
-            <td colSpan="2"></td>
-            <td colSpan="2" style={{ textAlign: "center", paddingTop: "12px" }}>
-              DIPERIKSA OLEH
-            </td>
-          </tr>
-
-          <tr>
-            <td colSpan="2" style={{ height: "40px" }}></td>
-            <td colSpan="2"></td>
-            <td colSpan="2"></td>
-          </tr>
-
-          <tr>
-            <td colSpan="2" style={{ textAlign: "center" }}>
-              <b>{t.oprname || "-"}</b>
-            </td>
-            <td colSpan="2"></td>
-            <td colSpan="2" style={{ textAlign: "center" }}>
-              <b>{auditorLabel}</b>
-            </td>
-          </tr>
-
-          <tr>
-            <td colSpan="2" style={{ textAlign: "center" }}>
-              <div
-                style={{
-                  width: "80%",
-                  margin: "0 auto",
-                  borderTop: "2px solid #000",
+                  textAlign: "center",
+                  paddingBottom: "2px",
                   fontSize: "11px",
                 }}
               >
-                GUDANG BAN
-              </div>
-            </td>
-            <td colSpan="2"></td>
-            <td colSpan="2" style={{ textAlign: "center" }}>
-              <div
+                {isTopHalf ? "LEMBAR UNTUK GUDANG" : "LEMBAR UNTUK ARSIP"}
+              </td>
+            </tr>
+
+            {/* Header Tanda Tangan */}
+            <tr>
+              <td
+                colSpan="2"
                 style={{
-                  width: "70%",
-                  margin: "0 auto",
-                  borderTop: "2px solid #000",
+                  textAlign: "center",
+                  paddingTop: "12px",
                   fontSize: "11px",
                 }}
               >
-                TEAM S.O. / AUDITOR
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+                DIHITUNG OLEH
+              </td>
+              <td colSpan="2"></td>
+              <td
+                colSpan="2"
+                style={{
+                  textAlign: "center",
+                  paddingTop: "12px",
+                  fontSize: "11px",
+                }}
+              >
+                DIPERIKSA OLEH
+              </td>
+            </tr>
+
+            {/* Ruang Kosong Tanda Tangan */}
+            <tr>
+              <td colSpan="2" style={{ height: "36px" }}></td>
+              <td colSpan="2"></td>
+              <td colSpan="2"></td>
+            </tr>
+
+            {/* Nama PIC & Auditor */}
+            <tr>
+              <td colSpan="2" style={{ textAlign: "center", fontSize: "12px" }}>
+                <b>{t.oprname || "-"}</b>
+              </td>
+              <td colSpan="2"></td>
+              <td colSpan="2" style={{ textAlign: "center", fontSize: "12px" }}>
+                <b>{auditorLabel}</b>
+              </td>
+            </tr>
+
+            {/* Garis Bawah Jabatan */}
+            <tr>
+              <td
+                colSpan="2"
+                style={{ textAlign: "center", paddingTop: "1px" }}
+              >
+                <div
+                  style={{
+                    width: "70%",
+                    margin: "0 auto",
+                    borderTop: "2px solid #000",
+                    fontSize: "11px",
+                    paddingTop: "1px",
+                  }}
+                >
+                  GUDANG BAN
+                </div>
+              </td>
+              <td colSpan="2"></td>
+              <td
+                colSpan="2"
+                style={{ textAlign: "center", paddingTop: "1px" }}
+              >
+                <div
+                  style={{
+                    width: "60%",
+                    margin: "0 auto",
+                    borderTop: "2px solid #000",
+                    fontSize: "11px",
+                    paddingTop: "1px",
+                  }}
+                >
+                  TEAM S.O./AUDITOR
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     );
   };
 
@@ -416,7 +564,7 @@ export default function PrintKso() {
       <style>{`
         @page {
           size: A4 portrait;
-          margin: 8mm 6mm;
+          margin: 0mm !important; /* Nolkan agar container mengunci ukuran 297mm persis */
         }
 
         *, *::before, *::after {
@@ -429,52 +577,89 @@ export default function PrintKso() {
           color: #000 !important;
           margin: 0 !important;
           padding: 0 !important;
+          overflow: visible !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
         }
 
+        /* Lembar A4 dikunci mutlak 297mm, pemisah gunting berada tepat di 50% */
         .kso-page {
-          width: 198mm !important;
-          min-height: 280mm !important;
+          width: 210mm !important;
+          height: 297mm !important;
           margin: 0 auto !important;
-          break-after: page;
+          display: flex !important;
+          flex-direction: column !important;
+          justify-content: space-between !important;
+          align-items: center !important;
           page-break-after: always;
+          break-after: page;
+          box-sizing: border-box;
+          padding: 6mm 10mm !important;
+          position: relative;
+        }
+
+        /* Masing-masing kartu atas & bawah mengisi 135mm */
+        .card-half {
+          width: 100% !important;
+          height: 136mm !important;
           display: flex;
           flex-direction: column;
-          justifyContent: space-between;
+          justify-content: flex-start;
+          overflow: hidden;
+        }
+
+        .kso-table td {
+          border: none !important;
+        }
+
+       /* Garis Pemisah Gunting: Gunting di paling kiri, garis putus-putus ke kanan */
+        .scissors-divider {
+          width: 100%;
+          height: 8mm;
+          display: flex !important;
+          align-items: center !important;
+          margin: 0 !important;
+          padding: 0 !important;
+        }
+
+        .scissors-icon-wrap {
+          display: flex;
+          align-items: center;
+          padding-right: 6px; /* Jarak antara gunting dan awal garis putus-putus */
+          flex-shrink: 0;
+        }
+
+        .scissors-icon-wrap svg {
+          display: block;
+          width: 22px;
+          height: 22px;
+          fill: #000;
         }
 
         .scissors-line {
-          width: 100%;
+          flex: 1; /* Garis otomatis ditarik dari kanan gunting sampai mentok ujung kanan */
           border-top: 1.5px dashed #000;
-          margin: 12px 0;
-          position: relative;
-          text-align: center;
-        }
-
-        .scissors-icon {
-          position: absolute;
-          top: -10px;
-          left: 10px;
-          background: #fff;
-          padding: 0 4px;
-          font-size: 14px;
+          height: 0;
         }
       `}</style>
 
       {cards.map((card, idx) => (
         <div key={idx} className="kso-page">
-          {/* Bagian Atas: Lembar Gudang */}
-          <div>{renderHalfCard(card, true)}</div>
+          {/* Bagian Atas: Lembar untuk Gudang */}
+          {renderHalfCard(card, true)}
 
-          {/* Garis Potong Gunting Pemisah */}
-          <div className="scissors-line">
-            <span className="scissors-icon">
-              ✂ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-              - - - - - - - - -
-            </span>
+          {/* Garis Potong Gunting Pemisah: Ikon Gunting dulu, baru garis putus-putus ke kanan */}
+          <div className="scissors-divider">
+            <div className="scissors-icon-wrap">
+              <svg viewBox="0 0 24 24">
+                <path d="M9.64 7.64c.23-.5.36-1.05.36-1.64 0-2.21-1.79-4-4-4S2 3.79 2 6s1.79 4 4 4c.59 0 1.14-.13 1.64-.36L10 12l-2.36 2.36C7.14 14.13 6.59 14 6 14c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4c0-.59-.13-1.14-.36-1.64L12 14l7 7h3v-1L9.64 7.64zM6 8c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm0 12c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm6-7.5c-.28 0-.5-.22-.5-.5s.22-.5.5-.5.5.22.5.5-.22.5-.5.5zM19 3l-6 6 2 2 7-7V3h-3z" />
+              </svg>
+            </div>
+            <div className="scissors-line"></div>
           </div>
 
-          {/* Bagian Bawah: Lembar Arsip */}
-          <div>{renderHalfCard(card, false)}</div>
+          {/* Bagian Bawah: Lembar untuk Arsip */}
+          {renderHalfCard(card, false)}
         </div>
       ))}
     </div>

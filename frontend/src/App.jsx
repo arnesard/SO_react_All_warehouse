@@ -1,6 +1,6 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import MainLayout from "./layouts/MainLayout";
-import FisikDashboardPage from "./pages/Dashboard/FisikDashboardPage";
+import DashboardPage from "./pages/Dashboard/DashboardPage";
 import MasterSizePage from "./pages/master size/MasterSizePage";
 import BarcodeMonstockPage from "./pages/Barcode monstock/BarcodeMonstockPage";
 import TagStockPage from "./pages/Tagstock/TagStockPage";
@@ -21,7 +21,7 @@ function App() {
     <Routes>
       {/* 1. Halaman utama yang membutuhkan Navbar (dibungkus MainLayout) */}
       <Route element={<MainLayout />}>
-        <Route index element={<FisikDashboardPage />} />
+        <Route index element={<DashboardPage />} />
         <Route path="master-size" element={<MasterSizePage />} />
         <Route path="barcode-monstock" element={<BarcodeMonstockPage />} />
         <Route path="tag-stock" element={<TagStockPage />} />

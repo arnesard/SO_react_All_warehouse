@@ -356,8 +356,9 @@ export default function AppksoPage() {
       style={{
         display: "flex",
         gap: "12px",
+        width: "100%" /* Pastikan mengisi 100% lebar layar */,
         height: "calc(100vh - 84px)",
-        padding: "10px 14px",
+        padding: "4px 0",
         boxSizing: "border-box",
         alignItems: "stretch",
       }}
@@ -369,7 +370,7 @@ export default function AppksoPage() {
           height: "100%",
           flexShrink: 0,
           background: "var(--surface)",
-          border: "1.5px solid rgba(254, 104, 7, 0.5)",
+          border: "1px solid var(--border-soft)",
           borderRadius: "14px",
           padding: "16px 14px",
           boxSizing: "border-box",
@@ -383,7 +384,7 @@ export default function AppksoPage() {
             width: "44px",
             height: "44px",
             borderRadius: "50%",
-            backgroundColor: "rgba(254, 104, 7, 0.12)",
+            backgroundColor: "var(--surface-2)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -391,25 +392,24 @@ export default function AppksoPage() {
             flexShrink: 0,
           }}
         >
-          <FileSpreadsheet size={22} color="#fe6807" />
+          <FileSpreadsheet size={22} color="var(--text-secondary)" />
         </div>
 
         <h4
           style={{
             fontSize: "12px",
-            fontWeight: 800,
+            fontWeight: 600,
             margin: "0 0 3px 0",
-            textTransform: "uppercase",
-            letterSpacing: "0.5px",
+            textTransform: "none",
             color: "var(--text-primary)",
             flexShrink: 0,
           }}
         >
-          UPLOAD APPKSO SCAN
+          Upload APPKSO Scan
         </h4>
         <p
           style={{
-            fontSize: "10.5px",
+            fontSize: "12px",
             color: "var(--text-secondary)",
             margin: "0 0 12px 0",
             lineHeight: "1.3",
@@ -428,8 +428,8 @@ export default function AppksoPage() {
             style={{
               width: "100%",
               height: "34px",
-              borderColor: "rgba(254, 104, 7, 0.7)",
-              fontSize: "11px",
+              borderColor: "transparent",
+              fontSize: "12px",
               fontWeight: 600,
               borderRadius: "8px",
               marginBottom: "12px",
@@ -439,7 +439,7 @@ export default function AppksoPage() {
             value={uploadWh}
             onChange={(e) => setUploadWh(e.target.value)}
           >
-            <option value="">-- PILIH GUDANG TUJUAN --</option>
+            <option value="">-- Pilih gudang tujuan --</option>
             <option value="APW">APW</option>
             <option value="BPW">BPW</option>
             <option value="DPW">DPW</option>
@@ -450,12 +450,12 @@ export default function AppksoPage() {
             style={{
               flex: 1,
               minHeight: "180px",
-              border: "1.5px dashed #fe6807",
+              border: "1.5px dashed rgba(0, 0, 0, 0.2)",
               borderRadius: "10px",
               padding: "16px 10px",
               position: "relative",
               cursor: "pointer",
-              backgroundColor: "rgba(254, 104, 7, 0.02)",
+              backgroundColor: "transparent",
               marginBottom: "14px",
               display: "flex",
               flexDirection: "column",
@@ -480,12 +480,12 @@ export default function AppksoPage() {
             />
             <UploadCloud
               size={36}
-              color="#fe6807"
+              color="var(--text-secondary)"
               style={{ marginBottom: "10px", opacity: 0.9 }}
             />
             <div
               style={{
-                fontSize: "11px",
+                fontSize: "12px",
                 fontWeight: 600,
                 color: "var(--text-secondary)",
                 wordBreak: "break-all",
@@ -506,11 +506,11 @@ export default function AppksoPage() {
               width: "100%",
               height: "36px",
               borderRadius: "18px",
-              backgroundColor: "#fe6807",
-              borderColor: "#fe6807",
+              backgroundColor: "#111113",
+              borderColor: "#111113",
               color: "#fff",
-              fontWeight: 700,
-              fontSize: "11px",
+              fontWeight: 600,
+              fontSize: "12px",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -524,15 +524,15 @@ export default function AppksoPage() {
             ) : (
               <FileCheck size={14} />
             )}
-            PROSES IMPORT DATA
+            Proses Import Data
           </button>
         </form>
       </div>
-
       {/* 📊 2. PANEL KANAN */}
       <div
         style={{
           flex: 1,
+          width: "100%",
           height: "100%",
           display: "flex",
           flexDirection: "column",
@@ -560,16 +560,16 @@ export default function AppksoPage() {
               style={{
                 width: "200px",
                 height: "34px",
-                fontSize: "11px",
-                fontWeight: 700,
-                borderColor: "rgba(59, 130, 246, 0.7)",
+                fontSize: "12px",
+                fontWeight: 600,
+                borderColor: "transparent",
                 borderRadius: "8px",
                 padding: "2px 8px",
               }}
               value={selectedWh}
               onChange={(e) => setSelectedWh(e.target.value)}
             >
-              <option value="">⚠️ PILIH GUDANG</option>
+              <option value="">Pilih gudang</option>
               {warehouses.map((wh) => (
                 <option key={wh} value={wh}>
                   {wh}
@@ -579,19 +579,19 @@ export default function AppksoPage() {
 
             <button
               type="button"
-              className="btn-ctrl"
+              className="btn-ctrl red"
               style={{
                 height: "34px",
                 padding: "0 12px",
-                fontSize: "10.5px",
-                fontWeight: 700,
+                fontSize: "12px",
+                fontWeight: 600,
                 borderRadius: "8px",
               }}
               onClick={() => {
                 if (selectedWh) loadData(selectedWh);
               }}
             >
-              <RefreshCw size={13} /> RESET DATA
+              <RefreshCw size={13} /> Reset Data
             </button>
           </div>
 
@@ -599,16 +599,13 @@ export default function AppksoPage() {
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
             <button
               type="button"
-              className="btn-ctrl"
+              className="btn-ctrl green"
               style={{
                 height: "34px",
                 padding: "0 12px",
-                fontSize: "10.5px",
-                fontWeight: 700,
+                fontSize: "12px",
+                fontWeight: 600,
                 borderRadius: "8px",
-                backgroundColor: "rgba(52, 199, 123, 0.15)",
-                borderColor: "var(--ok)",
-                color: "var(--ok)",
                 display: "flex",
                 alignItems: "center",
                 gap: "5px",
@@ -621,7 +618,7 @@ export default function AppksoPage() {
                 setPrintRekapModalOpen(true);
               }}
             >
-              <Printer size={13} /> PRINT REKAP
+              <Printer size={13} /> Print Rekap
             </button>
 
             <button
@@ -630,12 +627,9 @@ export default function AppksoPage() {
               style={{
                 height: "34px",
                 padding: "0 12px",
-                fontSize: "10.5px",
-                fontWeight: 700,
+                fontSize: "12px",
+                fontWeight: 600,
                 borderRadius: "8px",
-                backgroundColor: "#0d6efd",
-                borderColor: "#0d6efd",
-                color: "#fff",
                 display: "flex",
                 alignItems: "center",
                 gap: "5px",
@@ -649,21 +643,18 @@ export default function AppksoPage() {
                 setPrintKsoModalOpen(true);
               }}
             >
-              <Printer size={13} /> PRINT KSO
+              <Printer size={13} /> Print KSO
             </button>
 
             <button
               type="button"
-              className="btn-ctrl"
+              className="btn-ctrl yellow"
               style={{
                 height: "34px",
                 padding: "0 12px",
-                fontSize: "10.5px",
-                fontWeight: 700,
+                fontSize: "12px",
+                fontWeight: 600,
                 borderRadius: "8px",
-                backgroundColor: "rgba(254, 104, 7, 0.15)",
-                borderColor: "#fe6807",
-                color: "#fe6807",
                 display: "flex",
                 alignItems: "center",
                 gap: "5px",
@@ -671,7 +662,7 @@ export default function AppksoPage() {
               disabled={!selectedWh || detailData.length === 0}
               onClick={() => setExportModalOpen(true)}
             >
-              <Download size={13} /> EXPORT EXCEL
+              <Download size={13} /> Export Excel
             </button>
           </div>
         </div>
@@ -690,7 +681,7 @@ export default function AppksoPage() {
             style={{
               flex: 1,
               background: "var(--surface)",
-              border: "1.5px solid rgba(239, 68, 68, 0.6)",
+              border: "1px solid var(--border-soft)",
               borderRadius: "12px",
               display: "flex",
               flexDirection: "column",
@@ -712,21 +703,21 @@ export default function AppksoPage() {
                   display: "flex",
                   alignItems: "center",
                   gap: "6px",
-                  color: "#ef4444",
-                  fontWeight: 800,
-                  fontSize: "11px",
-                  textTransform: "uppercase",
+                  color: "var(--text-primary)",
+                  fontWeight: 600,
+                  fontSize: "12px",
+                  textTransform: "none",
                 }}
               >
-                <Boxes size={14} /> RESUME PATTERN
+                <Boxes size={14} /> Resume Pattern
               </div>
-              <div style={{ display: "flex", gap: "6px", fontSize: "10px" }}>
+              <div style={{ display: "flex", gap: "6px", fontSize: "12px" }}>
                 <span
                   style={{
                     backgroundColor: "var(--surface-3)",
                     padding: "2px 8px",
                     borderRadius: "6px",
-                    fontWeight: 700,
+                    fontWeight: 600,
                     color: "var(--text-secondary)",
                   }}
                 >
@@ -735,11 +726,11 @@ export default function AppksoPage() {
                 </span>
                 <span
                   style={{
-                    backgroundColor: "rgba(239, 68, 68, 0.15)",
+                    backgroundColor: "var(--surface-2)",
                     padding: "2px 8px",
                     borderRadius: "6px",
-                    fontWeight: 700,
-                    color: "#ef4444",
+                    fontWeight: 600,
+                    color: "var(--text-primary)",
                   }}
                 >
                   Total QTY:{" "}
@@ -760,17 +751,17 @@ export default function AppksoPage() {
                     position: "sticky",
                     top: 0,
                     backgroundColor: "var(--surface-2)",
-                    fontSize: "9.5px",
+                    fontSize: "12px",
                   }}
                 >
                   <tr>
-                    <th style={{ width: "35px", textAlign: "center" }}>NO</th>
-                    <th style={{ textAlign: "left" }}>PATTERN SIZE</th>
+                    <th style={{ width: "35px", textAlign: "center" }}>No.</th>
+                    <th style={{ textAlign: "left" }}>Pattern Size</th>
                     <th style={{ width: "85px", textAlign: "center" }}>
-                      TOTAL SKU
+                      Total SKU
                     </th>
                     <th style={{ width: "85px", textAlign: "right" }}>
-                      TOTAL QTY
+                      Total Qty
                     </th>
                   </tr>
                 </thead>
@@ -828,8 +819,8 @@ export default function AppksoPage() {
                         <td
                           style={{
                             textAlign: "right",
-                            color: "#ef4444",
-                            fontWeight: 700,
+                            color: "var(--text-primary)",
+                            fontWeight: 600,
                           }}
                           className="mono"
                         >
@@ -846,7 +837,7 @@ export default function AppksoPage() {
               style={{
                 padding: "3px 10px",
                 borderTop: "1px solid var(--border)",
-                fontSize: "9.5px",
+                fontSize: "12px",
                 color: "var(--text-secondary)",
                 fontStyle: "italic",
                 display: "flex",
@@ -865,7 +856,7 @@ export default function AppksoPage() {
             style={{
               flex: 1,
               background: "var(--surface)",
-              border: "1.5px solid rgba(52, 199, 123, 0.6)",
+              border: "1px solid var(--border-soft)",
               borderRadius: "12px",
               display: "flex",
               flexDirection: "column",
@@ -887,21 +878,21 @@ export default function AppksoPage() {
                   display: "flex",
                   alignItems: "center",
                   gap: "6px",
-                  color: "var(--ok)",
-                  fontWeight: 800,
-                  fontSize: "11px",
-                  textTransform: "uppercase",
+                  color: "var(--text-primary)",
+                  fontWeight: 600,
+                  fontSize: "12px",
+                  textTransform: "none",
                 }}
               >
-                <Users size={14} /> RESUME PIC STOCK
+                <Users size={14} /> Resume PIC Stock
               </div>
-              <div style={{ display: "flex", gap: "6px", fontSize: "10px" }}>
+              <div style={{ display: "flex", gap: "6px", fontSize: "12px" }}>
                 <span
                   style={{
                     backgroundColor: "var(--surface-3)",
                     padding: "2px 8px",
                     borderRadius: "6px",
-                    fontWeight: 700,
+                    fontWeight: 600,
                     color: "var(--text-secondary)",
                   }}
                 >
@@ -912,11 +903,11 @@ export default function AppksoPage() {
                 </span>
                 <span
                   style={{
-                    backgroundColor: "rgba(52, 199, 123, 0.15)",
+                    backgroundColor: "var(--surface-2)",
                     padding: "2px 8px",
                     borderRadius: "6px",
-                    fontWeight: 700,
-                    color: "var(--ok)",
+                    fontWeight: 600,
+                    color: "var(--text-primary)",
                   }}
                 >
                   Total QTY:{" "}
@@ -937,17 +928,17 @@ export default function AppksoPage() {
                     position: "sticky",
                     top: 0,
                     backgroundColor: "var(--surface-2)",
-                    fontSize: "9.5px",
+                    fontSize: "12px",
                   }}
                 >
                   <tr>
-                    <th style={{ width: "35px", textAlign: "center" }}>NO</th>
-                    <th style={{ textAlign: "left" }}>NAMA / OPERATOR</th>
+                    <th style={{ width: "35px", textAlign: "center" }}>No.</th>
+                    <th style={{ textAlign: "left" }}>Nama / Operator</th>
                     <th style={{ width: "85px", textAlign: "center" }}>
-                      TOTAL SKU
+                      Total SKU
                     </th>
                     <th style={{ width: "85px", textAlign: "right" }}>
-                      TOTAL QTY
+                      Total Qty
                     </th>
                   </tr>
                 </thead>
@@ -996,8 +987,8 @@ export default function AppksoPage() {
                         <td
                           style={{
                             textAlign: "center",
-                            color: "#dc2626",
-                            fontWeight: 700,
+                            color: "var(--text-primary)",
+                            fontWeight: 600,
                           }}
                           className="mono"
                         >
@@ -1006,8 +997,8 @@ export default function AppksoPage() {
                         <td
                           style={{
                             textAlign: "right",
-                            color: "#3b82f6",
-                            fontWeight: 700,
+                            color: "var(--text-primary)",
+                            fontWeight: 600,
                           }}
                           className="mono"
                         >
@@ -1024,7 +1015,7 @@ export default function AppksoPage() {
               style={{
                 padding: "3px 10px",
                 borderTop: "1px solid var(--border)",
-                fontSize: "9.5px",
+                fontSize: "12px",
                 color: "var(--text-secondary)",
                 fontStyle: "italic",
                 display: "flex",
@@ -1044,7 +1035,7 @@ export default function AppksoPage() {
           style={{
             flex: 1,
             background: "var(--surface)",
-            border: "1.5px solid rgba(59, 130, 246, 0.6)",
+            border: "1px solid var(--border-soft)",
             borderRadius: "12px",
             display: "flex",
             flexDirection: "column",
@@ -1068,13 +1059,13 @@ export default function AppksoPage() {
                 display: "flex",
                 alignItems: "center",
                 gap: "6px",
-                color: "#3b82f6",
-                fontWeight: 800,
-                fontSize: "11px",
-                textTransform: "uppercase",
+                color: "var(--text-primary)",
+                fontWeight: 600,
+                fontSize: "12px",
+                textTransform: "none",
               }}
             >
-              <TableProperties size={14} /> DETAIL DATA OPNAME APPKSO
+              <TableProperties size={14} /> Detail Data Opname APPKSO
             </div>
 
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
@@ -1083,7 +1074,7 @@ export default function AppksoPage() {
                   display: "flex",
                   alignItems: "center",
                   backgroundColor: "var(--surface-2)",
-                  border: "1px solid rgba(59, 130, 246, 0.5)",
+                  border: "1px solid var(--border-soft)",
                   borderRadius: "8px",
                   padding: "0 8px",
                   height: "30px",
@@ -1092,7 +1083,7 @@ export default function AppksoPage() {
               >
                 <Search
                   size={13}
-                  color="#3b82f6"
+                  color="var(--text-secondary)"
                   style={{ marginRight: "6px" }}
                 />
                 <input
@@ -1101,7 +1092,7 @@ export default function AppksoPage() {
                   style={{
                     border: "none",
                     background: "transparent",
-                    fontSize: "11px",
+                    fontSize: "12px",
                     outline: "none",
                     width: "100%",
                     color: "var(--text-primary)",
@@ -1127,24 +1118,24 @@ export default function AppksoPage() {
                   top: 0,
                   backgroundColor: "var(--surface-2)",
                   zIndex: 2,
-                  fontSize: "9.5px",
+                  fontSize: "12px",
                 }}
               >
-                <tr style={{ textTransform: "uppercase" }}>
-                  <th style={{ width: "35px", textAlign: "center" }}>NO</th>
-                  <th style={{ width: "70px", textAlign: "center" }}>GUDANG</th>
+                <tr style={{ textTransform: "none" }}>
+                  <th style={{ width: "35px", textAlign: "center" }}>No.</th>
+                  <th style={{ width: "70px", textAlign: "center" }}>Gudang</th>
                   <th style={{ width: "80px", textAlign: "center" }}>
-                    TANGGAL
+                    Tanggal
                   </th>
-                  <th style={{ width: "65px", textAlign: "center" }}>OPR</th>
-                  <th style={{ width: "120px" }}>OPERATOR</th>
-                  <th style={{ width: "85px", textAlign: "center" }}>NO KSO</th>
-                  <th style={{ width: "110px" }}>ITEM</th>
-                  <th style={{ textAlign: "left" }}>DESKRIPSI</th>
-                  <th style={{ width: "75px", textAlign: "right" }}>QTY</th>
-                  <th style={{ width: "110px" }}>VERIFIKASI</th>
+                  <th style={{ width: "65px", textAlign: "center" }}>Opr</th>
+                  <th style={{ width: "120px" }}>Operator</th>
+                  <th style={{ width: "85px", textAlign: "center" }}>No KSO</th>
+                  <th style={{ width: "110px" }}>Item</th>
+                  <th style={{ textAlign: "left" }}>Deskripsi</th>
+                  <th style={{ width: "75px", textAlign: "right" }}>Qty</th>
+                  <th style={{ width: "110px" }}>Verifikasi</th>
                   <th style={{ width: "120px", textAlign: "center" }}>
-                    TGL VERIFIKASI
+                    Tgl Verifikasi
                   </th>
                 </tr>
               </thead>
@@ -1222,15 +1213,18 @@ export default function AppksoPage() {
                       <td
                         style={{
                           textAlign: "center",
-                          color: "var(--ok)",
-                          fontWeight: 700,
+                          color: "var(--text-primary)",
+                          fontWeight: 600,
                         }}
                         className="mono"
                       >
                         {row.nokso || "-"}
                       </td>
                       <td
-                        style={{ color: "#ef4444", fontWeight: 700 }}
+                        style={{
+                          color: "var(--text-primary)",
+                          fontWeight: 600,
+                        }}
                         className="mono"
                       >
                         {row.item || "-"}
@@ -1249,8 +1243,8 @@ export default function AppksoPage() {
                       <td
                         style={{
                           textAlign: "right",
-                          color: "#3b82f6",
-                          fontWeight: 700,
+                          color: "var(--text-primary)",
+                          fontWeight: 600,
                         }}
                         className="mono"
                       >
@@ -1289,7 +1283,7 @@ export default function AppksoPage() {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: "rgba(0, 0, 0, 0.65)",
+            backgroundColor: "rgba(17, 17, 19, 0.4)",
             zIndex: 9999,
             display: "flex",
             alignItems: "center",
@@ -1304,7 +1298,7 @@ export default function AppksoPage() {
               maxHeight: "85vh",
               background: "var(--surface)",
               borderRadius: "14px",
-              border: "1.5px solid #3b82f6",
+              border: "1px solid var(--border-soft)",
               boxShadow: "0 10px 25px rgba(0,0,0,0.5)",
               display: "flex",
               flexDirection: "column",
@@ -1313,7 +1307,7 @@ export default function AppksoPage() {
           >
             <div
               style={{
-                backgroundColor: "#1e293b",
+                backgroundColor: "var(--surface)",
                 color: "#fff",
                 padding: "10px 16px",
                 display: "flex",
@@ -1325,7 +1319,7 @@ export default function AppksoPage() {
               <div
                 style={{
                   fontSize: "12px",
-                  fontWeight: 800,
+                  fontWeight: 600,
                   display: "flex",
                   alignItems: "center",
                   gap: "6px",
@@ -1363,18 +1357,20 @@ export default function AppksoPage() {
                   <thead
                     style={{
                       backgroundColor: "var(--surface-2)",
-                      fontSize: "9.5px",
+                      fontSize: "12px",
                     }}
                   >
                     <tr>
-                      <th style={{ width: "40px", textAlign: "center" }}>NO</th>
-                      <th style={{ width: "70px", textAlign: "center" }}>
-                        OPR
+                      <th style={{ width: "40px", textAlign: "center" }}>
+                        No.
                       </th>
-                      <th style={{ width: "140px" }}>NAMA / OPERATOR</th>
-                      <th style={{ width: "120px" }}>ITEM</th>
-                      <th style={{ textAlign: "left" }}>DESKRIPSI</th>
-                      <th style={{ width: "90px", textAlign: "right" }}>QTY</th>
+                      <th style={{ width: "70px", textAlign: "center" }}>
+                        Opr
+                      </th>
+                      <th style={{ width: "140px" }}>Nama / Operator</th>
+                      <th style={{ width: "120px" }}>Item</th>
+                      <th style={{ textAlign: "left" }}>Deskripsi</th>
+                      <th style={{ width: "90px", textAlign: "right" }}>Qty</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1411,7 +1407,10 @@ export default function AppksoPage() {
                             {r.oprname || "-"}
                           </td>
                           <td
-                            style={{ color: "#ef4444", fontWeight: 700 }}
+                            style={{
+                              color: "var(--text-primary)",
+                              fontWeight: 600,
+                            }}
                             className="mono"
                           >
                             {r.item || "-"}
@@ -1430,8 +1429,8 @@ export default function AppksoPage() {
                           <td
                             style={{
                               textAlign: "right",
-                              color: "#3b82f6",
-                              fontWeight: 700,
+                              color: "var(--text-primary)",
+                              fontWeight: 600,
                             }}
                             className="mono"
                           >
@@ -1453,12 +1452,12 @@ export default function AppksoPage() {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
-                fontSize: "11px",
+                fontSize: "12px",
               }}
             >
-              <div style={{ fontWeight: 700, color: "var(--text-secondary)" }}>
+              <div style={{ fontWeight: 600, color: "var(--text-secondary)" }}>
                 Total SKU:{" "}
-                <span style={{ color: "#ef4444" }}>
+                <span style={{ color: "var(--danger)" }}>
                   {new Set(drillModalRows.map((r) => r.item)).size}
                 </span>{" "}
                 Item
@@ -1470,7 +1469,7 @@ export default function AppksoPage() {
                   height: "28px",
                   padding: "0 14px",
                   borderRadius: "14px",
-                  fontSize: "10.5px",
+                  fontSize: "12px",
                 }}
                 onClick={() => setDrillModalOpen(false)}
               >
@@ -1490,7 +1489,7 @@ export default function AppksoPage() {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: "rgba(0,0,0,0.65)",
+            backgroundColor: "rgba(17, 17, 19, 0.4)",
             zIndex: 9999,
             display: "flex",
             alignItems: "center",
@@ -1503,14 +1502,14 @@ export default function AppksoPage() {
               width: "460px",
               background: "var(--surface)",
               borderRadius: "14px",
-              border: "1.5px solid var(--ok)",
+              border: "1px solid var(--border-soft)",
               boxShadow: "0 10px 25px rgba(0,0,0,0.5)",
               overflow: "hidden",
             }}
           >
             <div
               style={{
-                backgroundColor: "var(--ok)",
+                backgroundColor: "#111113",
                 color: "#fff",
                 padding: "10px 16px",
                 display: "flex",
@@ -1518,8 +1517,8 @@ export default function AppksoPage() {
                 justifyContent: "space-between",
               }}
             >
-              <div style={{ fontSize: "12px", fontWeight: 800 }}>
-                SETUP DOKUMEN CETAK REKAP KSO
+              <div style={{ fontSize: "12px", fontWeight: 600 }}>
+                Setup Dokumen Cetak Rekap KSO
               </div>
               <button
                 type="button"
@@ -1542,26 +1541,26 @@ export default function AppksoPage() {
               <div style={{ marginBottom: "14px" }}>
                 <label
                   style={{
-                    fontSize: "10.5px",
-                    fontWeight: 700,
+                    fontSize: "12px",
+                    fontWeight: 600,
                     display: "block",
                     marginBottom: "4px",
                   }}
                 >
-                  SARING NAMA / OPERATOR SCAN
+                  Saring Nama / Operator Scan
                 </label>
                 <select
                   className="field-select"
                   style={{
                     width: "100%",
                     height: "34px",
-                    fontSize: "11px",
+                    fontSize: "12px",
                     borderRadius: "8px",
                   }}
                   value={rekapOpr}
                   onChange={(e) => setRekapOpr(e.target.value)}
                 >
-                  <option value="ALL">-- CETAK SEMUA REKAP OPERATOR --</option>
+                  <option value="ALL">Semua operator</option>
                   {uniqueOperators.map((op) => (
                     <option key={op.opr} value={op.opr}>
                       {op.oprname.toUpperCase()} ({op.opr})
@@ -1576,13 +1575,13 @@ export default function AppksoPage() {
                 <div style={{ flex: 1 }}>
                   <label
                     style={{
-                      fontSize: "10.5px",
-                      fontWeight: 700,
+                      fontSize: "12px",
+                      fontWeight: 600,
                       display: "block",
                       marginBottom: "4px",
                     }}
                   >
-                    TANGGAL STOCK OPNAME
+                    Tanggal Stock Opname
                   </label>
                   <input
                     type="date"
@@ -1591,7 +1590,7 @@ export default function AppksoPage() {
                     style={{
                       width: "100%",
                       height: "34px",
-                      fontSize: "11px",
+                      fontSize: "12px",
                       borderRadius: "8px",
                     }}
                     value={rekapTglSo}
@@ -1601,13 +1600,13 @@ export default function AppksoPage() {
                 <div style={{ flex: 1 }}>
                   <label
                     style={{
-                      fontSize: "10.5px",
-                      fontWeight: 700,
+                      fontSize: "12px",
+                      fontWeight: 600,
                       display: "block",
                       marginBottom: "4px",
                     }}
                   >
-                    TANGGAL POSISI STOCK
+                    Tanggal Posisi Stock
                   </label>
                   <input
                     type="date"
@@ -1616,7 +1615,7 @@ export default function AppksoPage() {
                     style={{
                       width: "100%",
                       height: "34px",
-                      fontSize: "11px",
+                      fontSize: "12px",
                       borderRadius: "8px",
                     }}
                     value={rekapTglPosisi}
@@ -1639,7 +1638,7 @@ export default function AppksoPage() {
                     height: "32px",
                     padding: "0 14px",
                     borderRadius: "16px",
-                    fontSize: "11px",
+                    fontSize: "12px",
                   }}
                   onClick={() => setPrintRekapModalOpen(false)}
                 >
@@ -1652,10 +1651,10 @@ export default function AppksoPage() {
                     height: "32px",
                     padding: "0 16px",
                     borderRadius: "16px",
-                    backgroundColor: "var(--ok)",
-                    borderColor: "var(--ok)",
+                    backgroundColor: "#111113",
+                    borderColor: "transparent",
                     color: "#fff",
-                    fontSize: "11px",
+                    fontSize: "12px",
                     display: "flex",
                     alignItems: "center",
                     gap: "6px",
@@ -1678,7 +1677,7 @@ export default function AppksoPage() {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: "rgba(0,0,0,0.65)",
+            backgroundColor: "rgba(17, 17, 19, 0.4)",
             zIndex: 9999,
             display: "flex",
             alignItems: "center",
@@ -1691,14 +1690,14 @@ export default function AppksoPage() {
               width: "480px",
               background: "var(--surface)",
               borderRadius: "14px",
-              border: "1.5px solid #0d6efd",
+              border: "1px solid var(--border-soft)",
               boxShadow: "0 10px 25px rgba(0,0,0,0.5)",
               overflow: "hidden",
             }}
           >
             <div
               style={{
-                backgroundColor: "#0d6efd",
+                backgroundColor: "#111113",
                 color: "#fff",
                 padding: "10px 16px",
                 display: "flex",
@@ -1706,8 +1705,8 @@ export default function AppksoPage() {
                 justifyContent: "space-between",
               }}
             >
-              <div style={{ fontSize: "12px", fontWeight: 800 }}>
-                SETUP CETAK KARTU FISIK KSO
+              <div style={{ fontSize: "12px", fontWeight: 600 }}>
+                Setup Cetak Kartu Fisik KSO
               </div>
               <button
                 type="button"
@@ -1727,13 +1726,13 @@ export default function AppksoPage() {
               <div style={{ marginBottom: "12px" }}>
                 <label
                   style={{
-                    fontSize: "10.5px",
-                    fontWeight: 700,
+                    fontSize: "12px",
+                    fontWeight: 600,
                     display: "block",
                     marginBottom: "4px",
                   }}
                 >
-                  PILIH NAMA / OPERATOR PIC
+                  Pilih Nama / Operator PIC
                 </label>
                 <select
                   required
@@ -1741,7 +1740,7 @@ export default function AppksoPage() {
                   style={{
                     width: "100%",
                     height: "34px",
-                    fontSize: "11px",
+                    fontSize: "12px",
                     borderRadius: "8px",
                   }}
                   value={ksoPic}
@@ -1751,7 +1750,7 @@ export default function AppksoPage() {
                     setKsoDocTo("");
                   }}
                 >
-                  <option value="">-- PILIH PIC LAPANGAN --</option>
+                  <option value="">Pilih PIC lapangan</option>
                   {Object.keys(picDocsMap)
                     .sort((a, b) =>
                       picDocsMap[a].name.localeCompare(picDocsMap[b].name),
@@ -1770,8 +1769,8 @@ export default function AppksoPage() {
                 <div style={{ flex: 1 }}>
                   <label
                     style={{
-                      fontSize: "10.5px",
-                      fontWeight: 700,
+                      fontSize: "12px",
+                      fontWeight: 600,
                       display: "block",
                       marginBottom: "4px",
                     }}
@@ -1784,7 +1783,7 @@ export default function AppksoPage() {
                     style={{
                       width: "100%",
                       height: "34px",
-                      fontSize: "11px",
+                      fontSize: "12px",
                       borderRadius: "8px",
                     }}
                     value={ksoDocFrom}
@@ -1805,8 +1804,8 @@ export default function AppksoPage() {
                 <div style={{ flex: 1 }}>
                   <label
                     style={{
-                      fontSize: "10.5px",
-                      fontWeight: 700,
+                      fontSize: "12px",
+                      fontWeight: 600,
                       display: "block",
                       marginBottom: "4px",
                     }}
@@ -1819,7 +1818,7 @@ export default function AppksoPage() {
                     style={{
                       width: "100%",
                       height: "34px",
-                      fontSize: "11px",
+                      fontSize: "12px",
                       borderRadius: "8px",
                     }}
                     value={ksoDocTo}
@@ -1843,13 +1842,13 @@ export default function AppksoPage() {
               <div style={{ marginBottom: "16px" }}>
                 <label
                   style={{
-                    fontSize: "10.5px",
-                    fontWeight: 700,
+                    fontSize: "12px",
+                    fontWeight: 600,
                     display: "block",
                     marginBottom: "4px",
                   }}
                 >
-                  TANGGAL NOTA KARTU KSO
+                  Tanggal Nota Kartu KSO
                 </label>
                 <input
                   type="date"
@@ -1858,7 +1857,7 @@ export default function AppksoPage() {
                   style={{
                     width: "100%",
                     height: "34px",
-                    fontSize: "11px",
+                    fontSize: "12px",
                     borderRadius: "8px",
                   }}
                   value={ksoTanggal}
@@ -1880,7 +1879,7 @@ export default function AppksoPage() {
                     height: "32px",
                     padding: "0 14px",
                     borderRadius: "16px",
-                    fontSize: "11px",
+                    fontSize: "12px",
                   }}
                   onClick={() => setPrintKsoModalOpen(false)}
                 >
@@ -1893,10 +1892,10 @@ export default function AppksoPage() {
                     height: "32px",
                     padding: "0 16px",
                     borderRadius: "16px",
-                    backgroundColor: "#0d6efd",
-                    borderColor: "#0d6efd",
+                    backgroundColor: "#111113",
+                    borderColor: "#111113",
                     color: "#fff",
-                    fontSize: "11px",
+                    fontSize: "12px",
                     display: "flex",
                     alignItems: "center",
                     gap: "6px",

@@ -299,7 +299,7 @@ function MasterSizePage() {
             value={selectedWh}
             onChange={(e) => setSelectedWh(e.target.value)}
           >
-            <option value="">PILIH GUDANG</option>
+            <option value="">Pilih Gudang</option>
             {filterWhOptions.map((wh) => (
               <option key={wh} value={wh}>
                 {wh}
@@ -312,7 +312,7 @@ function MasterSizePage() {
             value={selectedGrade}
             onChange={(e) => setSelectedGrade(e.target.value)}
           >
-            <option value="">ALL GRADE</option>
+            <option value="">Semua Grade</option>
             {filterGradeOptions.map((g) => (
               <option key={g} value={g}>
                 {g}

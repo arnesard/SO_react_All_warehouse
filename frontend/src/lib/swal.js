@@ -1,7 +1,7 @@
 import Swal from "sweetalert2";
 
 export const swal = Swal.mixin({
-  background: "var(--surface-2)",
+  background: "var(--surface)",
   color: "var(--text-primary)",
   buttonsStyling: false,
   customClass: {

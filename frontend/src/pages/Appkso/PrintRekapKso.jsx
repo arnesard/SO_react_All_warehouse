@@ -136,42 +136,62 @@ export default function PrintRekapKso() {
           margin: 0 auto !important;
         }
 
-        .header-table {
+        /* Container KOP Atas */
+        .kop-container {
           width: 100%;
-          border-collapse: collapse;
-          border: none !important;
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
           margin-bottom: 12px;
         }
 
-        .header-table td {
+        /* Tabel Keterangan Dokumen (Sisi Kiri) */
+        .info-table {
+          border-collapse: collapse;
           border: none !important;
-          padding: 3px 4px !important;
+        }
+
+        .info-table td {
+          border: none !important;
+          padding: 2.5px 4px;
           font-size: 11px;
         }
 
-        .box-signature {
-          width: 170px;
-          height: 68px;
-          vertical-align: bottom;
+        /* Tabel Kotak Tanda Tangan (Sisi Kanan) - PERSIS LARAVEL */
+        .signature-table {
+          width: 380px;
+          border-collapse: collapse !important;
+          border: 1.5px solid #000 !important;
+        }
+
+        .signature-table td {
+          border: 1.5px solid #000 !important;
+        }
+
+        .box-signature-top {
+          width: 190px;
+          height: 64px;
+          vertical-align: bottom !important;
           text-align: center;
-          border: 1px solid #000 !important;
           padding: 4px !important;
-          font-size: 10px;
+          font-size: 11px;
           font-weight: bold;
           text-transform: uppercase;
         }
 
-        .box-signature-label {
+        .box-signature-bottom {
           text-align: center;
-          border: 1px solid #000 !important;
           font-weight: bold;
-          padding: 3px !important;
-          font-size: 10px;
+          padding: 4px !important;
+          font-size: 10.5px;
+          background-color: #fff;
         }
 
+        /* Tabel Data Utama */
         .main-data-table {
           width: 100%;
           border-collapse: collapse !important;
+          border: 1.5px solid #000 !important;
           font-size: 10.5px;
         }
 
@@ -187,7 +207,7 @@ export default function PrintRekapKso() {
         }
 
         .main-data-table th {
-          background-color: #f2f2f2 !important;
+          background-color: #fff !important;
           font-weight: bold;
           text-transform: uppercase;
           -webkit-print-color-adjust: exact !important;
@@ -200,56 +220,70 @@ export default function PrintRekapKso() {
         }
       `}</style>
 
-      {/* Header Dokumen Rekap */}
-      <table className="header-table">
-        <tbody>
-          <tr>
-            <td colSpan="3" style={{ verticalAlign: "middle" }}>
-              <h4 style={{ fontSize: "16px", fontWeight: "bold", margin: 0 }}>
-                REKAP KARTU STOCK OPNAME
-              </h4>
-            </td>
-            <td style={{ width: "30px" }}></td>
-            <td rowSpan="3" className="box-signature">
-              {picLabel}
-            </td>
-            <td rowSpan="3" className="box-signature">
-              {auditorLabel}
-            </td>
-          </tr>
-          <tr>
-            <td style={{ width: "140px" }}>TGL STOCK OPNAME</td>
-            <td style={{ width: "6px", textAlign: "center" }}>:</td>
-            <td style={{ fontWeight: "bold" }}>{formatTgl(tglSoInput)}</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>TGL POSISI STOCK</td>
-            <td style={{ textAlign: "center" }}>:</td>
-            <td style={{ fontWeight: "bold" }}>{formatTgl(tglPosisiInput)}</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>JUMLAH KARTU STOCK</td>
-            <td style={{ textAlign: "center" }}>:</td>
-            <td style={{ fontWeight: "bold" }}>{rows.length} Lembar</td>
-            <td></td>
-            <td className="box-signature-label">Team Gud. Ban</td>
-            <td className="box-signature-label">Team SO / Audit</td>
-          </tr>
-        </tbody>
-      </table>
+      {/* Header Dokumen Rekap: Kiri Info, Kanan Kotak Tanda Tangan */}
+      <div className="kop-container">
+        {/* Sisi Kiri */}
+        <div>
+          <h4
+            style={{
+              fontSize: "15px",
+              fontWeight: "900",
+              margin: "0 0 6px 0",
+              letterSpacing: "0.5px",
+            }}
+          >
+            REKAP KARTU STOCK OPNAME
+          </h4>
+          <table className="info-table">
+            <tbody>
+              <tr>
+                <td style={{ width: "150px" }}>TGL STOCK OPNAME</td>
+                <td style={{ width: "6px", textAlign: "center" }}>:</td>
+                <td style={{ fontWeight: "bold" }}>{formatTgl(tglSoInput)}</td>
+              </tr>
+              <tr>
+                <td>TGL POSISI STOCK</td>
+                <td style={{ textAlign: "center" }}>:</td>
+                <td style={{ fontWeight: "bold" }}>
+                  {formatTgl(tglPosisiInput)}
+                </td>
+              </tr>
+              <tr>
+                <td>JUMLAH KARTU STOCK</td>
+                <td style={{ textAlign: "center" }}>:</td>
+                <td style={{ fontWeight: "bold" }}>{rows.length} Lembar</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        {/* Sisi Kanan: Kotak Tanda Tangan (Bergaris Nyata) */}
+        <div>
+          <table className="signature-table">
+            <tbody>
+              <tr>
+                <td className="box-signature-top">{picLabel}</td>
+                <td className="box-signature-top">{auditorLabel}</td>
+              </tr>
+              <tr>
+                <td className="box-signature-bottom">Team Gud. Ban</td>
+                <td className="box-signature-bottom">Team SO / Audit</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
 
       {/* Data Table */}
       <table className="main-data-table">
         <thead>
           <tr style={{ textAlign: "center" }}>
-            <th style={{ width: "5%" }}>No</th>
-            <th style={{ width: "15%" }}>No. Document</th>
-            <th style={{ width: "15%" }}>Item Code</th>
-            <th style={{ textAlign: "left" }}>Description</th>
-            <th style={{ width: "12%", textAlign: "right" }}>Qty</th>
-            <th style={{ width: "15%" }}>Ket</th>
+            <th style={{ width: "5%" }}>NO</th>
+            <th style={{ width: "15%" }}>NO. DOCUMENT</th>
+            <th style={{ width: "15%" }}>ITEM CODE</th>
+            <th style={{ textAlign: "left" }}>DESCRIPTION</th>
+            <th style={{ width: "12%", textAlign: "right" }}>QTY</th>
+            <th style={{ width: "15%" }}>KET</th>
           </tr>
         </thead>
         <tbody>
@@ -283,7 +317,7 @@ export default function PrintRekapKso() {
           <tr
             style={{
               fontWeight: "bold",
-              backgroundColor: "#f2f2f2",
+              backgroundColor: "#fff",
               WebkitPrintColorAdjust: "exact",
             }}
           >
@@ -291,7 +325,8 @@ export default function PrintRekapKso() {
               colSpan="4"
               style={{
                 textAlign: "center",
-                fontSize: "12px",
+                fontSize: "11px",
+                fontWeight: "900",
                 letterSpacing: "1px",
               }}
             >
@@ -301,7 +336,7 @@ export default function PrintRekapKso() {
               style={{
                 textAlign: "right",
                 fontFamily: "monospace",
-                fontSize: "13px",
+                fontSize: "12.5px",
                 fontWeight: 900,
               }}
             >

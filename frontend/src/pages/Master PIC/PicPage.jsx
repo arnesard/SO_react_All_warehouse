@@ -268,7 +268,7 @@ export default function PicPage() {
                   required
                 >
                   <option value="STOCK">📦 TIM PENGHITUNG FISIK (STOCK)</option>
-                  <option value="AUDITOR">🔍 TIM VALIDATOR (AUDITOR)</option>
+                  <option value="AUDITOR">Tim Validator (Auditor)</option>
                 </select>
               </div>
 

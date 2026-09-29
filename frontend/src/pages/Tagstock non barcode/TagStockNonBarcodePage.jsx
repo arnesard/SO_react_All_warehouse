@@ -268,10 +268,11 @@ export default function TagStockNonBarcodePage() {
       style={{
         display: "flex",
         gap: "12px",
-        height: "calc(100vh - 84px)", // Mengisi tinggi layar pas sampai bawah
-        padding: "10px 14px",
+        width: "100%" /* Wajib ada */,
+        height: "calc(100vh - 84px)",
+        padding: "4px 0",
         boxSizing: "border-box",
-        alignItems: "stretch", // Memaksa card kiri dan kanan sejajar atas-bawah
+        alignItems: "stretch",
       }}
     >
       {/* 📥 1. PANEL KIRI: CARD UPLOAD (Sejajar bawah dengan tabel) */}
@@ -281,7 +282,7 @@ export default function TagStockNonBarcodePage() {
           height: "100%", // Sejajar penuh dengan panel kanan
           flexShrink: 0,
           background: "var(--surface)",
-          border: "1.5px solid rgba(254, 104, 7, 0.5)",
+          border: "1px solid var(--border-soft)",
           borderRadius: "14px",
           padding: "16px 14px",
           boxSizing: "border-box",
@@ -296,7 +297,7 @@ export default function TagStockNonBarcodePage() {
             width: "44px",
             height: "44px",
             borderRadius: "50%",
-            backgroundColor: "rgba(254, 104, 7, 0.12)",
+            backgroundColor: "var(--surface-2)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -304,25 +305,24 @@ export default function TagStockNonBarcodePage() {
             flexShrink: 0,
           }}
         >
-          <FileSpreadsheet size={22} color="#fe6807" />
+          <FileSpreadsheet size={22} color="var(--text-secondary)" />
         </div>
 
         <h4
           style={{
             fontSize: "12px",
-            fontWeight: 800,
+            fontWeight: 600,
             margin: "0 0 3px 0",
-            textTransform: "uppercase",
-            letterSpacing: "0.5px",
+            textTransform: "none",
             color: "var(--text-primary)",
             flexShrink: 0,
           }}
         >
-          UPLOAD NON-BARCODE
+          Upload Non-Barcode
         </h4>
         <p
           style={{
-            fontSize: "10.5px",
+            fontSize: "12px",
             color: "var(--text-secondary)",
             margin: "0 0 12px 0",
             lineHeight: "1.3",
@@ -338,8 +338,8 @@ export default function TagStockNonBarcodePage() {
           style={{
             width: "100%",
             height: "34px",
-            borderColor: "rgba(254, 104, 7, 0.7)",
-            fontSize: "11px",
+            borderColor: "transparent",
+            fontSize: "12px",
             fontWeight: 600,
             borderRadius: "8px",
             marginBottom: "12px",
@@ -349,7 +349,7 @@ export default function TagStockNonBarcodePage() {
           value={uploadWh}
           onChange={(e) => setUploadWh(e.target.value)}
         >
-          <option value="">-- PILIH GUDANG --</option>
+          <option value="">-- Pilih Gudang --</option>
           <option value="APW">APW</option>
           <option value="BPW">BPW</option>
           <option value="DPW">DPW</option>
@@ -361,12 +361,12 @@ export default function TagStockNonBarcodePage() {
           style={{
             flex: 1, // Otomatis memanjang mengisi seluruh ruang tengah
             minHeight: "220px",
-            border: "1.5px dashed #fe6807",
+            border: "1.5px dashed rgba(0, 0, 0, 0.2)",
             borderRadius: "10px",
             padding: "20px 10px",
             position: "relative",
             cursor: "pointer",
-            backgroundColor: "rgba(254, 104, 7, 0.02)",
+            backgroundColor: "transparent",
             marginBottom: "14px",
             display: "flex",
             flexDirection: "column",
@@ -391,12 +391,12 @@ export default function TagStockNonBarcodePage() {
           />
           <UploadCloud
             size={36}
-            color="#fe6807"
+            color="var(--text-secondary)"
             style={{ marginBottom: "10px", opacity: 0.9 }}
           />
           <div
             style={{
-              fontSize: "11px",
+              fontSize: "12px",
               fontWeight: 600,
               color: "var(--text-secondary)",
               wordBreak: "break-all",
@@ -419,11 +419,11 @@ export default function TagStockNonBarcodePage() {
               width: "100%",
               height: "36px",
               borderRadius: "18px",
-              backgroundColor: "#fe6807",
-              borderColor: "#fe6807",
+              backgroundColor: "#111113",
+              borderColor: "#111113",
               color: "#fff",
-              fontWeight: 700,
-              fontSize: "11px",
+              fontWeight: 600,
+              fontSize: "12px",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -438,23 +438,20 @@ export default function TagStockNonBarcodePage() {
             ) : (
               <FileCheck size={14} />
             )}
-            PROSES UPLOAD DATA
+            Proses Upload Data
           </button>
 
           <a
             href="/template/tes tag stok kosong.xlsx"
             target="_blank"
             rel="noreferrer"
-            className="btn-ctrl"
+            className="btn-ctrl green"
             style={{
               width: "100%",
               height: "36px",
               borderRadius: "18px",
-              backgroundColor: "#1d4ed8",
-              borderColor: "#1d4ed8",
-              color: "#fff",
-              fontWeight: 700,
-              fontSize: "11px",
+              fontWeight: 600,
+              fontSize: "12px",
               textDecoration: "none",
               display: "flex",
               alignItems: "center",
@@ -462,7 +459,7 @@ export default function TagStockNonBarcodePage() {
               gap: "6px",
             }}
           >
-            <Download size={14} /> FILE CONTOH UPLOAD
+            <Download size={14} /> File Contoh Upload
           </a>
         </div>
       </div>
@@ -471,7 +468,8 @@ export default function TagStockNonBarcodePage() {
       <div
         style={{
           flex: 1,
-          height: "100%", // Sejajar penuh
+          width: "100%",
+          height: "100%",
           display: "flex",
           flexDirection: "column",
           gap: "10px",
@@ -499,16 +497,16 @@ export default function TagStockNonBarcodePage() {
               style={{
                 width: "150px",
                 height: "34px",
-                fontSize: "11px",
-                fontWeight: 700,
-                borderColor: "rgba(59, 130, 246, 0.7)",
+                fontSize: "12px",
+                fontWeight: 600,
+                borderColor: "transparent",
                 borderRadius: "8px",
                 padding: "2px 8px",
               }}
               value={selectedWh}
               onChange={(e) => setSelectedWh(e.target.value)}
             >
-              <option value="">⚠️ PILIH GUDANG</option>
+              <option value="">Pilih gudang</option>
               {warehouses.map((wh) => (
                 <option key={wh} value={wh}>
                   {wh}
@@ -521,7 +519,7 @@ export default function TagStockNonBarcodePage() {
               style={{
                 width: "230px",
                 height: "34px",
-                fontSize: "11px",
+                fontSize: "12px",
                 fontWeight: 600,
                 borderRadius: "8px",
                 padding: "2px 8px",
@@ -530,7 +528,7 @@ export default function TagStockNonBarcodePage() {
               value={selectedOperator}
               onChange={(e) => handleOperatorChange(e.target.value)}
             >
-              <option value="">-- PILIH OPERATOR --</option>
+              <option value="">Pilih operator</option>
               {operators.map((op) => (
                 <option key={op.no_penneng} value={op.no_penneng}>
                   {op.nama} ({op.no_penneng})
@@ -542,41 +540,33 @@ export default function TagStockNonBarcodePage() {
               <>
                 <button
                   type="button"
-                  className={`btn-ctrl ${isValidated ? "primary" : ""}`}
+                  className={`btn-ctrl ${isValidated ? "solid-green" : "yellow"}`}
                   style={{
                     height: "34px",
                     padding: "0 10px",
-                    fontSize: "10.5px",
-                    fontWeight: 700,
+                    fontSize: "12px",
+                    fontWeight: 600,
                     borderRadius: "8px",
-                    backgroundColor: isValidated
-                      ? undefined
-                      : "rgba(245, 166, 35, 0.15)",
-                    borderColor: isValidated ? undefined : "var(--warn)",
-                    color: isValidated ? undefined : "var(--warn)",
                   }}
                   onClick={() => setIsValidated(!isValidated)}
                 >
                   <CheckCircle size={13} />{" "}
-                  {isValidated ? "TUTUP VALIDASI" : "VALIDASI"}
+                  {isValidated ? "Tutup Validasi" : "Validasi"}
                 </button>
 
                 <button
                   type="button"
-                  className="btn-ctrl"
+                  className="btn-ctrl green"
                   style={{
                     height: "34px",
                     padding: "0 10px",
-                    fontSize: "10.5px",
-                    fontWeight: 700,
+                    fontSize: "12px",
+                    fontWeight: 600,
                     borderRadius: "8px",
-                    backgroundColor: "rgba(52, 199, 123, 0.15)",
-                    borderColor: "var(--ok)",
-                    color: "var(--ok)",
                   }}
                   onClick={handlePrintRekap}
                 >
-                  <Printer size={13} /> REKAP
+                  <Printer size={13} /> Rekap
                 </button>
               </>
             )}
@@ -591,8 +581,8 @@ export default function TagStockNonBarcodePage() {
                   style={{
                     width: "125px",
                     height: "34px",
-                    fontSize: "11px",
-                    borderColor: "rgba(14, 165, 233, 0.5)",
+                    fontSize: "12px",
+                    borderColor: "transparent",
                     borderRadius: "8px",
                     padding: "2px 8px",
                   }}
@@ -602,7 +592,7 @@ export default function TagStockNonBarcodePage() {
                     handleDocFilterApply(e.target.value, docEnd);
                   }}
                 >
-                  <option value="">-- DOC AWAL --</option>
+                  <option value="">Doc awal</option>
                   {docList.map((d) => (
                     <option key={d} value={d}>
                       {d}
@@ -615,8 +605,8 @@ export default function TagStockNonBarcodePage() {
                   style={{
                     width: "125px",
                     height: "34px",
-                    fontSize: "11px",
-                    borderColor: "rgba(14, 165, 233, 0.5)",
+                    fontSize: "12px",
+                    borderColor: "transparent",
                     borderRadius: "8px",
                     padding: "2px 8px",
                   }}
@@ -626,7 +616,7 @@ export default function TagStockNonBarcodePage() {
                     handleDocFilterApply(docStart, e.target.value);
                   }}
                 >
-                  <option value="">-- DOC AKHIR --</option>
+                  <option value="">Doc akhir</option>
                   {docList.map((d) => (
                     <option key={d} value={d}>
                       {d}
@@ -642,12 +632,9 @@ export default function TagStockNonBarcodePage() {
               style={{
                 height: "34px",
                 padding: "0 14px",
-                fontSize: "11px",
-                fontWeight: 700,
+                fontSize: "12px",
+                fontWeight: 600,
                 borderRadius: "8px",
-                backgroundColor: "#0d6efd",
-                borderColor: "#0d6efd",
-                color: "#fff",
                 display: "flex",
                 alignItems: "center",
                 gap: "5px",
@@ -655,28 +642,25 @@ export default function TagStockNonBarcodePage() {
               disabled={!selectedOperator}
               onClick={handlePrintKartuTag}
             >
-              <Tag size={13} /> TAG STOCK
+              <Tag size={13} /> Tag Stock
             </button>
 
             <button
               type="button"
-              className="btn-ctrl danger"
+              className="btn-ctrl red"
               style={{
                 height: "34px",
                 padding: "0 14px",
-                fontSize: "11px",
-                fontWeight: 700,
+                fontSize: "12px",
+                fontWeight: 600,
                 borderRadius: "8px",
-                backgroundColor: "#dc3545",
-                borderColor: "#dc3545",
-                color: "#fff",
                 display: "flex",
                 alignItems: "center",
                 gap: "5px",
               }}
               onClick={handleResetFilters}
             >
-              <RotateCcw size={13} /> RESET
+              <RotateCcw size={13} /> Reset
             </button>
           </div>
         </div>
@@ -686,7 +670,7 @@ export default function TagStockNonBarcodePage() {
           style={{
             flex: 1,
             background: "var(--surface)",
-            border: "1.5px solid rgba(59, 130, 246, 0.6)",
+            border: "1px solid var(--border-soft)",
             borderRadius: "12px",
             display: "flex",
             flexDirection: "column",
@@ -711,14 +695,13 @@ export default function TagStockNonBarcodePage() {
                 display: "flex",
                 alignItems: "center",
                 gap: "6px",
-                color: "#3b82f6",
-                fontWeight: 800,
+                color: "var(--text-primary)",
+                fontWeight: 600,
                 fontSize: "11.5px",
-                letterSpacing: "0.5px",
-                textTransform: "uppercase",
+                textTransform: "none",
               }}
             >
-              <TableProperties size={15} /> DATA TAG STOCK NON-BARCODE
+              <TableProperties size={15} /> Data Tag Stock Non-Barcode
             </div>
 
             {tableRows.length > 0 && (
@@ -727,7 +710,7 @@ export default function TagStockNonBarcodePage() {
                   display: "flex",
                   alignItems: "center",
                   gap: "10px",
-                  fontSize: "11px",
+                  fontSize: "12px",
                 }}
               >
                 <span
@@ -735,19 +718,19 @@ export default function TagStockNonBarcodePage() {
                     backgroundColor: "var(--surface-3)",
                     padding: "3px 10px",
                     borderRadius: "6px",
-                    fontWeight: 700,
-                    color: "var(--warn)",
+                    fontWeight: 600,
+                    color: "var(--text-secondary)",
                   }}
                 >
                   Total Rak: <strong className="mono">{totalRack}</strong>
                 </span>
                 <span
                   style={{
-                    backgroundColor: "rgba(59, 130, 246, 0.15)",
+                    backgroundColor: "var(--surface-2)",
                     padding: "3px 10px",
                     borderRadius: "6px",
-                    fontWeight: 700,
-                    color: "#3b82f6",
+                    fontWeight: 600,
+                    color: "var(--text-primary)",
                   }}
                 >
                   Total Qty:{" "}
@@ -787,22 +770,22 @@ export default function TagStockNonBarcodePage() {
                   boxShadow: "inset 0 -1px 0 var(--border)",
                 }}
               >
-                <tr style={{ textTransform: "uppercase", fontSize: "10px" }}>
-                  <th style={{ width: "45px", textAlign: "center" }}>NO.</th>
-                  <th style={{ width: "100px" }}>LOT</th>
-                  <th style={{ width: "120px" }}>NO. DOC</th>
-                  <th style={{ width: "120px" }}>ITEM</th>
-                  <th style={{ textAlign: "left" }}>DESKRIPSI MASTER SIZE</th>
+                <tr style={{ textTransform: "none", fontSize: "12px" }}>
+                  <th style={{ width: "45px", textAlign: "center" }}>No.</th>
+                  <th style={{ width: "100px" }}>Lot</th>
+                  <th style={{ width: "120px" }}>No. Doc</th>
+                  <th style={{ width: "120px" }}>Item</th>
+                  <th style={{ textAlign: "left" }}>Deskripsi Master Size</th>
                   <th style={{ width: "90px", textAlign: "center" }}>
-                    JML RAK
+                    Jml Rak
                   </th>
-                  <th style={{ width: "100px", textAlign: "right" }}>QTY</th>
+                  <th style={{ width: "100px", textAlign: "right" }}>Qty</th>
                   <th style={{ width: "100px", textAlign: "right" }}>
-                    JML AKTUAL
+                    Jml Aktual
                   </th>
                   {isValidated && (
                     <th style={{ width: "110px", textAlign: "center" }}>
-                      STATUS
+                      Status
                     </th>
                   )}
                 </tr>
@@ -872,7 +855,7 @@ export default function TagStockNonBarcodePage() {
                         <td style={{ textAlign: "center" }} className="mono">
                           {row.Rak || 0}
                         </td>
-                        <td style={{ textAlign: "right", fontWeight: 700 }}>
+                        <td style={{ textAlign: "right", fontWeight: 600 }}>
                           {qty.toLocaleString("id-ID")}
                         </td>
                         <td
@@ -886,12 +869,12 @@ export default function TagStockNonBarcodePage() {
                         {isValidated && (
                           <td style={{ textAlign: "center" }}>
                             {actual === null ? (
-                              <span className="badge-pill warn">BELUM</span>
+                              <span className="badge-pill warn">Belum</span>
                             ) : isMatch ? (
-                              <span className="badge-pill ok">SESUAI</span>
+                              <span className="badge-pill ok">Sesuai</span>
                             ) : (
                               <span className="badge-pill danger">
-                                TIDAK SESUAI
+                                Tidak Sesuai
                               </span>
                             )}
                           </td>

@@ -10,17 +10,42 @@ import TagStockNonBarcodePage from "./pages/Tagstock non barcode/TagStockNonBarc
 import PrintTagStockNonBarcodePage from "./pages/Tagstock non barcode/PrintTagStockNonBarcodePage";
 import PrintRekapNonBarcodePage from "./pages/Tagstock non barcode/PrintRekapNonBarcodePage";
 import AppksoPage from "./pages/Appkso/AppksoPage";
+import InputKso from "./pages/Input Kso/InputKsoPage";
 import PrintRekapKso from "./pages/Appkso/PrintRekapKso";
 import PrintKso from "./pages/Appkso/PrintKso";
 import SnapshotPage from "./pages/Snapshot/SnapshotPage";
 import ProgressSoPage from "./pages/Progress/ProgressSoPage";
 import PicPage from "./pages/Master PIC/PicPage";
+import InputKsoPage from "./pages/Input Kso/InputKsoPage";
+
+// Import Login & User Management
+import HalamanLoginpage from "./pages/User Login/HalamanLoginpage";
+import Userpage from "./pages/User Login/Userpage";
+import { getUserSession } from "./Utils/auth";
+
+// Komponen Pembungkus Proteksi Login
+function ProtectedRoute({ children }) {
+  const user = getUserSession();
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+  return children;
+}
 
 function App() {
   return (
     <Routes>
-      {/* 1. Halaman utama yang membutuhkan Navbar (dibungkus MainLayout) */}
-      <Route element={<MainLayout />}>
+      {/* Rute Login Berdiri Sendiri */}
+      <Route path="/login" element={<HalamanLoginpage />} />
+
+      {/* Rute Utama dengan Navbar (Wajib Login) */}
+      <Route
+        element={
+          <ProtectedRoute>
+            <MainLayout />
+          </ProtectedRoute>
+        }
+      >
         <Route index element={<DashboardPage />} />
         <Route path="master-size" element={<MasterSizePage />} />
         <Route path="barcode-monstock" element={<BarcodeMonstockPage />} />
@@ -30,13 +55,19 @@ function App() {
           element={<TagStockNonBarcodePage />}
         />
         <Route path="appkso" element={<AppksoPage />} />
+        <Route path="InputKSO" element={<InputKso />} />
         <Route path="snapshot" element={<SnapshotPage />} />
         <Route path="progress-so" element={<ProgressSoPage />} />
         <Route path="pic" element={<PicPage />} />
+        <Route path="InputKso" element={<InputKsoPage />} />
+
+        {/* Khusus Super User */}
+        <Route path="users" element={<Userpage />} />
+
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
 
-      {/* 2. Rute Khusus Cetak: Berdiri sendiri di LUAR MainLayout (Bersih tanpa Navbar) */}
+      {/* Rute Cetak */}
       <Route path="print/tagstock/rekap" element={<PrintRekapPage />} />
       <Route path="print/tagstock/kso" element={<PrintTagStockPage />} />
       <Route
@@ -47,8 +78,6 @@ function App() {
         path="print/tagstock-nonbarcode/rekap"
         element={<PrintRekapNonBarcodePage />}
       />
-
-      {/* Rute Khusus Cetak APPKSO */}
       <Route path="print/appkso/rekap" element={<PrintRekapKso />} />
       <Route path="print/appkso/kso" element={<PrintKso />} />
     </Routes>

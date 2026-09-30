@@ -2,14 +2,15 @@
   color-scheme: light;
 
   /* --- permukaan --- */
-  --bg-app: #ffffff;
-  --bg-app-2: #f7f7f8;
+  --bg-app: #eef1f5;
+  --bg-app-2: #e6eaf0;
   --surface: #ffffff;
-  --surface-2: #f5f5f7;
-  --surface-3: #ebebf0;
-  --surface-hover: rgba(0, 0, 0, 0.035);
+  --surface-2: #e3e8ef;
+  --surface-3: #d8dee8;
+  --surface-zebra: #f7f9fb;
+  --surface-hover: rgba(10, 99, 232, 0.06);
   --border: rgba(0, 0, 0, 0.12);
-  --border-soft: rgba(0, 0, 0, 0.07);
+  --border-soft: rgba(15, 23, 42, 0.1);
 
   /* --- lapisan transparan untuk isi input / chip --- */
   --fill-1: rgba(0, 0, 0, 0.045);
@@ -57,7 +58,9 @@
   letter-spacing: -0.01em;
 }
 
-* {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
@@ -122,25 +125,26 @@ code,
 /* ---------------------------------------------------------------------- */
 .app-header {
   position: sticky;
-  top: 1px;
+  top: 0;
   z-index: 40;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  /* UBAH margin kanan-kiri dari 24px menjadi 10px atau 12px agar lebih panjang */
-  margin: 10px 12px 0;
-  padding: 0 14px 0 16px;
+  gap: 10px;
+  width: 100% !important;
+  margin: 0 0 10px 0 !important;
+  padding: 0 12px; /* Dibuat lebih ringkas dari 20px agar space luas */
   height: 58px;
   flex-shrink: 0;
   background: var(--ink);
-  border-radius: 20px; /* lengkungan rapi */
+  border-radius: 10px !important;
   box-shadow: none;
 }
+
 .app-brand {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 6px;
   flex-shrink: 0;
 }
 
@@ -157,22 +161,23 @@ code,
 .app-brand-text {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 6px;
 }
 
 .app-brand-sep {
   display: inline-block;
   color: rgb(19, 180, 132);
   font-weight: 350;
-  font-size: 23px;
-  margin: 0 12px;
+  font-size: 18px;
+  margin: 0 4px;
 }
 
 .app-brand-title {
-  font-size: 13.5px;
-  font-weight: 600;
+  font-size: 12.5px;
+  font-weight: 700;
   letter-spacing: -0.01em;
   color: #ffffff;
+  white-space: nowrap;
 }
 
 .app-brand-sub {
@@ -188,14 +193,12 @@ code,
   display: flex;
   align-items: stretch;
   align-self: stretch;
-  /* Perbesar gap dari 2px jadi 6px atau 8px agar space hitam terisi seimbang */
-  gap: 10px;
+  gap: 4px; /* Rapatkan gap antar item dari 10px ke 4px */
   flex: 1;
-  padding: 0 16px;
-  /* justify-content: flex-start; (atau ganti space-between jika ingin menu rata menyebar) */
+  padding: 0 6px;
+  justify-content: flex-start; /* Jangan pakai space-between agar tidak memaksakan lebar */
   overflow-x: auto;
   scrollbar-width: none;
-  justify-content: space-between;
 }
 
 .app-nav::-webkit-scrollbar {
@@ -207,6 +210,7 @@ code,
   display: flex;
   align-items: center;
   text-decoration: none;
+  flex-shrink: 0; /* Cegah teks mengecil aneh */
 }
 
 .app-nav-item::after {
@@ -216,11 +220,11 @@ code,
 .app-nav-link {
   display: flex;
   align-items: center;
-  gap: 7px;
-  /* Lebarkan padding klik menu dari '8px 10px' menjadi '8px 14px' */
-  padding: 8px 14px;
+  gap: 5px;
+  /* Sesuaikan padding dari 8px 14px menjadi 6px 9px agar muat di layar */
+  padding: 6px 9px;
   border-radius: 999px;
-  font-size: 13px; /* Ukuran font sedikit lebih nyaman dibaca */
+  font-size: 11.5px; /* Diturunkan dari 13px ke 11.5px agar seluruh teks menu terbaca utuh */
   font-weight: 500;
   color: #a7a7ae;
   white-space: nowrap;
@@ -243,11 +247,65 @@ code,
   margin-top: 15px;
   margin-bottom: -2px;
   padding-bottom: 8px;
-  border-radius: 23px 23px 0 0;
+  border-radius: 20px 20px 0 0;
   color: var(--ink);
-  background: #ffffff;
+  background: var(--bg-app);
   border-color: transparent;
   font-weight: 600;
+}
+
+/* lengkungan kiri & kanan: tab putih menyatu ke halaman */
+.app-nav-link.is-active::before,
+.app-nav-link.is-active::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  width: 20px;
+  height: 22px;
+  pointer-events: none;
+}
+.app-nav-link.is-active::before {
+  left: -20px;
+  background: radial-gradient(
+    circle at 0 0,
+    transparent 20px,
+    var(--bg-app) 20.5px
+  );
+}
+.app-nav-link.is-active::after {
+  right: -20px;
+  background: radial-gradient(
+    circle at 100% 0,
+    transparent 20px,
+    var(--bg-app) 20.5px
+  );
+}
+
+/* Lengkungan kiri dan kanan tab aktif */
+.app-nav-link.is-active::before,
+.app-nav-link.is-active::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  width: 18px;
+  height: 20px;
+  pointer-events: none;
+}
+.app-nav-link.is-active::before {
+  left: -18px;
+  background: radial-gradient(
+    circle at 0 0,
+    transparent 18px,
+    var(--bg-app) 18.5px
+  );
+}
+.app-nav-link.is-active::after {
+  right: -18px;
+  background: radial-gradient(
+    circle at 100% 0,
+    transparent 18px,
+    var(--bg-app) 18.5px
+  );
 }
 
 /* lengkungan kiri & kanan: tab putih menyatu ke halaman */
@@ -262,14 +320,18 @@ code,
 }
 .app-nav-link.is-active::before {
   left: -24px;
-  background: radial-gradient(circle at 0 0, transparent 24px, #ffffff 24.5px);
+  background: radial-gradient(
+    circle at 0 0,
+    transparent 24px,
+    var(--bg-app) 24.5px
+  );
 }
 .app-nav-link.is-active::after {
   right: -24px;
   background: radial-gradient(
     circle at 100% 0,
     transparent 24px,
-    #ffffff 24.5px
+    var(--bg-app) 24.5px
   );
 }
 
@@ -313,9 +375,9 @@ code,
   color: #ffffff;
 }
 
-.app-nav-dropdown-link.is-active {
+.-nav-dropdown-link.is-active {
   color: var(--ink);
-  background: #ffffff;
+  background: var(--bg-app);
 }
 
 .app-status-pill {
@@ -348,11 +410,10 @@ code,
 
 .app-main {
   flex: 1;
-  padding: 24px 24px 32px;
-  width: 100%;
-  margin: 0 auto;
+  padding: 0 !important; /* Biarkan 0 agar tidak mendorong kartu ke dalam */
+  width: 100% !important;
+  margin: 0 !important;
 }
-
 .page-header {
   display: flex;
   align-items: flex-start;
@@ -608,7 +669,7 @@ table.dtable thead th {
   text-align: left;
   padding: 11px 14px;
   background: var(--surface-2);
-  color: var(--text-secondary);
+  color: var(--text-primary);
   font-size: 11.5px;
   font-weight: 600;
   letter-spacing: 0;
@@ -630,8 +691,12 @@ table.dtable tbody td:last-child {
   border-right: none;
 }
 
+table.dtable tbody tr:nth-child(even) td {
+  background: var(--surface-zebra);
+}
+
 table.dtable tbody tr:hover td {
-  background: var(--surface-hover);
+  background: var(--accent-soft);
   color: var(--text-primary);
 }
 
@@ -710,8 +775,8 @@ table.dtable tbody tr:last-child td {
 .field-select {
   padding: 9px 13px;
   border-radius: var(--radius-sm);
-  border: 1px solid transparent;
-  background: var(--fill-1);
+  border: 1px solid var(--border);
+  background: #ffffff;
   color: var(--text-primary);
   font-size: 13px;
   min-width: 150px;
@@ -729,7 +794,7 @@ table.dtable tbody tr:last-child td {
 .field-select:focus {
   outline: none;
   border-color: var(--accent);
-  background: var(--fill-2);
+  background: #ffffff;
   box-shadow: 0 0 0 4px var(--accent-soft);
 }
 
@@ -1142,12 +1207,12 @@ input[type="file"].field-input:hover::file-selector-button {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: #ffffff;
-  border: none;
-  box-shadow: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
   flex-shrink: 0;
 }
 
@@ -1156,8 +1221,29 @@ input[type="file"].field-input:hover::file-selector-button {
   height: 26px;
   max-width: 26px;
   max-height: 26px;
+  object-fit: contain;
+  display: block;
+  flex-shrink: 0;
+  filter: brightness(0) invert(1) !important;
+}
+
+.app-brand-logo:hover {
+  opacity: 0.85;
 }
 
 .text-muted {
   color: var(--text-muted) !important;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Samakan card Bootstrap (Dashboard) dengan surface-card                  */
+/* ---------------------------------------------------------------------- */
+.card.glass-card {
+  background: var(--surface);
+  border-color: var(--border-soft);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-soft);
+}
+.card.glass-card.border-start {
+  border-left-color: var(--accent);
 }

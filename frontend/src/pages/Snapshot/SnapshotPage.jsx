@@ -248,7 +248,7 @@ function SnapshotPage() {
                 required
               >
                 <option value="" disabled>
-                  -- Pilih gudang target --
+                  Pilih gudang target
                 </option>
                 {["APW", "BPW", "DPW", "RPW"].map((w) => (
                   <option key={w} value={w}>
@@ -358,7 +358,7 @@ function SnapshotPage() {
               value={selectedWh}
               onChange={(e) => handleWhChange(e.target.value)}
             >
-              <option value="">-- Pilih Gudang --</option>
+              <option value="">Pilih Gudang</option>
               {warehouses.map((w) => (
                 <option key={w} value={w}>
                   {w.toUpperCase()}
@@ -375,7 +375,7 @@ function SnapshotPage() {
 
           {!selectedWh ? (
             <div className="table-empty">
-              ⚠️ Silakan pilih target gudang di atas terlebih dahulu untuk
+              Silakan pilih target gudang di atas terlebih dahulu untuk
               menampilkan data.
             </div>
           ) : loading ? (

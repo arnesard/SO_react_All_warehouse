@@ -313,6 +313,7 @@ export default function DashboardPage() {
             <option value="BPW">BPW</option>
             <option value="DPW">DPW</option>
             <option value="RPW">RPW</option>
+            <option value="DCK">DCK</option>
           </select>
 
           {warehouse && (

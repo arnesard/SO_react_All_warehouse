@@ -1,6 +1,6 @@
 const { poolUtama } = require("../../db/pool");
 
-// 1. Ambil Perbandingan Utama (Comparison Data & Summary Metrics)
+// 1. Comparison Data & Global Summary Cards
 const getComparisonData = async (req, res) => {
   const { warehouse } = req.query;
 
@@ -11,7 +11,7 @@ const getComparisonData = async (req, res) => {
   }
 
   try {
-    // 1. Tarik Data Matrix Per Pattern & Grade
+    // 1. Agregasi per Pattern & Grade (Persis getComparisonData Laravel)
     const sqlData = `
       SELECT 
         m.pattern,
@@ -41,18 +41,20 @@ const getComparisonData = async (req, res) => {
       warehouse,
     ]);
 
-    // 2. Kalkulasi Item-Level untuk Summary Cards
+    // 2. Kalkulasi Item-Level untuk Summary Cards (Join ke so_all_wh_price_db)
     const sqlItemLevel = `
       SELECT 
         m.item,
         m.pattern,
         m.grade,
-        IFNULL(m.std_price, 0) AS std_price,
+        IFNULL(p.price, 0) AS std_price,
         IFNULL(s.qty, 0) AS qty_oracle,
         IFNULL(a.qty, 0) AS qty_appkso,
         (IFNULL(a.qty, 0) - IFNULL(s.qty, 0)) AS variance,
-        ((IFNULL(a.qty, 0) - IFNULL(s.qty, 0)) * IFNULL(m.std_price, 0)) AS price_variance
+        ((IFNULL(a.qty, 0) - IFNULL(s.qty, 0)) * IFNULL(p.price, 0)) AS price_variance
       FROM so_all_wh_master_size_db m
+      LEFT JOIN so_all_wh_price_db p 
+        ON m.item = p.item
       LEFT JOIN so_all_wh_snapshot_db s 
         ON m.item = s.item AND s.warehouse = ?
       LEFT JOIN (
@@ -162,7 +164,7 @@ const getComparisonData = async (req, res) => {
   }
 };
 
-// 2. Ambil Rincian Drilldown Pattern (Modal 1: Data Plus & Minus)
+// 2. Modal 1: Detail Pattern (Data Plus & Minus)
 const getDetailPattern = async (req, res) => {
   const { pattern, grade, warehouse } = req.query;
 
@@ -213,7 +215,7 @@ const getDetailPattern = async (req, res) => {
   }
 };
 
-// 3. Ambil Riwayat Scan Operator per Item (Modal 2)
+// 3. Modal 2: Riwayat Scan Operator
 const getScanHistory = async (req, res) => {
   const { item, warehouse } = req.query;
 
@@ -243,7 +245,7 @@ const getScanHistory = async (req, res) => {
   }
 };
 
-// 4. Ambil Daftar Unscanned SKU (Modal 3)
+// 4. Modal 3: Unscanned Items
 const getUnscannedItems = async (req, res) => {
   const { warehouse } = req.query;
 
@@ -275,7 +277,7 @@ const getUnscannedItems = async (req, res) => {
   }
 };
 
-// 5. Ambil Detail Price Variance (Modal 5)
+// 5. Modal 5: Detail Price Pattern (Persis modal_detail_price.blade.php)
 const getDetailPricePattern = async (req, res) => {
   const { pattern, grade, warehouse } = req.query;
 
@@ -284,12 +286,18 @@ const getDetailPricePattern = async (req, res) => {
       SELECT 
         m.item,
         m.description,
-        IFNULL(m.std_price, 0) AS std_price,
+        IFNULL(p.price, 0) AS price,
+        IFNULL(p.price, 0) AS std_price,
+        IFNULL(s.qty, 0) AS oracle_qty,
         IFNULL(s.qty, 0) AS qty_oracle,
+        IFNULL(a.qty, 0) AS appkso_qty,
         IFNULL(a.qty, 0) AS qty_appkso,
         (IFNULL(a.qty, 0) - IFNULL(s.qty, 0)) AS variance,
-        ((IFNULL(a.qty, 0) - IFNULL(s.qty, 0)) * IFNULL(m.std_price, 0)) AS price_variance
+        ((IFNULL(a.qty, 0) - IFNULL(s.qty, 0)) * IFNULL(p.price, 0)) AS variance_rp,
+        ((IFNULL(a.qty, 0) - IFNULL(s.qty, 0)) * IFNULL(p.price, 0)) AS price_variance
       FROM so_all_wh_master_size_db m
+      LEFT JOIN so_all_wh_price_db p 
+        ON m.item = p.item
       LEFT JOIN so_all_wh_snapshot_db s 
         ON m.item = s.item AND s.warehouse = ?
       LEFT JOIN (
@@ -299,7 +307,7 @@ const getDetailPricePattern = async (req, res) => {
         GROUP BY item, warehouse
       ) a ON m.item = a.item AND m.warehouse = a.warehouse
       WHERE m.warehouse = ? AND m.pattern = ? AND m.grade = ?
-      HAVING qty_oracle > 0 OR qty_appkso > 0
+      HAVING oracle_qty > 0 OR appkso_qty > 0
       ORDER BY variance ASC, m.item ASC
     `;
     const [rows] = await poolUtama.query(sql, [
@@ -318,12 +326,12 @@ const getDetailPricePattern = async (req, res) => {
 
     rows.forEach((r) => {
       const v = Number(r.variance) || 0;
-      const pv = Number(r.price_variance) || 0;
+      const pv = Number(r.variance_rp) || 0;
       totalPcs += v;
       totalRp += pv;
       if (v < 0) skuMinus++;
       if (v > 0) skuPlus++;
-      if (Number(r.std_price) === 0) missingPriceCount++;
+      if (Number(r.price) === 0) missingPriceCount++;
     });
 
     return res.json({
@@ -344,7 +352,7 @@ const getDetailPricePattern = async (req, res) => {
   }
 };
 
-// 6. Ambil Detail Anomali per Grade (Modal 6)
+// 6. Modal 6: Detail per Grade (Persis modal_detail_grade.blade.php)
 const getDetailGrade = async (req, res) => {
   const { grade, warehouse } = req.query;
 
@@ -364,7 +372,9 @@ const getDetailGrade = async (req, res) => {
         m.item,
         m.description,
         m.grade,
+        IFNULL(s.qty, 0) AS oracle_qty,
         IFNULL(s.qty, 0) AS qty_oracle,
+        IFNULL(a.qty, 0) AS appkso_qty,
         IFNULL(a.qty, 0) AS qty_appkso,
         (IFNULL(a.qty, 0) - IFNULL(s.qty, 0)) AS variance
       FROM so_all_wh_master_size_db m
@@ -377,7 +387,7 @@ const getDetailGrade = async (req, res) => {
         GROUP BY item, warehouse
       ) a ON m.item = a.item AND m.warehouse = a.warehouse
       WHERE m.warehouse = ? AND ${whereGrade}
-      HAVING (qty_appkso - qty_oracle) != 0
+      HAVING (appkso_qty - oracle_qty) != 0
       ORDER BY variance ASC, m.pattern ASC
     `;
     const [rows] = await poolUtama.query(sql, params);
@@ -408,7 +418,7 @@ const getDetailGrade = async (req, res) => {
   }
 };
 
-// 7. Ambil Detail Matriks PPM (Product x Grade [OE, OK, 2nd])
+// 7. Modal 7: Detail Matriks PPM (Persis modal_detail_ppm.blade.php)
 const getDetailPpm = async (req, res) => {
   const { warehouse } = req.query;
 

@@ -8,6 +8,8 @@ import {
   Ruler,
   Loader2,
   Warehouse,
+  Disc,
+  Disc2,
 } from "lucide-react";
 import SectionCard from "../../components/SectionCard";
 import DataTable from "../../components/DataTable";
@@ -290,7 +292,7 @@ function MasterSizePage() {
   return (
     <>
       <SectionCard
-        icon={Ruler}
+        icon={Disc2}
         title={`Master Size ${selectedWh ? `(${filteredRows.length} item)` : ""}`}
       >
         <div className="filter-bar">

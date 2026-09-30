@@ -10,6 +10,9 @@ const tagStockRoutes = require("./src/routes/Tagstock/tagStock");
 const tagStockNonBarcodeRoutes = require("./src/routes/Tagstock non barcode/tagStockNonBarcode");
 const appksoRoutes = require("./src/routes/Appkso/appkso");
 const dashboardRoutes = require("./src/routes/Dashboard/dashboard");
+const progressRoutes = require("./src/routes/Progress/progress");
+const userLoginRoutes = require("./src/routes/User Login/userLogin");
+const inputKsoRoutes = require("./src/routes/Input Kso/inputKso");
 const app = express();
 
 app.use(cors());
@@ -29,6 +32,9 @@ app.use("/api/tagstock", tagStockRoutes);
 app.use("/api/tagstock-nonbarcode", tagStockNonBarcodeRoutes);
 app.use("/api/appkso", appksoRoutes);
 app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/progress", progressRoutes);
+app.use("/api/auth", userLoginRoutes);
+app.use("/api/input-kso", inputKsoRoutes);
 
 const PORT = process.env.PORT || 8010;
 

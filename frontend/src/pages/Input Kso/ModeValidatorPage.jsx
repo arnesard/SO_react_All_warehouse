@@ -10,9 +10,10 @@ import {
   UserCheck,
 } from "lucide-react";
 import Swal from "sweetalert2";
-import { getUserSession } from "../../utils/auth";
+import { getUserSession, getLockedWarehouse } from "../../Utils/auth";
+import { API_ORIGIN } from "../../lib/config";
 
-const API_BASE = "http://localhost:8010/api/input-kso";
+const API_BASE = `${API_ORIGIN}/api/input-kso`;
 
 export default function ModeValidatorPage() {
   const navigate = useNavigate();
@@ -21,7 +22,9 @@ export default function ModeValidatorPage() {
 
   // BACA GUDANG dari URL
   const urlWarehouse = searchParams.get("wh");
-  const currentWarehouse = urlWarehouse || currentUser?.warehouse || "BPW";
+  // Akun biasa selalu pakai gudang akunnya (URL ?wh= diabaikan); super_user boleh lewat URL
+  const currentWarehouse =
+    getLockedWarehouse() || urlWarehouse || currentUser?.warehouse || "BPW";
 
   const [docCode, setDocCode] = useState("");
   const [validating, setValidating] = useState(false);

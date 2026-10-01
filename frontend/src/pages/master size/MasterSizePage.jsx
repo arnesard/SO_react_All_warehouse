@@ -15,6 +15,7 @@ import SectionCard from "../../components/SectionCard";
 import DataTable from "../../components/DataTable";
 import Modal from "../../components/Modal";
 import { api } from "../../lib/api";
+import { getLockedWarehouse } from "../../Utils/auth";
 
 const WAREHOUSE_OPTIONS = ["APW", "BPW", "DPW", "RPW", "JMW", "DCK"];
 const PRODUCT_OPTIONS = ["TIRE", "TUBE", "VALVE", "RIMBAND"];
@@ -51,6 +52,7 @@ function gradeBadgeClass(grade) {
 }
 
 function MasterSizePage() {
+  const lockedWh = getLockedWarehouse();
   const [rows, setRows] = useState([]);
   const [filterWhOptions, setFilterWhOptions] = useState([]);
   const [filterGradeOptions, setFilterGradeOptions] = useState([]);
@@ -58,13 +60,13 @@ function MasterSizePage() {
   const [error, setError] = useState("");
 
   // Sama kayak Laravel: harus pilih Warehouse dulu sebelum tabel nongol
-  const [selectedWh, setSelectedWh] = useState("");
+  const [selectedWh, setSelectedWh] = useState(lockedWh);
   const [selectedGrade, setSelectedGrade] = useState("");
   const [query, setQuery] = useState("");
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
-  const [form, setForm] = useState(EMPTY_FORM);
+  const [form, setForm] = useState({ ...EMPTY_FORM, warehouse: lockedWh });
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState("");
 
@@ -105,7 +107,7 @@ function MasterSizePage() {
 
   function openAdd() {
     setEditingId(null);
-    setForm(EMPTY_FORM);
+    setForm({ ...EMPTY_FORM, warehouse: lockedWh });
     setFormError("");
     setModalOpen(true);
   }
@@ -299,10 +301,11 @@ function MasterSizePage() {
           <select
             className="field-select"
             value={selectedWh}
+            disabled={!!lockedWh}
             onChange={(e) => setSelectedWh(e.target.value)}
           >
-            <option value="">Pilih Gudang</option>
-            {filterWhOptions.map((wh) => (
+            {!lockedWh && <option value="">Pilih Gudang</option>}
+            {(lockedWh ? [lockedWh] : filterWhOptions).map((wh) => (
               <option key={wh} value={wh}>
                 {wh}
               </option>
@@ -416,6 +419,7 @@ function MasterSizePage() {
                 className="field-select"
                 required
                 value={form.warehouse}
+                disabled={!!lockedWh}
                 onChange={(e) =>
                   setForm({ ...form, warehouse: e.target.value })
                 }
@@ -423,7 +427,7 @@ function MasterSizePage() {
                 <option value="" disabled>
                   Pilih WH...
                 </option>
-                {WAREHOUSE_OPTIONS.map((wh) => (
+                {(lockedWh ? [lockedWh] : WAREHOUSE_OPTIONS).map((wh) => (
                   <option key={wh} value={wh}>
                     {wh}
                   </option>

@@ -13,20 +13,24 @@ import {
   Building2,
 } from "lucide-react";
 import Swal from "sweetalert2";
-import { getUserSession } from "../../utils/auth";
+import {
+  getUserSession,
+  getLockedWarehouse,
+  isSuperUser as checkSuperUser,
+  WAREHOUSE_LIST,
+} from "../../Utils/auth";
+import { API_ORIGIN } from "../../lib/config";
 
-const API_BASE = "http://localhost:8010/api/input-kso";
-const WAREHOUSE_LIST = ["BPW", "APW", "DPW", "RPW", "JMW"];
+const API_BASE = `${API_ORIGIN}/api/input-kso`;
 
 export default function InputKsoPage() {
   const navigate = useNavigate();
   const currentUser = getUserSession();
 
-  // Jika superadmin / null warehouse, default ke BPW tapi bisa pilih gudang lain
-  const isSuperUser =
-    !currentUser?.warehouse || currentUser?.role === "superadmin";
+  // Akun biasa terkunci ke gudangnya; hanya super_user yang boleh pilih gudang
+  const isSuperUser = checkSuperUser(currentUser);
   const [selectedWarehouse, setSelectedWarehouse] = useState(
-    currentUser?.warehouse || "BPW",
+    getLockedWarehouse() || "BPW",
   );
 
   const [activeSoEvent, setActiveSoEvent] = useState(null);

@@ -11,16 +11,19 @@ import SectionCard from "../../components/SectionCard";
 import DataTable from "../../components/DataTable";
 import Modal from "../../components/Modal";
 import { api } from "../../lib/api";
+import { getLockedWarehouse, isSuperUser } from "../../Utils/auth";
 
 function SnapshotPage() {
+  const lockedWh = getLockedWarehouse();
+  const superUser = isSuperUser();
   const [warehouses, setWarehouses] = useState([]);
-  const [selectedWh, setSelectedWh] = useState("");
+  const [selectedWh, setSelectedWh] = useState(lockedWh);
   const [query, setQuery] = useState("");
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const [uploadWh, setUploadWh] = useState("");
+  const [uploadWh, setUploadWh] = useState(lockedWh);
   const [file, setFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [uploadMsg, setUploadMsg] = useState(null);
@@ -61,6 +64,9 @@ function SnapshotPage() {
 
   useEffect(() => {
     loadWarehouses();
+    // Akun biasa: langsung tampilkan data gudangnya tanpa pilih gudang
+    if (lockedWh) loadData(lockedWh, "");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function handleWhChange(wh) {
@@ -157,7 +163,7 @@ function SnapshotPage() {
       const res = await api.delete("/api/snapshot/reset");
       if (!res.success) throw new Error(res.message || "Gagal mereset data.");
       setRows([]);
-      setSelectedWh("");
+      setSelectedWh(lockedWh);
       setWarehouses([]);
       setResetOpen(false);
       await loadWarehouses();
@@ -244,13 +250,14 @@ function SnapshotPage() {
               <select
                 className="field-select"
                 value={uploadWh}
+                disabled={!!lockedWh}
                 onChange={(e) => setUploadWh(e.target.value)}
                 required
               >
                 <option value="" disabled>
                   Pilih gudang target
                 </option>
-                {["APW", "BPW", "DPW", "RPW"].map((w) => (
+                {(lockedWh ? [lockedWh] : ["APW", "BPW", "DPW", "RPW"]).map((w) => (
                   <option key={w} value={w}>
                     {w}
                   </option>
@@ -301,7 +308,7 @@ function SnapshotPage() {
           </form>
         </SectionCard>
 
-        {/* Tombol Reset Dev Only */}
+        {superUser && (
         <div style={{ padding: "0 4px" }}>
           <button
             type="button"
@@ -326,6 +333,7 @@ function SnapshotPage() {
             <ShieldAlert size={14} /> Reset Semua Data (Dev Only)
           </button>
         </div>
+        )}
       </div>
 
       {/* Sisi Kanan: Tabel Data Snapshot */}
@@ -356,10 +364,11 @@ function SnapshotPage() {
             <select
               className="field-select"
               value={selectedWh}
+              disabled={!!lockedWh}
               onChange={(e) => handleWhChange(e.target.value)}
             >
-              <option value="">Pilih Gudang</option>
-              {warehouses.map((w) => (
+              {!lockedWh && <option value="">Pilih Gudang</option>}
+              {(lockedWh ? [lockedWh] : warehouses).map((w) => (
                 <option key={w} value={w}>
                   {w.toUpperCase()}
                 </option>

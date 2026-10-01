@@ -9,8 +9,10 @@ import {
   History,
 } from "lucide-react";
 import Swal from "sweetalert2";
+import { getLockedWarehouse } from "../../Utils/auth";
+import { API_ORIGIN } from "../../lib/config";
 
-const API_BASE = "http://localhost:8010/api/tagstock";
+const API_BASE = `${API_ORIGIN}/api/tagstock`;
 
 // Helper cetak memanggil URL page terpisah lewat hidden iframe (Tanpa New Tab & Tanpa Navbar)
 function triggerPrintPageViaFrame(url) {
@@ -33,8 +35,9 @@ function triggerPrintPageViaFrame(url) {
 }
 
 export default function TagStockPage() {
+  const lockedWh = getLockedWarehouse();
   const [warehouses, setWarehouses] = useState([]);
-  const [selectedWh, setSelectedWh] = useState("");
+  const [selectedWh, setSelectedWh] = useState(lockedWh);
   const [operators, setOperators] = useState([]);
   const [selectedOperator, setSelectedOperator] = useState("");
   const [docList, setDocList] = useState([]);
@@ -200,7 +203,7 @@ export default function TagStockPage() {
 
   // 5. Reset Filter
   const handleResetFilters = () => {
-    setSelectedWh("");
+    setSelectedWh(lockedWh);
     setSelectedOperator("");
     setDocStart("");
     setDocEnd("");
@@ -287,10 +290,17 @@ export default function TagStockPage() {
               className="field-select"
               style={{ minWidth: "200px" }}
               value={selectedWh}
+              disabled={!!lockedWh}
               onChange={(e) => setSelectedWh(e.target.value)}
             >
-              <option value="">Pilih gudang</option>
-              {warehouses.map((wh) => (
+              {!lockedWh && <option value="">Pilih gudang</option>}
+              {lockedWh && !warehouses.some((w) => w.warehouse === lockedWh) && (
+                <option value={lockedWh}>{lockedWh}</option>
+              )}
+              {(lockedWh
+                ? warehouses.filter((w) => w.warehouse === lockedWh)
+                : warehouses
+              ).map((wh) => (
                 <option key={wh.warehouse} value={wh.warehouse}>
                   {wh.warehouse}{" "}
                   {wh.last_upload !== "-" ? `(${wh.last_upload})` : ""}

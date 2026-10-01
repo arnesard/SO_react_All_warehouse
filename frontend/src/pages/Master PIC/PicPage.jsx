@@ -9,24 +9,27 @@ import {
   Loader2,
 } from "lucide-react";
 import Swal from "sweetalert2";
+import { getLockedWarehouse } from "../../Utils/auth";
+import { API_ORIGIN } from "../../lib/config";
 
-const API_BASE = "http://localhost:8010/api/pic";
+const API_BASE = `${API_ORIGIN}/api/pic`;
 
 export default function PicPage() {
+  const lockedWh = getLockedWarehouse();
   const [stockTeam, setStockTeam] = useState([]);
   const [auditorTeam, setAuditorTeam] = useState([]);
   const [activeTab, setActiveTab] = useState("STOCK");
   const [loading, setLoading] = useState(false);
 
   // Filter & Search
-  const [filterWh, setFilterWh] = useState("");
+  const [filterWh, setFilterWh] = useState(lockedWh);
   const [searchQuery, setSearchQuery] = useState("");
 
   // Form State
   const [formData, setFormData] = useState({
     entry_id: "",
     role_type: "STOCK",
-    warehouse: "",
+    warehouse: lockedWh,
     no_penneng: "",
     nama: "",
     gedung: "",
@@ -57,7 +60,7 @@ export default function PicPage() {
     setFormData({
       entry_id: "",
       role_type: activeTab,
-      warehouse: "",
+      warehouse: lockedWh,
       no_penneng: "",
       nama: "",
       gedung: "",
@@ -277,6 +280,7 @@ export default function PicPage() {
                 <select
                   className="field-select"
                   value={formData.warehouse}
+                  disabled={!!lockedWh}
                   onChange={(e) =>
                     setFormData({ ...formData, warehouse: e.target.value })
                   }
@@ -285,11 +289,14 @@ export default function PicPage() {
                   <option value="" disabled>
                     -- PILIH WAREHOUSE --
                   </option>
-                  <option value="APW">APW</option>
-                  <option value="BPW">BPW</option>
-                  <option value="DPW">DPW</option>
-                  <option value="RPW">RPW</option>
-                  <option value="DCK">DCK</option>
+                  {(lockedWh
+                    ? [lockedWh]
+                    : ["APW", "BPW", "DPW", "RPW", "JMW", "DCK"]
+                  ).map((wh) => (
+                    <option key={wh} value={wh}>
+                      {wh}
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -431,14 +438,18 @@ export default function PicPage() {
               className="field-select"
               style={{ minWidth: "150px" }}
               value={filterWh}
+              disabled={!!lockedWh}
               onChange={(e) => setFilterWh(e.target.value)}
             >
-              <option value="">🟢 SEMUA GUDANG</option>
-              <option value="APW">APW</option>
-              <option value="BPW">BPW</option>
-              <option value="DPW">DPW</option>
-              <option value="RPW">RPW</option>
-              <option value="DCK">DCK</option>
+              {!lockedWh && <option value="">🟢 SEMUA GUDANG</option>}
+              {(lockedWh
+                ? [lockedWh]
+                : ["APW", "BPW", "DPW", "RPW", "JMW", "DCK"]
+              ).map((wh) => (
+                <option key={wh} value={wh}>
+                  {wh}
+                </option>
+              ))}
             </select>
 
             <div className="search-box">

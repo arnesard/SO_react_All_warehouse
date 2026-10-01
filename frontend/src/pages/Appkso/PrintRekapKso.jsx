@@ -1,7 +1,8 @@
 import { useEffect, useState, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
+import { API_ORIGIN } from "../../lib/config";
 
-const API_BASE = "http://localhost:8010/api/appkso";
+const API_BASE = `${API_ORIGIN}/api/appkso`;
 
 export default function PrintRekapKso() {
   const [searchParams] = useSearchParams();

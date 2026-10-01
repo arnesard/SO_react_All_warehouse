@@ -30,6 +30,8 @@ import ModalDetail from "./ModalDetail";
 import ModalDetailGrade from "./ModalDetailGrade";
 import ModalDetailPpm from "./ModalDetailPpm";
 import ModalDetailPrice from "./ModalDetailPrice";
+import { getLockedWarehouse } from "../../Utils/auth";
+import { API_ORIGIN } from "../../lib/config";
 
 ChartJS.register(
   ArcElement,
@@ -41,7 +43,7 @@ ChartJS.register(
   Title,
 );
 
-const API_BASE = "http://localhost:8010/api/dashboard";
+const API_BASE = `${API_ORIGIN}/api/dashboard`;
 
 const formatCompact = (num) => {
   if (num === null || num === undefined) return "0";
@@ -57,7 +59,8 @@ const formatCompact = (num) => {
 };
 
 export default function DashboardPage() {
-  const [warehouse, setWarehouse] = useState("");
+  const lockedWh = getLockedWarehouse();
+  const [warehouse, setWarehouse] = useState(lockedWh);
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState([]);
   const [summary, setSummary] = useState(null);
@@ -306,14 +309,18 @@ export default function DashboardPage() {
               fontSize: "11.5px",
             }}
             value={warehouse}
+            disabled={!!lockedWh}
             onChange={(e) => setWarehouse(e.target.value)}
           >
-            <option value="">-- 🏭 PILIH GUDANG --</option>
-            <option value="APW">APW</option>
-            <option value="BPW">BPW</option>
-            <option value="DPW">DPW</option>
-            <option value="RPW">RPW</option>
-            <option value="DCK">DCK</option>
+            {!lockedWh && <option value="">-- 🏭 PILIH GUDANG --</option>}
+            {(lockedWh
+              ? [lockedWh]
+              : ["APW", "BPW", "DPW", "RPW", "DCK"]
+            ).map((wh) => (
+              <option key={wh} value={wh}>
+                {wh}
+              </option>
+            ))}
           </select>
 
           {warehouse && (

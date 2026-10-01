@@ -2,7 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Lock, User, ArrowRight, Loader2 } from "lucide-react";
 import Swal from "sweetalert2";
-import { setUserSession } from "../../utils/auth";
+import { setUserSession } from "../../Utils/auth";
+import { API_ORIGIN } from "../../lib/config";
 
 export default function HalamanLoginpage() {
   const [username, setUsername] = useState("");
@@ -15,7 +16,7 @@ export default function HalamanLoginpage() {
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:8010/api/auth/login", {
+      const res = await fetch(`${API_ORIGIN}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),

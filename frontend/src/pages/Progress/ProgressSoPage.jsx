@@ -16,17 +16,21 @@ import {
   Warehouse,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { getLockedWarehouse } from "../../Utils/auth";
+import { API_ORIGIN } from "../../lib/config";
 
-const API_BASE = "http://localhost:8010/api/progress";
+const API_BASE = `${API_ORIGIN}/api/progress`;
 const WAREHOUSE_LIST = ["APW", "BPW", "DPW", "RPW", "JMW"];
 
 export default function ProgressSoPage() {
+  // Akun biasa langsung masuk ke monitor gudangnya (lewati layar pilih gudang)
+  const lockedWh = getLockedWarehouse();
   const [clock, setClock] = useState("00:00:00");
   const [dateStr, setDateStr] = useState("");
 
   // Pilihan Gudang Utama (APW, BPW, DPW, RPW, JMW)
-  const [selectedWarehouse, setSelectedWarehouse] = useState("");
-  const [warehouseSelected, setWarehouseSelected] = useState(false);
+  const [selectedWarehouse, setSelectedWarehouse] = useState(lockedWh);
+  const [warehouseSelected, setWarehouseSelected] = useState(!!lockedWh);
 
   // Filter Sub-Gedung di dalam gudang terpilih (BPW01, BPW02, dll)
   const [gedungs, setGedungs] = useState([]);
@@ -527,6 +531,8 @@ export default function ProgressSoPage() {
                     ))}
                   </select>
 
+                  {!lockedWh && (
+                    <>
                   {/* Tombol Ganti Gudang Utama */}
                   <button
                     type="button"
@@ -539,6 +545,8 @@ export default function ProgressSoPage() {
                   >
                     <RefreshCw size={10} /> GANTI GUDANG ({selectedWarehouse})
                   </button>
+                    </>
+                  )}
 
                   <Link
                     to="/"

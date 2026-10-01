@@ -12,8 +12,10 @@ import {
   TableProperties,
 } from "lucide-react";
 import Swal from "sweetalert2";
+import { getLockedWarehouse } from "../../Utils/auth";
+import { API_ORIGIN } from "../../lib/config";
 
-const API_BASE = "http://localhost:8010/api/tagstock-nonbarcode";
+const API_BASE = `${API_ORIGIN}/api/tagstock-nonbarcode`;
 
 function triggerPrintPageViaFrame(url) {
   const frameId = "print-isolated-iframe";
@@ -33,8 +35,9 @@ function triggerPrintPageViaFrame(url) {
 }
 
 export default function TagStockNonBarcodePage() {
+  const lockedWh = getLockedWarehouse();
   const [warehouses, setWarehouses] = useState([]);
-  const [selectedWh, setSelectedWh] = useState("");
+  const [selectedWh, setSelectedWh] = useState(lockedWh);
   const [operators, setOperators] = useState([]);
   const [selectedOperator, setSelectedOperator] = useState("");
   const [docList, setDocList] = useState([]);
@@ -46,7 +49,7 @@ export default function TagStockNonBarcodePage() {
   const [isValidated, setIsValidated] = useState(false);
 
   // Upload State
-  const [uploadWh, setUploadWh] = useState("");
+  const [uploadWh, setUploadWh] = useState(lockedWh);
   const [uploadFile, setUploadFile] = useState(null);
   const [uploading, setUploading] = useState(false);
 
@@ -164,7 +167,7 @@ export default function TagStockNonBarcodePage() {
   };
 
   const handleResetFilters = () => {
-    setSelectedWh("");
+    setSelectedWh(lockedWh);
     setSelectedOperator("");
     setDocStart("");
     setDocEnd("");
@@ -347,13 +350,15 @@ export default function TagStockNonBarcodePage() {
             flexShrink: 0,
           }}
           value={uploadWh}
+          disabled={!!lockedWh}
           onChange={(e) => setUploadWh(e.target.value)}
         >
-          <option value="">-- Pilih Gudang --</option>
-          <option value="APW">APW</option>
-          <option value="BPW">BPW</option>
-          <option value="DPW">DPW</option>
-          <option value="RPW">RPW</option>
+          {!lockedWh && <option value="">-- Pilih Gudang --</option>}
+          {(lockedWh ? [lockedWh] : ["APW", "BPW", "DPW", "RPW"]).map((wh) => (
+            <option key={wh} value={wh}>
+              {wh}
+            </option>
+          ))}
         </select>
 
         {/* Kotak Dropzone File (Dibuat mengisi sisa ruang ke bawah tanpa batasan maxHeight) */}
@@ -504,10 +509,17 @@ export default function TagStockNonBarcodePage() {
                 padding: "2px 8px",
               }}
               value={selectedWh}
+              disabled={!!lockedWh}
               onChange={(e) => setSelectedWh(e.target.value)}
             >
-              <option value="">Pilih gudang</option>
-              {warehouses.map((wh) => (
+              {!lockedWh && <option value="">Pilih gudang</option>}
+              {lockedWh && !warehouses.includes(lockedWh) && (
+                <option value={lockedWh}>{lockedWh}</option>
+              )}
+              {(lockedWh
+                ? warehouses.filter((w) => w === lockedWh)
+                : warehouses
+              ).map((wh) => (
                 <option key={wh} value={wh}>
                   {wh}
                 </option>

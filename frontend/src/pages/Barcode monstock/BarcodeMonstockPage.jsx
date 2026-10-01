@@ -4,6 +4,8 @@ import SectionCard from "../../components/SectionCard";
 import DataTable from "../../components/DataTable";
 import Modal from "../../components/Modal";
 import { api } from "../../lib/api";
+import { getLockedWarehouse, isSuperUser } from "../../Utils/auth";
+import { API_ORIGIN } from "../../lib/config";
 
 const UPLOAD_WAREHOUSES = ["APW", "BPW", "DPW", "RPW"];
 
@@ -17,16 +19,18 @@ function formatLastUpload(value) {
 }
 
 function BarcodeMonstockPage() {
+  const lockedWh = getLockedWarehouse();
+  const superUser = isSuperUser();
   const [allRows, setAllRows] = useState([]);
   const [filterWh, setFilterWh] = useState([]);
   const [lastUpload, setLastUpload] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const [selectedWh, setSelectedWh] = useState("");
+  const [selectedWh, setSelectedWh] = useState(lockedWh);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const [uploadWh, setUploadWh] = useState("");
+  const [uploadWh, setUploadWh] = useState(lockedWh);
   const [file, setFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [uploadMsg, setUploadMsg] = useState(null);
@@ -103,7 +107,7 @@ function BarcodeMonstockPage() {
       fd.append("file_csv", file);
 
       const resRaw = await fetch(
-        `${import.meta.env.VITE_API_URL || "http://localhost:8010"}/api/barcode-monstock/import`,
+        `${API_ORIGIN}/api/barcode-monstock/import`,
         { method: "POST", body: fd },
       );
       const res = await resRaw.json();
@@ -141,7 +145,7 @@ function BarcodeMonstockPage() {
       }
       setResetOpen(false);
       setResetPassword("");
-      setSelectedWh("");
+      setSelectedWh(lockedWh);
       await loadData();
     } catch (err) {
       setResetError(err.message);
@@ -253,13 +257,14 @@ function BarcodeMonstockPage() {
                 <select
                   className="field-select"
                   value={uploadWh}
+                  disabled={!!lockedWh}
                   onChange={(e) => setUploadWh(e.target.value)}
                   required
                 >
                   <option value="" disabled>
                     -- PILIH WAREHOUSE TARGET --
                   </option>
-                  {UPLOAD_WAREHOUSES.map((w) => (
+                  {(lockedWh ? [lockedWh] : UPLOAD_WAREHOUSES).map((w) => (
                     <option key={w} value={w}>
                       {w}
                     </option>
@@ -308,6 +313,7 @@ function BarcodeMonstockPage() {
                 </div>
               )}
             </form>
+            {superUser && (
             <div
               style={{
                 marginTop: "auto",
@@ -331,6 +337,7 @@ function BarcodeMonstockPage() {
                 <ShieldAlert size={14} /> Reset Semua Data (Dev Only)
               </button>
             </div>
+            )}
           </SectionCard>
         </div>
 
@@ -367,11 +374,12 @@ function BarcodeMonstockPage() {
               <select
                 className="field-select"
                 value={selectedWh}
+                disabled={!!lockedWh}
                 onChange={(e) => setSelectedWh(e.target.value)}
                 style={{ width: "auto" }}
               >
-                <option value="">Pilih Gudang</option>
-                {filterWh.map((w) => (
+                {!lockedWh && <option value="">Pilih Gudang</option>}
+                {(lockedWh ? [lockedWh] : filterWh).map((w) => (
                   <option key={w} value={w}>
                     {w} — Terakhir Upload: {formatLastUpload(lastUpload[w])}
                   </option>

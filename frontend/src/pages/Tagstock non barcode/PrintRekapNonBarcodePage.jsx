@@ -1,7 +1,8 @@
 import { useEffect, useState, useMemo, useRef } from "react"; // Tambahkan useRef di sini
 import { useSearchParams } from "react-router-dom";
+import { API_ORIGIN } from "../../lib/config";
 
-const API_BASE = "http://localhost:8010/api/tagstock-nonbarcode";
+const API_BASE = `${API_ORIGIN}/api/tagstock-nonbarcode`;
 
 export default function PrintRekapNonBarcodePage() {
   const [searchParams] = useSearchParams();

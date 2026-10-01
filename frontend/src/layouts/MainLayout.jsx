@@ -15,7 +15,7 @@ import {
   Warehouse,
   ShieldCheck,
 } from "lucide-react";
-import { getUserSession, clearUserSession } from "../utils/auth";
+import { getUserSession, clearUserSession } from "../Utils/auth";
 
 const BASE_NAV_ITEMS = [
   { to: "/master-size", label: "Master Size", icon: Disc2 },

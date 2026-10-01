@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { Users, Plus, Trash2, ShieldCheck, Warehouse } from "lucide-react";
 import Swal from "sweetalert2";
-import { getUserSession } from "../../utils/auth";
+import { getUserSession } from "../../Utils/auth";
+import { API_ORIGIN } from "../../lib/config";
 
 export default function Userpage() {
   const currentUser = getUserSession();
@@ -21,7 +22,7 @@ export default function Userpage() {
 
   const loadUsers = async () => {
     try {
-      const res = await fetch("http://localhost:8010/api/auth/users");
+      const res = await fetch(`${API_ORIGIN}/api/auth/users`);
       const json = await res.json();
       if (json.success) setUsers(json.data);
     } catch (err) {
@@ -36,7 +37,7 @@ export default function Userpage() {
   const handleAddUser = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch("http://localhost:8010/api/auth/users", {
+      const res = await fetch(`${API_ORIGIN}/api/auth/users`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
@@ -51,6 +52,8 @@ export default function Userpage() {
           warehouse: "BPW",
         });
         loadUsers();
+      } else {
+        Swal.fire("Gagal", json.message || "Gagal menyimpan akun", "error");
       }
     } catch (err) {
       Swal.fire("Error", err.message, "error");
@@ -66,7 +69,7 @@ export default function Userpage() {
       confirmButtonText: "Ya, Hapus",
     }).then(async (result) => {
       if (result.isConfirmed) {
-        await fetch(`http://localhost:8010/api/auth/users/${id}`, {
+        await fetch(`${API_ORIGIN}/api/auth/users/${id}`, {
           method: "DELETE",
         });
         loadUsers();

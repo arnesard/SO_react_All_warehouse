@@ -160,8 +160,8 @@ const savePicScan = async (req, res) => {
 
     // Ambil info deskripsi untuk tabel appkso (tambahkan wildcard/fallback)
     const [descRows] = await conn.query(
-      `SELECT description FROM so_all_wh_master_size_db WHERE item = ? LIMIT 1`,
-      [item_code],
+      `SELECT description FROM so_all_wh_master_size_db WHERE item = ? AND warehouse = ? LIMIT 1`,
+      [item_code, warehouse],
     );
     const deskripsi = descRows[0]?.description || "-";
 

@@ -1,8 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import {
   FileSpreadsheet,
-  UploadCloud,
-  FileCheck,
   RefreshCw,
   Search,
   Boxes,
@@ -17,9 +15,14 @@ import {
 } from "lucide-react";
 import Swal from "sweetalert2";
 import ExportExcelKso from "./ExportExcelKso";
-import { getUserSession } from "../../utils/auth";
+import {
+  getLockedWarehouse,
+  isSuperUser,
+  WAREHOUSE_LIST,
+} from "../../Utils/auth";
+import { API_ORIGIN } from "../../lib/config";
 
-const API_BASE = "http://localhost:8010/api/appkso";
+const API_BASE = `${API_ORIGIN}/api/appkso`;
 
 function triggerPrintPageViaFrame(url) {
   const frameId = "print-isolated-iframe";
@@ -39,8 +42,9 @@ function triggerPrintPageViaFrame(url) {
 }
 
 export default function AppksoPage() {
-  const [warehouses, setWarehouses] = useState([]);
-  const [selectedWh, setSelectedWh] = useState("");
+  const lockedWh = getLockedWarehouse();
+  const superUser = isSuperUser();
+  const [selectedWh, setSelectedWh] = useState(lockedWh);
 
   const [detailData, setDetailData] = useState([]);
   const [resumeData, setResumeData] = useState([]);
@@ -49,11 +53,6 @@ export default function AppksoPage() {
 
   // Search state
   const [searchTerm, setSearchTerm] = useState("");
-
-  // Upload state
-  const [uploadWh, setUploadWh] = useState("");
-  const [uploadFile, setUploadFile] = useState(null);
-  const [uploading, setUploading] = useState(false);
 
   // Modal Drill-down state
   const [drillModalOpen, setDrillModalOpen] = useState(false);
@@ -75,23 +74,6 @@ export default function AppksoPage() {
 
   // Modal Export Excel State
   const [exportModalOpen, setExportModalOpen] = useState(false);
-
-  // Load Warehouse Options
-  const loadWarehouses = async () => {
-    try {
-      const res = await fetch(`${API_BASE}/warehouses`);
-      const json = await res.json();
-      if (json.status === "success") {
-        setWarehouses(json.warehouses || []);
-      }
-    } catch (err) {
-      console.error("Gagal load gudang APPKSO:", err);
-    }
-  };
-
-  useEffect(() => {
-    loadWarehouses();
-  }, []);
 
   // Load Data saat Warehouse berubah
   const loadData = async (wh) => {
@@ -125,77 +107,6 @@ export default function AppksoPage() {
     loadData(selectedWh);
     setSearchTerm("");
   }, [selectedWh]);
-
-  // Handle Upload File
-  const handleUpload = async (e) => {
-    e.preventDefault();
-
-    if (!uploadWh) {
-      return Swal.fire({
-        icon: "warning",
-        title: "Pilih Gudang",
-        text: "Pilih gudang tujuan upload terlebih dahulu bro!",
-        background: "var(--surface)",
-        customClass: { popup: "swal-theme-popup" },
-      });
-    }
-
-    if (!uploadFile) {
-      return Swal.fire({
-        icon: "warning",
-        title: "File Kosong",
-        text: "File Excel opname APPKSO belum dipilih bro!",
-        background: "var(--surface)",
-        customClass: { popup: "swal-theme-popup" },
-      });
-    }
-
-    setUploading(true);
-    try {
-      const formData = new FormData();
-      formData.append("warehouse", uploadWh);
-      formData.append("file", uploadFile);
-
-      const res = await fetch(`${API_BASE}/import`, {
-        method: "POST",
-        body: formData,
-      });
-
-      const json = await res.json().catch(() => null);
-
-      if (res.ok && json && json.status === "success") {
-        Swal.fire({
-          icon: "success",
-          title: "MANTAP KILAT!",
-          text: json.message,
-          background: "var(--surface)",
-          customClass: { popup: "swal-theme-popup" },
-        });
-        setUploadFile(null);
-        loadWarehouses();
-        setSelectedWh(uploadWh);
-      } else {
-        Swal.fire({
-          icon: "error",
-          title: "Validasi Rejected!",
-          text: json?.message || `Server Error (Status: ${res.status})`,
-          background: "var(--surface)",
-          customClass: { popup: "swal-theme-popup" },
-        });
-      }
-    } catch (err) {
-      console.error("Upload error APPKSO:", err);
-      Swal.fire({
-        icon: "error",
-        title: "Koneksi Bermasalah",
-        text: err.message,
-        background: "var(--surface)",
-        customClass: { popup: "swal-theme-popup" },
-      });
-    } finally {
-      setUploading(false);
-    }
-  };
 
   // Filtered rows untuk live search
   const filteredDetailRows = useMemo(() => {
@@ -364,171 +275,6 @@ export default function AppksoPage() {
         alignItems: "stretch",
       }}
     >
-      {/* 📥 1. PANEL KIRI: CARD UPLOAD */}
-      <div
-        style={{
-          width: "240px",
-          height: "100%",
-          flexShrink: 0,
-          background: "var(--surface)",
-          border: "1px solid var(--border-soft)",
-          borderRadius: "14px",
-          padding: "16px 14px",
-          boxSizing: "border-box",
-          display: "flex",
-          flexDirection: "column",
-          textAlign: "center",
-        }}
-      >
-        <div
-          style={{
-            width: "44px",
-            height: "44px",
-            borderRadius: "50%",
-            backgroundColor: "var(--surface-2)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            margin: "0 auto 10px auto",
-            flexShrink: 0,
-          }}
-        >
-          <FileSpreadsheet size={22} color="var(--text-secondary)" />
-        </div>
-
-        <h4
-          style={{
-            fontSize: "12px",
-            fontWeight: 600,
-            margin: "0 0 3px 0",
-            textTransform: "none",
-            color: "var(--text-primary)",
-            flexShrink: 0,
-          }}
-        >
-          Upload APPKSO Scan
-        </h4>
-        <p
-          style={{
-            fontSize: "12px",
-            color: "var(--text-secondary)",
-            margin: "0 0 12px 0",
-            lineHeight: "1.3",
-            flexShrink: 0,
-          }}
-        >
-          Unggah file <strong>.xlsx</strong> hasil opname APPKSO asli.
-        </p>
-
-        <form
-          onSubmit={handleUpload}
-          style={{ display: "flex", flexDirection: "column", flex: 1 }}
-        >
-          <select
-            className="field-select"
-            style={{
-              width: "100%",
-              height: "34px",
-              borderColor: "transparent",
-              fontSize: "12px",
-              fontWeight: 600,
-              borderRadius: "8px",
-              marginBottom: "12px",
-              boxSizing: "border-box",
-              flexShrink: 0,
-            }}
-            value={uploadWh}
-            onChange={(e) => setUploadWh(e.target.value)}
-          >
-            <option value="">-- Pilih gudang tujuan --</option>
-            <option value="APW">APW</option>
-            <option value="BPW">BPW</option>
-            <option value="DPW">DPW</option>
-            <option value="RPW">RPW</option>
-          </select>
-
-          <div
-            style={{
-              flex: 1,
-              minHeight: "180px",
-              border: "1.5px dashed rgba(0, 0, 0, 0.2)",
-              borderRadius: "10px",
-              padding: "16px 10px",
-              position: "relative",
-              cursor: "pointer",
-              backgroundColor: "transparent",
-              marginBottom: "14px",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              boxSizing: "border-box",
-            }}
-          >
-            <input
-              type="file"
-              accept=".xlsx"
-              style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                width: "100%",
-                height: "100%",
-                opacity: 0,
-                cursor: "pointer",
-              }}
-              onChange={(e) => setUploadFile(e.target.files[0] || null)}
-            />
-            <UploadCloud
-              size={36}
-              color="var(--text-secondary)"
-              style={{ marginBottom: "10px", opacity: 0.9 }}
-            />
-            <div
-              style={{
-                fontSize: "12px",
-                fontWeight: 600,
-                color: "var(--text-secondary)",
-                wordBreak: "break-all",
-                lineHeight: "1.4",
-                padding: "0 8px",
-              }}
-            >
-              {uploadFile
-                ? uploadFile.name
-                : "Klik atau seret file Excel ke sini"}
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            className="btn-ctrl primary"
-            style={{
-              width: "100%",
-              height: "36px",
-              borderRadius: "18px",
-              backgroundColor: "#111113",
-              borderColor: "#111113",
-              color: "#fff",
-              fontWeight: 600,
-              fontSize: "12px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "6px",
-              flexShrink: 0,
-            }}
-            disabled={uploading}
-          >
-            {uploading ? (
-              <Loader2 size={14} className="spin" />
-            ) : (
-              <FileCheck size={14} />
-            )}
-            Proses Import Data
-          </button>
-        </form>
-      </div>
       {/* 📊 2. PANEL KANAN */}
       <div
         style={{
@@ -556,27 +302,36 @@ export default function AppksoPage() {
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <select
-              className="field-select"
-              style={{
-                width: "200px",
-                height: "34px",
-                fontSize: "12px",
-                fontWeight: 600,
-                borderColor: "transparent",
-                borderRadius: "8px",
-                padding: "2px 8px",
-              }}
-              value={selectedWh}
-              onChange={(e) => setSelectedWh(e.target.value)}
-            >
-              <option value="">Pilih gudang</option>
-              {warehouses.map((wh) => (
-                <option key={wh} value={wh}>
-                  {wh}
-                </option>
-              ))}
-            </select>
+            {superUser ? (
+              <select
+                className="field-select"
+                style={{
+                  width: "200px",
+                  height: "34px",
+                  fontSize: "12px",
+                  fontWeight: 600,
+                  borderColor: "transparent",
+                  borderRadius: "8px",
+                  padding: "2px 8px",
+                }}
+                value={selectedWh}
+                onChange={(e) => setSelectedWh(e.target.value)}
+              >
+                <option value="">Pilih gudang</option>
+                {WAREHOUSE_LIST.map((wh) => (
+                  <option key={wh} value={wh}>
+                    {wh}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <span
+                className="badge-pill primary mono"
+                style={{ fontSize: "12px", padding: "6px 14px" }}
+              >
+                Gudang: {lockedWh || "-"}
+              </span>
+            )}
 
             <button
               type="button"

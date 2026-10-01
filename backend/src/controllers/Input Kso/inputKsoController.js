@@ -73,13 +73,13 @@ const initEventSo = async (req, res) => {
   }
 };
 
-// 2. Ambil Event SO yang Sedang Aktif
+// Ambil Event SO yang Sedang Aktif berdasarkan Warehouse
 const getActiveEvent = async (req, res) => {
   const { warehouse } = req.query;
   try {
     let sql = `SELECT so_name, def_counter, date_stock, warehouse FROM ms_kso WHERE flag = 'Y'`;
     const params = [];
-    if (warehouse) {
+    if (warehouse && warehouse !== "ALL") {
       sql += ` AND warehouse = ?`;
       params.push(warehouse);
     }
@@ -277,6 +277,63 @@ const getRecentScans = async (req, res) => {
   }
 };
 
+// Ambil semua daftar Event SO per Warehouse untuk dropdown
+const getAllEvents = async (req, res) => {
+  const { warehouse } = req.query;
+  try {
+    let sql = `SELECT so_name, def_counter, date_stock, flag, warehouse FROM ms_kso`;
+    const params = [];
+    if (warehouse && warehouse !== "ALL") {
+      sql += ` WHERE warehouse = ?`;
+      params.push(warehouse);
+    }
+    sql += ` ORDER BY recid DESC`;
+
+    const [rows] = await poolUtama.query(sql, params);
+    return res.json({ success: true, data: rows });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Set Event Terpilih Menjadi Default (flag = 'Y')
+const setDefaultEvent = async (req, res) => {
+  const { so_name, warehouse } = req.body;
+  if (!so_name || !warehouse) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Data tidak lengkap" });
+  }
+
+  const conn = await poolUtama.getConnection();
+  try {
+    await conn.beginTransaction();
+
+    // 1. Matikan semua flag event milik gudang ini
+    await conn.query(`UPDATE ms_kso SET flag = 'N' WHERE warehouse = ?`, [
+      warehouse,
+    ]);
+
+    // 2. Aktifkan event yang dipilih
+    await conn.query(
+      `UPDATE ms_kso SET flag = 'Y' WHERE so_name = ? AND warehouse = ?`,
+      [so_name, warehouse],
+    );
+
+    await conn.commit();
+    return res.json({
+      success: true,
+      message: `Event [${so_name}] berhasil dijadikan default!`,
+    });
+  } catch (error) {
+    await conn.rollback();
+    return res.status(500).json({ success: false, message: error.message });
+  } finally {
+    conn.release();
+  }
+};
+
+// Pastikan di module.exports ditambahkan getAllEvents dan setDefaultEvent:
 module.exports = {
   initEventSo,
   getActiveEvent,
@@ -284,4 +341,6 @@ module.exports = {
   savePicScan,
   validateDoc,
   getRecentScans,
+  getAllEvents,
+  setDefaultEvent,
 };

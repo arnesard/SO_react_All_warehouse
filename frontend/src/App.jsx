@@ -17,6 +17,8 @@ import SnapshotPage from "./pages/Snapshot/SnapshotPage";
 import ProgressSoPage from "./pages/Progress/ProgressSoPage";
 import PicPage from "./pages/Master PIC/PicPage";
 import InputKsoPage from "./pages/Input Kso/InputKsoPage";
+import ModePicPage from "./pages/Input Kso/ModePicpage";
+import ModeValidatorPage from "./pages/Input Kso/ModeValidatorPage";
 
 // Import Login & User Management
 import HalamanLoginpage from "./pages/User Login/HalamanLoginpage";
@@ -56,6 +58,9 @@ function App() {
         />
         <Route path="appkso" element={<AppksoPage />} />
         <Route path="InputKSO" element={<InputKso />} />
+        <Route path="InputKso" element={<InputKsoPage />} />
+        <Route path="InputKso/pic" element={<ModePicPage />} />
+        <Route path="InputKso/auditor" element={<ModeValidatorPage />} />
         <Route path="snapshot" element={<SnapshotPage />} />
         <Route path="progress-so" element={<ProgressSoPage />} />
         <Route path="pic" element={<PicPage />} />

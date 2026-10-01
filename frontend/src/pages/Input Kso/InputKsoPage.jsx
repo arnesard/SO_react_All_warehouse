@@ -1,208 +1,122 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   FileInput,
-  CheckCircle,
   ScanBarcode,
-  Search,
-  Layers,
+  ShieldCheck,
   Database,
   Loader2,
-  Calendar,
-  User,
-  ShieldCheck,
   RefreshCw,
+  ExternalLink,
+  Check,
+  Save,
+  Building2,
 } from "lucide-react";
 import Swal from "sweetalert2";
 import { getUserSession } from "../../utils/auth";
 
 const API_BASE = "http://localhost:8010/api/input-kso";
+const WAREHOUSE_LIST = ["BPW", "APW", "DPW", "RPW", "JMW"];
 
 export default function InputKsoPage() {
+  const navigate = useNavigate();
   const currentUser = getUserSession();
-  const currentWarehouse = currentUser?.warehouse || "BPW";
 
-  const [activeTab, setActiveTab] = useState("pic"); // 'pic', 'auditor', 'setup'
+  // Jika superadmin / null warehouse, default ke BPW tapi bisa pilih gudang lain
+  const isSuperUser =
+    !currentUser?.warehouse || currentUser?.role === "superadmin";
+  const [selectedWarehouse, setSelectedWarehouse] = useState(
+    currentUser?.warehouse || "BPW",
+  );
+
   const [activeSoEvent, setActiveSoEvent] = useState(null);
+  const [eventList, setEventList] = useState([]);
 
-  // --- State Setup Event SO ---
+  // Form Create New Event (Bagian Atas)
   const [setupForm, setSetupForm] = useState({
-    so_name: `SO-${currentWarehouse}-${new Date().toLocaleDateString("id-ID", { month: "short", year: "numeric" }).toUpperCase().replace(" ", "")}`,
-    def_counter: `${currentWarehouse}-CNT1`,
+    so_name: "",
+    def_counter: "",
     date_stock: new Date().toISOString().split("T")[0],
   });
   const [loadingSetup, setLoadingSetup] = useState(false);
 
-  // --- State PIC Scan ---
-  const [picForm, setPicForm] = useState({
-    no_doc: "",
-    item_code: "",
-    qty_stk: "",
-  });
-  const [itemPreview, setItemPreview] = useState(null);
-  const [loadingItem, setLoadingItem] = useState(false);
-  const [savingPic, setSavingPic] = useState(false);
+  // Form Set As Default (Bagian Bawah)
+  const [selectedEventName, setSelectedEventName] = useState("");
+  const [selectedEventDetail, setSelectedEventDetail] = useState(null);
+  const [loadingSetDefault, setLoadingSetDefault] = useState(false);
 
-  // --- State Auditor Verifikasi ---
-  const [auditorDoc, setAuditorDoc] = useState("");
-  const [validating, setValidating] = useState(false);
-
-  // --- Log Riwayat Scan ---
+  // Log Riwayat Scan
   const [recentScans, setRecentScans] = useState([]);
-  const itemInputRef = useRef(null);
-  const qtyInputRef = useRef(null);
 
-  // 1. Ambil Event SO Aktif & Riwayat
-  const loadActiveEventAndScans = async () => {
+  // Load Data saat Gudang Terpilih Berubah
+  const loadInitialData = async (wh = selectedWarehouse) => {
     try {
+      // 1. Ambil Event Aktif Gudang Terpilih
       const resEvent = await fetch(
-        `${API_BASE}/active-event?warehouse=${encodeURIComponent(currentWarehouse)}`,
+        `${API_BASE}/active-event?warehouse=${encodeURIComponent(wh)}`,
       );
       const jsonEvent = await resEvent.json();
       if (jsonEvent.success && jsonEvent.activeEvent) {
         setActiveSoEvent(jsonEvent.activeEvent);
+        setSelectedEventName(jsonEvent.activeEvent.so_name);
+        setSelectedEventDetail(jsonEvent.activeEvent);
+      } else {
+        setActiveSoEvent(null);
+        setSelectedEventName("");
+        setSelectedEventDetail(null);
       }
 
+      // 2. Ambil Semua Event SO untuk Dropdown Gudang Terpilih
+      const resList = await fetch(
+        `${API_BASE}/all-events?warehouse=${encodeURIComponent(wh)}`,
+      );
+      const jsonList = await resList.json();
+      if (jsonList.success) {
+        setEventList(jsonList.data || []);
+      } else {
+        setEventList([]);
+      }
+
+      // 3. Ambil Recent Scans Gudang Terpilih
       const resScans = await fetch(
-        `${API_BASE}/recent-scans?warehouse=${encodeURIComponent(currentWarehouse)}`,
+        `${API_BASE}/recent-scans?warehouse=${encodeURIComponent(wh)}`,
       );
       const jsonScans = await resScans.json();
-
       if (jsonScans.success) {
         setRecentScans(jsonScans.data || []);
+      } else {
+        setRecentScans([]);
       }
     } catch (err) {
-      console.error("Gagal load recent scans:", err);
+      console.error("Gagal memuat data:", err);
     }
   };
 
   useEffect(() => {
-    loadActiveEventAndScans();
-  }, []);
+    loadInitialData(selectedWarehouse);
+    // Reset default form saat gudang berganti
+    setSetupForm({
+      so_name: `SO-${selectedWarehouse}-${new Date().toLocaleDateString("id-ID", { month: "short", year: "numeric" }).toUpperCase().replace(/\s+/g, "")}`,
+      def_counter: `${selectedWarehouse}-CNT1`,
+      date_stock: new Date().toISOString().split("T")[0],
+    });
+  }, [selectedWarehouse]);
 
-  // 2. Lookup Item Info Saat Kode Barang Diketik/Discan
-  const handleItemLookup = async (code) => {
-    setPicForm((prev) => ({ ...prev, item_code: code }));
-    if (!code || code.trim().length < 4) {
-      setItemPreview(null);
-      return;
-    }
-
-    setLoadingItem(true);
-    try {
-      const res = await fetch(
-        `${API_BASE}/check-item?item=${encodeURIComponent(code.trim())}&warehouse=${encodeURIComponent(currentWarehouse)}`,
-      );
-      const json = await res.json();
-      if (json.success) {
-        setItemPreview(json.data);
-      } else {
-        setItemPreview(null);
-      }
-    } catch {
-      setItemPreview(null);
-    } finally {
-      setLoadingItem(false);
-    }
+  // Saat dropdown event dipilih
+  const handleSelectEvent = (e) => {
+    const name = e.target.value;
+    setSelectedEventName(name);
+    const found = eventList.find((ev) => ev.so_name === name);
+    setSelectedEventDetail(found || null);
   };
 
-  // 3. Simpan Scan PIC
-  const handleSavePic = async (e) => {
+  // Simpan Event Baru (Save)
+  const handleCreateEvent = async (e) => {
     e.preventDefault();
-    if (!picForm.no_doc || !picForm.item_code || !picForm.qty_stk) {
-      return Swal.fire(
-        "Field Belum Lengkap",
-        "Isi NoDoc, Item Code, dan QTY!",
-        "warning",
-      );
+    if (!setupForm.so_name.trim()) {
+      return Swal.fire("Peringatan", "Nama Event SO wajib diisi!", "warning");
     }
 
-    setSavingPic(true);
-    try {
-      const res = await fetch(`${API_BASE}/scan-pic`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          so_name: activeSoEvent?.so_name || setupForm.so_name,
-          no_doc: picForm.no_doc.trim().toUpperCase(),
-          item_code: picForm.item_code.trim().toUpperCase(),
-          qty_stk: Number(picForm.qty_stk),
-          opr_code: currentUser?.username || "OPR",
-          opr_name: currentUser?.username || "OPR",
-          warehouse: currentWarehouse,
-        }),
-      });
-      const json = await res.json();
-
-      if (json.success) {
-        Swal.fire({
-          icon: "success",
-          title: "Scan Berhasil Tersimpan",
-          text: json.message,
-          timer: 1000,
-          showConfirmButton: false,
-        });
-
-        // Reset form input item & qty, fokus kembali ke item
-        setPicForm((prev) => ({ ...prev, item_code: "", qty_stk: "" }));
-        setItemPreview(null);
-        itemInputRef.current?.focus();
-        loadActiveEventAndScans();
-      } else {
-        Swal.fire("Gagal", json.message, "error");
-      }
-    } catch (err) {
-      Swal.fire("Error", err.message, "error");
-    } finally {
-      setSavingPic(false);
-    }
-  };
-
-  // 4. Verifikasi Dokumen oleh Auditor
-  const handleValidateDoc = async (e) => {
-    e.preventDefault();
-    if (!auditorDoc)
-      return Swal.fire(
-        "NoDoc Kosong",
-        "Scan atau ketik NoDoc kartu!",
-        "warning",
-      );
-
-    setValidating(true);
-    try {
-      const res = await fetch(`${API_BASE}/validate-doc`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          no_doc: auditorDoc.trim().toUpperCase(),
-          auditor_name: currentUser?.username || "AUDITOR",
-          warehouse: currentWarehouse,
-        }),
-      });
-      const json = await res.json();
-
-      if (json.success) {
-        Swal.fire({
-          icon: "success",
-          title: "Terverifikasi!",
-          text: json.message,
-          timer: 1200,
-          showConfirmButton: false,
-        });
-        setAuditorDoc("");
-        loadActiveEventAndScans();
-      } else {
-        Swal.fire("Validasi Gagal", json.message, "error");
-      }
-    } catch (err) {
-      Swal.fire("Error", err.message, "error");
-    } finally {
-      setValidating(false);
-    }
-  };
-
-  // 5. Inisiasi Event SO
-  const handleInitEvent = async (e) => {
-    e.preventDefault();
     setLoadingSetup(true);
     try {
       const res = await fetch(`${API_BASE}/init-event`, {
@@ -210,21 +124,54 @@ export default function InputKsoPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...setupForm,
-          warehouse: currentWarehouse,
+          warehouse: selectedWarehouse,
         }),
       });
       const json = await res.json();
       if (json.success) {
-        Swal.fire("Event Aktif!", json.message, "success");
-        loadActiveEventAndScans();
-        setActiveTab("pic");
+        Swal.fire("Berhasil", json.message, "success");
+        loadInitialData(selectedWarehouse);
       } else {
-        Swal.fire("Gagal Setup", json.message, "error");
+        Swal.fire("Gagal", json.message, "error");
       }
     } catch (err) {
       Swal.fire("Error", err.message, "error");
     } finally {
       setLoadingSetup(false);
+    }
+  };
+
+  // Set As Default Event
+  const handleSetDefault = async () => {
+    if (!selectedEventName) {
+      return Swal.fire(
+        "Pilih Event",
+        "Silakan pilih Event SO dari dropdown!",
+        "warning",
+      );
+    }
+
+    setLoadingSetDefault(true);
+    try {
+      const res = await fetch(`${API_BASE}/set-default`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          so_name: selectedEventName,
+          warehouse: selectedWarehouse,
+        }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        Swal.fire("Event Aktif!", json.message, "success");
+        loadInitialData(selectedWarehouse);
+      } else {
+        Swal.fire("Gagal", json.message, "error");
+      }
+    } catch (err) {
+      Swal.fire("Error", err.message, "error");
+    } finally {
+      setLoadingSetDefault(false);
     }
   };
 
@@ -270,44 +217,79 @@ export default function InputKsoPage() {
               fontSize: "12px",
             }}
           >
-            Pencatatan scan fisik kartu opname & verifikasi auditor realtime
-            gudang <strong>{currentWarehouse}</strong>
+            Pusat konfigurasi opname & pemantauan transaksi realtime
+            multi-gudang (All Warehouse)
           </p>
         </div>
 
-        {/* Tab Switcher */}
-        <div
-          style={{
-            display: "flex",
-            gap: "6px",
-            background: "var(--surface-2)",
-            padding: "4px",
-            borderRadius: "10px",
-          }}
-        >
+        {/* KONTROL HEADER: SELECTOR WAREHOUSE & TOMBOL MODE LAPANGAN */}
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          {/* PILIH GUDANG */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+              background: "var(--surface)",
+              border: "1px solid var(--border-soft)",
+              padding: "3px 8px",
+              borderRadius: "8px",
+            }}
+          >
+            <Building2 size={15} color="var(--accent)" />
+            <span style={{ fontSize: "11.5px", fontWeight: 600 }}>Gudang:</span>
+            {isSuperUser ? (
+              <select
+                className="field-select mono"
+                style={{
+                  height: "26px",
+                  fontSize: "12px",
+                  padding: "0 6px",
+                  fontWeight: 700,
+                }}
+                value={selectedWarehouse}
+                onChange={(e) => setSelectedWarehouse(e.target.value)}
+              >
+                {WAREHOUSE_LIST.map((wh) => (
+                  <option key={wh} value={wh}>
+                    {wh}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <span
+                className="badge-pill primary mono"
+                style={{ fontSize: "11px" }}
+              >
+                {selectedWarehouse}
+              </span>
+            )}
+          </div>
+
+          {/* Navigasi Mobile Link */}
           <button
             type="button"
-            className={`btn-ctrl ${activeTab === "pic" ? "primary" : ""}`}
-            style={{ height: "30px", fontSize: "12px", padding: "0 14px" }}
-            onClick={() => setActiveTab("pic")}
+            className="btn-ctrl primary"
+            style={{ height: "32px", fontSize: "12px", padding: "0 12px" }}
+            onClick={() => navigate(`/InputKso/pic?wh=${selectedWarehouse}`)}
           >
-            <ScanBarcode size={14} /> Mode PIC Lapangan
+            <ScanBarcode size={14} /> Mode PIC Lapangan{" "}
+            <ExternalLink size={12} />
           </button>
           <button
             type="button"
-            className={`btn-ctrl ${activeTab === "auditor" ? "primary" : ""}`}
-            style={{ height: "30px", fontSize: "12px", padding: "0 14px" }}
-            onClick={() => setActiveTab("auditor")}
+            className="btn-ctrl solid-green"
+            style={{
+              height: "32px",
+              fontSize: "12px",
+              padding: "0 12px",
+              background: "#059669",
+            }}
+            onClick={() =>
+              navigate(`/InputKso/auditor?wh=${selectedWarehouse}`)
+            }
           >
-            <ShieldCheck size={14} /> Mode Validasi Auditor
-          </button>
-          <button
-            type="button"
-            className={`btn-ctrl ${activeTab === "setup" ? "primary" : ""}`}
-            style={{ height: "30px", fontSize: "12px", padding: "0 14px" }}
-            onClick={() => setActiveTab("setup")}
-          >
-            <Database size={14} /> Setup Event SO
+            <ShieldCheck size={14} /> Mode Validator <ExternalLink size={12} />
           </button>
         </div>
       </div>
@@ -316,13 +298,13 @@ export default function InputKsoPage() {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "380px 1fr",
+          gridTemplateColumns: "400px 1fr",
           gap: "14px",
           flex: 1,
           minHeight: 0,
         }}
       >
-        {/* PANEL KIRI: FORM SESUAI TAB AKTIF */}
+        {/* PANEL KIRI: FORM SUSUNAN SESUAI EDP */}
         <div
           className="surface-card"
           style={{
@@ -331,387 +313,264 @@ export default function InputKsoPage() {
             flexDirection: "column",
             height: "100%",
             boxSizing: "border-box",
+            overflowY: "auto",
           }}
         >
-          {/* TAB 1: FORM INPUT PIC */}
-          {activeTab === "pic" && (
-            <form
-              onSubmit={handleSavePic}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              marginBottom: "12px",
+              borderBottom: "1px solid var(--border-soft)",
+              paddingBottom: "8px",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <Database size={16} color="var(--accent)" />
+              <span style={{ fontSize: "13px", fontWeight: 700 }}>
+                Konfigurasi Event SO ({selectedWarehouse})
+              </span>
+            </div>
+          </div>
+
+          {/* 1. BAGIAN ATAS: INPUT BUAT EVENT BARU (SAVE) */}
+          <form
+            onSubmit={handleCreateEvent}
+            style={{ display: "flex", flexDirection: "column", gap: "9px" }}
+          >
+            <div
               style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "10px",
-                flex: 1,
+                display: "grid",
+                gridTemplateColumns: "110px 1fr",
+                alignItems: "center",
+                gap: "8px",
               }}
             >
-              <div
-                style={{
-                  background: "var(--accent-soft)",
-                  padding: "8px 12px",
-                  borderRadius: "8px",
-                  color: "var(--accent-strong)",
-                  fontSize: "11.5px",
-                  fontWeight: 600,
-                }}
-              >
-                Event Aktif:{" "}
-                {activeSoEvent
-                  ? activeSoEvent.so_name
-                  : "Belum diinisiasi (Gunakan Setup)"}
-              </div>
+              <label style={{ fontSize: "12px", fontWeight: 600 }}>
+                Name SO
+              </label>
+              <input
+                type="text"
+                required
+                placeholder="Ketik nama event..."
+                className="field-input mono"
+                style={{ width: "100%", height: "32px", fontSize: "12px" }}
+                value={setupForm.so_name}
+                onChange={(e) =>
+                  setSetupForm({ ...setupForm, so_name: e.target.value })
+                }
+              />
+            </div>
 
-              <div>
-                <label
-                  style={{
-                    fontSize: "12px",
-                    fontWeight: 600,
-                    display: "block",
-                    marginBottom: "4px",
-                  }}
-                >
-                  No. Dokumen Kartu (NoDoc)
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Scan NoDoc (misal: G1A01-001)"
-                  className="field-input mono"
-                  style={{ width: "100%", textTransform: "uppercase" }}
-                  value={picForm.no_doc}
-                  onChange={(e) =>
-                    setPicForm({ ...picForm, no_doc: e.target.value })
-                  }
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") itemInputRef.current?.focus();
-                  }}
-                />
-              </div>
-
-              <div>
-                <label
-                  style={{
-                    fontSize: "12px",
-                    fontWeight: 600,
-                    display: "block",
-                    marginBottom: "4px",
-                  }}
-                >
-                  Item Code Ban
-                </label>
-                <input
-                  ref={itemInputRef}
-                  type="text"
-                  required
-                  placeholder="Scan barcode item / ketik kode"
-                  className="field-input mono"
-                  style={{ width: "100%", textTransform: "uppercase" }}
-                  value={picForm.item_code}
-                  onChange={(e) => handleItemLookup(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") qtyInputRef.current?.focus();
-                  }}
-                />
-                {loadingItem && (
-                  <small style={{ color: "var(--accent)", fontSize: "11px" }}>
-                    Memeriksa master item...
-                  </small>
-                )}
-              </div>
-
-              {/* Preview Deskripsi Ban */}
-              {itemPreview && (
-                <div
-                  style={{
-                    background: "var(--surface-zebra)",
-                    border: "1px solid var(--border-soft)",
-                    borderRadius: "8px",
-                    padding: "10px",
-                  }}
-                >
-                  <div
-                    style={{
-                      fontSize: "12px",
-                      fontWeight: 700,
-                      color: "var(--text-primary)",
-                    }}
-                  >
-                    {itemPreview.description}
-                  </div>
-                  <div
-                    style={{
-                      display: "flex",
-                      gap: "10px",
-                      marginTop: "4px",
-                      fontSize: "11px",
-                      color: "var(--text-secondary)",
-                    }}
-                  >
-                    <span>
-                      Pattern: <strong>{itemPreview.pattern || "-"}</strong>
-                    </span>
-                    <span>
-                      Grade: <strong>{itemPreview.grade || "OK"}</strong>
-                    </span>
-                    <span>
-                      Saldo Oracle:{" "}
-                      <strong>
-                        {Number(itemPreview.qty_oracle).toLocaleString("id-ID")}
-                      </strong>
-                    </span>
-                  </div>
-                </div>
-              )}
-
-              <div>
-                <label
-                  style={{
-                    fontSize: "12px",
-                    fontWeight: 600,
-                    display: "block",
-                    marginBottom: "4px",
-                  }}
-                >
-                  Kuantitas Fisik (QtyStk)
-                </label>
-                <input
-                  ref={qtyInputRef}
-                  type="number"
-                  required
-                  min="1"
-                  placeholder="Ketik jumlah fisik pcs"
-                  className="field-input mono"
-                  style={{ width: "100%" }}
-                  value={picForm.qty_stk}
-                  onChange={(e) =>
-                    setPicForm({ ...picForm, qty_stk: e.target.value })
-                  }
-                />
-              </div>
-
-              <button
-                type="submit"
-                disabled={savingPic}
-                className="btn-ctrl primary"
-                style={{
-                  marginTop: "auto",
-                  height: "40px",
-                  justifyContent: "center",
-                }}
-              >
-                {savingPic ? (
-                  <Loader2 size={16} className="spin" />
-                ) : (
-                  <>
-                    <CheckCircle size={16} /> Simpan Hasil Hitung
-                  </>
-                )}
-              </button>
-            </form>
-          )}
-
-          {/* TAB 2: FORM VALIDASI AUDITOR */}
-          {activeTab === "auditor" && (
-            <form
-              onSubmit={handleValidateDoc}
+            <div
               style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "12px",
-                flex: 1,
+                display: "grid",
+                gridTemplateColumns: "110px 1fr",
+                alignItems: "center",
+                gap: "8px",
               }}
             >
-              <div
-                style={{
-                  background: "var(--ok-soft)",
-                  padding: "10px",
-                  borderRadius: "8px",
-                  color: "var(--ok)",
-                  fontSize: "12px",
-                  fontWeight: 600,
-                }}
-              >
-                Auditor: {currentUser?.username || "Auditor Lapangan"}
-              </div>
+              <label style={{ fontSize: "12px", fontWeight: 600 }}>
+                Default Counter
+              </label>
+              <input
+                type="text"
+                placeholder="PIC Counter..."
+                className="field-input"
+                style={{ width: "100%", height: "32px", fontSize: "12px" }}
+                value={setupForm.def_counter}
+                onChange={(e) =>
+                  setSetupForm({ ...setupForm, def_counter: e.target.value })
+                }
+              />
+            </div>
 
-              <div>
-                <label
-                  style={{
-                    fontSize: "12px",
-                    fontWeight: 600,
-                    display: "block",
-                    marginBottom: "4px",
-                  }}
-                >
-                  Scan / Masukkan No. Dokumen (NoDoc)
-                </label>
-                <input
-                  type="text"
-                  required
-                  autoFocus
-                  placeholder="Scan NoDoc kartu fisik"
-                  className="field-input mono"
-                  style={{
-                    width: "100%",
-                    height: "44px",
-                    fontSize: "14px",
-                    textTransform: "uppercase",
-                  }}
-                  value={auditorDoc}
-                  onChange={(e) => setAuditorDoc(e.target.value)}
-                />
-              </div>
-
-              <p
-                style={{
-                  fontSize: "11.5px",
-                  color: "var(--text-secondary)",
-                  lineHeight: "1.4",
-                }}
-              >
-                Setelah NoDoc discan dan fisik diverifikasi, tekan tombol di
-                bawah untuk mengesahkan verifikasi kartu. Data otomatis
-                ter-update di Live TV Progress SO.
-              </p>
-
-              <button
-                type="submit"
-                disabled={validating}
-                className="btn-ctrl solid-green"
-                style={{
-                  marginTop: "auto",
-                  height: "42px",
-                  justifyContent: "center",
-                }}
-              >
-                {validating ? (
-                  <Loader2 size={16} className="spin" />
-                ) : (
-                  <>
-                    <ShieldCheck size={18} /> Sahkan & Verifikasi Kartu
-                  </>
-                )}
-              </button>
-            </form>
-          )}
-
-          {/* TAB 3: SETUP EVENT SO */}
-          {activeTab === "setup" && (
-            <form
-              onSubmit={handleInitEvent}
+            <div
               style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "10px",
-                flex: 1,
+                display: "grid",
+                gridTemplateColumns: "110px 1fr auto",
+                alignItems: "center",
+                gap: "8px",
               }}
             >
-              <div>
-                <label
-                  style={{
-                    fontSize: "12px",
-                    fontWeight: 600,
-                    display: "block",
-                    marginBottom: "4px",
-                  }}
-                >
-                  Nama Event SO (so_name)
-                </label>
-                <input
-                  type="text"
-                  required
-                  className="field-input mono"
-                  style={{ width: "100%" }}
-                  value={setupForm.so_name}
-                  onChange={(e) =>
-                    setSetupForm({ ...setupForm, so_name: e.target.value })
-                  }
-                />
-              </div>
-
-              <div>
-                <label
-                  style={{
-                    fontSize: "12px",
-                    fontWeight: 600,
-                    display: "block",
-                    marginBottom: "4px",
-                  }}
-                >
-                  Default Counter (def_counter)
-                </label>
-                <input
-                  type="text"
-                  className="field-input"
-                  style={{ width: "100%" }}
-                  value={setupForm.def_counter}
-                  onChange={(e) =>
-                    setSetupForm({ ...setupForm, def_counter: e.target.value })
-                  }
-                />
-              </div>
-
-              <div>
-                <label
-                  style={{
-                    fontSize: "12px",
-                    fontWeight: 600,
-                    display: "block",
-                    marginBottom: "4px",
-                  }}
-                >
-                  Tanggal Cut-Off Stock
-                </label>
-                <input
-                  type="date"
-                  required
-                  className="field-input"
-                  style={{ width: "100%" }}
-                  value={setupForm.date_stock}
-                  onChange={(e) =>
-                    setSetupForm({ ...setupForm, date_stock: e.target.value })
-                  }
-                />
-              </div>
-
-              <div
-                style={{
-                  background: "var(--warn-soft)",
-                  padding: "10px",
-                  borderRadius: "8px",
-                  color: "var(--warn)",
-                  fontSize: "11px",
-                  lineHeight: "1.4",
-                }}
-              >
-                Tombol di bawah akan mengaktifkan event SO di{" "}
-                <code>ms_kso</code> sekaligus menarik seluruh saldo buku dari
-                tabel <code>so_all_wh_snapshot_db</code> ke dalam{" "}
-                <code>ms_cntso</code>.
-              </div>
-
+              <label style={{ fontSize: "12px", fontWeight: 600 }}>
+                Date Stock
+              </label>
+              <input
+                type="date"
+                required
+                className="field-input"
+                style={{ width: "100%", height: "32px", fontSize: "12px" }}
+                value={setupForm.date_stock}
+                onChange={(e) =>
+                  setSetupForm({ ...setupForm, date_stock: e.target.value })
+                }
+              />
               <button
                 type="submit"
                 disabled={loadingSetup}
                 className="btn-ctrl primary"
                 style={{
-                  marginTop: "auto",
-                  height: "40px",
+                  height: "32px",
+                  fontSize: "12px",
+                  padding: "0 14px",
+                  minWidth: "75px",
                   justifyContent: "center",
                 }}
               >
                 {loadingSetup ? (
-                  <Loader2 size={16} className="spin" />
+                  <Loader2 size={13} className="spin" />
                 ) : (
                   <>
-                    <RefreshCw size={16} /> Aktifkan & Tarik Saldo Snapshot
+                    <Save size={13} /> Save
                   </>
                 )}
               </button>
-            </form>
-          )}
+            </div>
+          </form>
+
+          {/* PEMBATAS */}
+          <div
+            style={{ borderTop: "1px dashed var(--border)", margin: "14px 0" }}
+          />
+
+          {/* 2. BAGIAN BAWAH: PILIH EVENT & SET AS DEFAULT */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "9px" }}>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr auto",
+                alignItems: "center",
+                gap: "8px",
+              }}
+            >
+              <select
+                className="field-select mono"
+                style={{ width: "100%", height: "34px", fontSize: "12px" }}
+                value={selectedEventName}
+                onChange={handleSelectEvent}
+              >
+                <option value="">
+                  -- Pilih Event SO ({selectedWarehouse}) --
+                </option>
+                {eventList.map((ev) => (
+                  <option key={ev.so_name} value={ev.so_name}>
+                    {ev.so_name} {ev.flag === "Y" ? "★ (Active Default)" : ""}
+                  </option>
+                ))}
+              </select>
+
+              <button
+                type="button"
+                disabled={loadingSetDefault || !selectedEventName}
+                onClick={handleSetDefault}
+                className="btn-ctrl"
+                style={{
+                  height: "34px",
+                  fontSize: "11.5px",
+                  padding: "0 10px",
+                  whiteSpace: "nowrap",
+                  background: "var(--surface-3)",
+                  fontWeight: 600,
+                }}
+              >
+                {loadingSetDefault ? (
+                  <Loader2 size={13} className="spin" />
+                ) : (
+                  <>
+                    <Check size={13} /> Set As Default
+                  </>
+                )}
+              </button>
+            </div>
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "110px 1fr",
+                alignItems: "center",
+                gap: "8px",
+              }}
+            >
+              <label
+                style={{ fontSize: "12px", color: "var(--text-secondary)" }}
+              >
+                Default Counter
+              </label>
+              <input
+                type="text"
+                readOnly
+                disabled
+                className="field-input"
+                style={{
+                  width: "100%",
+                  height: "32px",
+                  fontSize: "12px",
+                  background: "var(--surface-2)",
+                }}
+                value={selectedEventDetail?.def_counter || "-"}
+              />
+            </div>
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "110px 1fr",
+                alignItems: "center",
+                gap: "8px",
+              }}
+            >
+              <label
+                style={{ fontSize: "12px", color: "var(--text-secondary)" }}
+              >
+                Date Stock
+              </label>
+              <input
+                type="text"
+                readOnly
+                disabled
+                className="field-input"
+                style={{
+                  width: "100%",
+                  height: "32px",
+                  fontSize: "12px",
+                  background: "var(--surface-2)",
+                }}
+                value={selectedEventDetail?.date_stock || "-"}
+              />
+            </div>
+          </div>
+
+          {/* STATUS EVENT AKTIF GUDANG INI */}
+          <div
+            style={{
+              marginTop: "auto",
+              paddingTop: "12px",
+            }}
+          >
+            <div
+              style={{
+                background: "var(--ok-soft)",
+                border: "1px solid rgba(23, 128, 63, 0.25)",
+                padding: "8px 10px",
+                borderRadius: "8px",
+                fontSize: "11px",
+                color: "var(--ok)",
+              }}
+            >
+              Event Aktif Default Gudang <strong>{selectedWarehouse}</strong>:{" "}
+              <br />
+              <strong className="mono" style={{ fontSize: "12px" }}>
+                {activeSoEvent
+                  ? activeSoEvent.so_name
+                  : "Belum ada event aktif"}
+              </strong>
+            </div>
+          </div>
         </div>
 
-        {/* PANEL KANAN: TABEL LOG SCAN REALTIME */}
+        {/* PANEL KANAN: MONITORING LOG SCAN DESKTOP SESUAI GUDANG */}
         <div
           className="surface-card"
           style={{
@@ -732,15 +591,18 @@ export default function InputKsoPage() {
             }}
           >
             <span style={{ fontSize: "13px", fontWeight: 700 }}>
-              Log Scan Transaksi Fisik Terkini (cntso)
+              Log Transaksi Fisik Terkini (cntso) - Gudang{" "}
+              <span className="mono" style={{ color: "var(--accent)" }}>
+                {selectedWarehouse}
+              </span>
             </span>
             <button
               type="button"
               className="btn-ctrl"
               style={{ height: "26px", fontSize: "11px", padding: "0 10px" }}
-              onClick={loadActiveEventAndScans}
+              onClick={() => loadInitialData(selectedWarehouse)}
             >
-              <RefreshCw size={12} /> Refresh
+              <RefreshCw size={12} /> Refresh Data
             </button>
           </div>
 
@@ -766,7 +628,8 @@ export default function InputKsoPage() {
                 {recentScans.length === 0 ? (
                   <tr>
                     <td colSpan={8} className="table-empty">
-                      Belum ada rekaman scan fisik untuk event ini.
+                      Belum ada rekaman scan fisik untuk event di gudang{" "}
+                      {selectedWarehouse}.
                     </td>
                   </tr>
                 ) : (
